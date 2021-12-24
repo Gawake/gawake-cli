@@ -26,6 +26,8 @@ import os
 import sys
 # importing dependency to handle with Ctrl + C (finish the script)
 import signal
+# importing dependency to get Linux user
+import getpass
 
 # class that makes possible colored prints
 class bcolors:
@@ -43,20 +45,26 @@ ISSUES = 'https://github.com/KelvinNovais/Gawake/issues'
 
 def VerifyDB():
     cursor = 0
-    # verifying is the database file already exists
-    dbValidation = os.path.isfile('database.db') # true or false
+    # get the linux user and generate the path to the database file
+    user = getpass.getuser()
+    path = f"/home/{user}/.gawake/database.db"
+    # verifying if the database file already exists
+    dbValidation = os.path.isfile(path) # true or false
     print('[Gawake] ···> Database exists? ', dbValidation)
 
     # if database doesn't exist, create it
     if (not dbValidation):
-        # creating connection to the batabase
-        connection = sqlite3.connect('database.db')
-        print ('[Gawake] ···> Seting up database...')
-
-        # creating a cursor
-        cursor = connection.cursor()
-
+        # case the directory doesn't exists, generate it
+        dirValidation = os.path.isdir(f"/home/{user}/.gawake/")
+        if(not dirValidation):
+            os.system(f"mkdir /home/{user}/.gawake/")
         try:
+            # creating connection to the batabase
+            connection = sqlite3.connect(path)
+            print ('[Gawake] ···> Seting up database...')
+            # creating a cursor
+            cursor = connection.cursor()
+
             # create tables
             cursor.execute("""
                 CREATE TABLE rules (
@@ -120,7 +128,7 @@ def VerifyDB():
     else:
         try:
             # creating connection to the batabase
-            connection = sqlite3.connect('database.db')
+            connection = sqlite3.connect(path)
             print ('[Gawake] ···> Database connected!')
 
             # creating a cursor

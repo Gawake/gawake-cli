@@ -22,16 +22,38 @@ Here how it seems:
 <div align="center"> <img src="https://user-images.githubusercontent.com/83086622/147366356-67cdf6a7-a9fd-4c38-922d-d5cb051afa44.png" /> </div>
 <div align="center"> <img src="https://user-images.githubusercontent.com/83086622/147366359-3f756736-2aa9-4c5b-b87f-7a59f485d2c9.png" /> </div>
 
+### Install
+To install, follow these steps:
+```bash
+  # Clone this repository
+  git clone https://github.com/KelvinNovais/Gawake.git
+
+  # Move gawake script to /bin
+  sudo mv Gawake/CLI/gawake-cli.py /bin/gawake-cli
+
+  # Edit the crontab
+  sudo nano /etc/crontab
+
+  # Add these lines to the end of the crontab:
+  # GAWAKE
+  0 *   * * *	root	/bin/gawake-cli -c
+  15 *	* * *	root	/bin/gawake-cli -c
+  30 *	* * *	root	/bin/gawake-cli -c
+  45 *	* * *	root	/bin/gawake-cli -c
+```
+Important! You must have Pyhton in version 3 or later.
+
+### Usage
+
 Terminal commands:
 ```bash
   # To access all functions, run:
   $ gawake-cli
   
   # To directly schedule wake up, run:
-  $ gawake-schedule
+  $ gawake -s
 ```
 
 ### Comming features
-+ Run a command after your PC turning on (like opening the browser);
++ Run a command after your PC turning on (like opening the browser - for GUI, only);
 + Graphical user interface;
-+ Make the database available for all users.

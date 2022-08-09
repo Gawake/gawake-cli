@@ -436,7 +436,7 @@ def AddOnRule(cursor, connection):
     # receiving mode
     repeat = True
     while(repeat):
-        print(f"{bcolors.OKCYAN}Insert a mode: {bcolors.ENDC}")
+        print(f"{bcolors.OKCYAN}Select the mode that your PC/server should be BEFORE the time you set previously: {bcolors.ENDC}")
         for m in MODES:
             print('\t', m)
         mode = input(f"{bcolors.OKCYAN}···> {bcolors.ENDC}")

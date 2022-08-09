@@ -51,7 +51,12 @@ Terminal commands:
   $ gawake-cli
   
   # To directly schedule wake up, run:
-  $ gawake -s
+  $ gawake-cli -s
+  
+  
+  # Documentation only: #
+  $ gawake-cli -c
+  # The previous command is used on crontab to check if there is a valid turn off rule at that time. If you want to schedule a wake up, use 'gawake-cli -s' instead.
 ```
 
 ### Comming features

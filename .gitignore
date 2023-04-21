@@ -1,2 +1,9 @@
 database.db
+test.db
+gawake.db
+
 __pycache__/
+
+run.sh
+*.o
+gawake-cli

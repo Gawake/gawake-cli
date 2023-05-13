@@ -5,52 +5,75 @@
 #include <unistd.h>		// Check file existence
 #include <stdlib.h>		// Run system commands
 
+#include <sys/types.h>	// mkdir()
+#include <sys/stat.h>	// mkdir()
+#include <fcntl.h>		// open()
+#include <errno.h>
+
 // Defining colors for a better output
 #define ANSI_COLOR_RED     "\033[91m"
 #define ANSI_COLOR_GREEN   "\033[92m"
 #define ANSI_COLOR_YELLOW  "\033[93m"
-// TODO remove if not used
-//#define ANSI_COLOR_BLUE    "\x1b[34m"
-//#define ANSI_COLOR_MAGENTA "\x1b[35m"
-//#define ANSI_COLOR_CYAN    "\x1b[36m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
 // Default directory and path to the database:
-#define DIR		"/tmp/test/"
-#define PATH	"/tmp/test/gawake.db"
-/**
+#define DIR		"/var/gawake/"
+#define PATH	DIR "gawake.db"
+/*
  * IF YOU ARE GOING TO CHANGE THE DEFAULT VALUES, BE AWARE OF:
- * (1) THE DIR SHOULD NOT BE A SYSTEM DIRECTORY, INSTEAD OF /var/, USE A SUBFOLDER, LIKE /var/gawake
- * (2) FOR THE PATH, YOU MUST JUST ADD THE DATABASE NAME TO THE PREVIOUS 'DIR' VALUE, OTHERWISE YOU'LL GET ERRORS
- **/
+ * (1) THE DIR SHOULD NOT BE A SYSTEM DIRECTORY (E.G. INSTEAD OF /var/, USE A SUBFOLDER, LIKE /var/gawake)
+ * (2) FOR THE PATH, YOU MUST JUST APPEND THE DATABASE NAME TO THE PREVIOUS 'DIR' VALUE, OTHERWISE YOU'LL GET ERRORS
+ */
 
 // Gawake version
 #define VERSION	"3.0"
 
 // DECLARATIONS
-int database(void);
+void database(sqlite3 **db);
 void info(void);
 void issue(void);
-void clrbff(void);
+void exit_on_error(void);
+void clear_buffer(void);
 void user_input(int turnoff);
 void invalid_val(void);
 void get_int(int *ptr, int digits, int min, int max, int repeat);
 
-int main() {
-	char choice = 0;
+int callback(void *NotUsed, int argc, char **argv, char **azColName) {
+    NotUsed = 0;
+
+    for (int i = 0; i < argc; i++) {
+        printf("%s\n", argv[i]);
+    }
+    return 0;
+}
+
+int main(int argc, char **argv) {
+	////////////////// Test zone///////////////////////////
+
+	///////////////////////////////////////////////////////
+	const char *PRINT_TURNON =	"SELECT FORMAT(\"│ %-03i │ %-16.16s│  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│ %-40.40s│\", "\
+								"id, rule_name, sun, mon, tue, wed, thu, fri, sat, command) FROM rules_turnon;";
+	const char *PRINT_TURNOFF =	"SELECT FORMAT(\"│ %-03i │ %-16.16s│  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│ %-30.30s│ %-8s│\", "\
+								"id, rule_name, sun, mon, tue, wed, thu, fri, sat, command, mode) FROM rules_turnoff;";
+	char *err_msg = 0;
+	int rc;
+	sqlite3 *db;
+	char choice;
+	const char *MENU =	"[a]\tAdd rule\n"\
+				"[e]\tEdit/remove rule\n"\
+				"[p]\tPrint rules table\n"\
+				"[s]\tSchedule wake up\n\n"\
+				"[r]\tReset database\n"\
+				"[c]\tConfigure Gawake\n"\
+				"[i]\tGawake information\n"\
+				"[?]\tPrint menu\n"\
+				"[q]\tQuit\n\n";
 	int lock = 1;
+
 	printf("Starting Gawake...\n");
-	database();
+	database(&db);
 	printf("···> Choose an option:\n");
-	printf(	"a\tAdd rule\n"\
-			"e\tEdit/remove rule\n"\
-			"p\tPrint rules table\n"\
-			"s\tSchedule wake up\n\n"\
-			"r\tReset database\n"\
-			"c\tConfigure Gawake\n"\
-			"i\tGawake information\n"\
-			"q\tQuit\n\n"
-			);
+	printf("%s", MENU);
 
 	// This do...while loop is a menu: receives the user's choice and stops when the 'q' is entered
 	do{
@@ -66,7 +89,7 @@ int main() {
 		// IF the input is not "empty" ('\n') AND the subsequent character entered is not a newline
 		if( choice != '\n' && getchar() != '\n' ) {
 			// flush buffered line and invalidate the input
-			clrbff();
+			clear_buffer();
 			choice = 0 ;
 		} else {
 			// continue
@@ -81,7 +104,17 @@ int main() {
 			printf("\n>>>> e\n");
 			break;
 		case 'p':
-			printf("\n>>>> p\n");
+			printf(ANSI_COLOR_GREEN "[TURN ON RULES]\n"\
+					        "┌─────┬─────────────────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────────────────────────────────────────┐"\
+					        "\n│ %-4s│ %-16s│ Sun │ Mon │ Tue │ Wed │ Thu │ Fri │ Sat │ %-40s│\n" ANSI_COLOR_RESET, "ID", "Name", "Command");
+			rc = sqlite3_exec(db, PRINT_TURNON, callback, 0, &err_msg);
+			printf("└─────┴─────────────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────────────────────────────────────────┘\n");
+
+			printf(ANSI_COLOR_YELLOW "[TURN ON RULES]\n"\
+					          "┌─────┬─────────────────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬───────────────────────────────┬─────────┐"\
+					          "\n│ %-4s│ %-16s│ Sun │ Mon │ Tue │ Wed │ Thu │ Fri │ Sat │ %-30s│ %-8s│\n" ANSI_COLOR_RESET, "ID", "Name", "Command", "Mode");
+			rc = sqlite3_exec(db, PRINT_TURNOFF, callback, 0, &err_msg);
+			printf("└─────┴─────────────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴───────────────────────────────┴─────────┘\n");
 			break;
 		case 's':
 			printf("\n>>>> s\n");
@@ -91,12 +124,17 @@ int main() {
 			break;
 		case 'c':
 			printf("\n>>>> c\n");
+			// TODO print database time
 			break;
 		case 'i':
 			info();
 			break;
+		case '?':
+			printf("%s", MENU);
+			break;
 		case 'q':
 			printf("Exiting...\n");
+			sqlite3_close(db);
 			lock = 0;
 			break;
 		default:
@@ -109,14 +147,16 @@ int main() {
 
 // DEFINITIONS
 // Connection to the database
-int database(void) {
+
+
+void database(sqlite3 **db) {
+	// **ptr	*ptr	sqlite_obj
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// TODO
 	// local user: turnon_commands: db restricted to that user, no sudo required (/home/{USER}/.gawake-cli/turnon_commands) >>>> init system, call generic script, read user db, process commands
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	sqlite3 *db;		// pointer to the database "object"
    	int rc;				// status of the connection attempt
-   	const char *sql =	"CREATE TABLE IF NOT EXISTS rules_turnon ("\
+   	const char *SQL =	"CREATE TABLE rules_turnon ("\
 							"id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"\
 							"rule_name   TEXT NOT NULL,"\
 							"time        TEXT NOT NULL,"\
@@ -149,58 +189,67 @@ int database(void) {
 							"db_time     TEXT,"\
 							"status      INTEGER NOT NULL,"\
 							"version     TEXT,"\
-							"desktop     INTEGER NOT NULL"\
+							"commands   INTEGER NOT NULL,"\
+							"boot_time   INTEGER NOT NULL"\
 						");"\
 						"INSERT INTO rules_turnon (rule_name, time, sun, mon, tue, wed, thu, fri, sat, command)"\
-						"VALUES ('Example', '100000', 0, 0, 0, 0, 0, 0, 0, 'echo \"An exemple...\"');"\
+						"VALUES ('Example', '100000', 0, 0, 0, 0, 0, 0, 0, 'apt update ; apt upgrade -y ; apt autoremove -y');"\
 						"INSERT INTO rules_turnoff (rule_name, time, sun, mon, tue, wed, thu, fri, sat, mode)"\
 						"VALUES ('Example', '1030', 0, 0, 0, 0, 0, 0, 0, 'mem');"\
-						"INSERT INTO config (options, db_time, status, version, desktop) VALUES ('-a', 'localtime', 1, '" VERSION "', 0);";
+						"INSERT INTO config (options, db_time, status, version, commands, boot_time) VALUES ('-a', 'localtime', 1, '" VERSION "', 0, 180);";
 
-   	// If the database doesn't exist, create and configure it; else, just open it
+   	printf("Opening database...\n");
+   	// If the database doesn't exist, create and configure it
    	if (access(PATH, F_OK) != 0) {
    		char *err_msg = 0;
 
-   		// Database doesn't exist, creating it...
    		printf("Database not found, creating it...\n");
-
+   		// Check it the directory exists
    		printf("[1/5] Creating directory.\n");
-   		const char *path_cmd = "sudo mkdir -p " DIR;
-   		system(path_cmd);
+   		struct stat dir;
+   		if (stat(DIR, &dir) == -1) {
+   			// Directory doesn't exist, creating it
+   		    if (mkdir(DIR, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP) == -1) {
+   		    	exit_on_error();
+   		    }
+   		}
 
    		printf("[2/5] Creating empty file for the database.\n");
-   		const char *touch_cmd = "sudo touch " PATH;
-   		system(touch_cmd);
+   		// Create the file
+   		int fd = open(PATH, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+		if (fd < 0) {
+			exit_on_error();
+		}
+		close(fd);
+//   		const char *TOUCH_CMD = "sudo touch " PATH;
+//   		system(TOUCH_CMD);
 
    		printf("[3/5] Setting directory and file permissions.\n");
-   		const char *chmod_cmd = "sudo chmod -R 770 " DIR " " PATH;			// Permissions to read, write and execute for owner and group
-   		const char *group_cmd = "sudo groupadd gawake";						// Create a group called gawake
-   		const char *chgrp_cmd = "sudo chgrp gawake " DIR " " PATH;			// Change directory and database to gawake group
-   		const char *addusr_cmd = "sudo usermod -aG gawake $USER";			// Add the current user to the group
-		system(chmod_cmd);
-		system(group_cmd);
-		system(chgrp_cmd);
-		system(addusr_cmd);
+   		if (chown(DIR, 0, 0) == -1 || chown(PATH, 0, 0)) {
+   			exit_on_error();
+   		}
+   		if (chmod(DIR, 0660) == -1 || chmod(PATH, 0660)) {
+			exit_on_error();
+		}
 
 		printf("[4/5] Creating database.\n");
-		const char *rmdb_cmd = "sudo rm " PATH;								// If fails, will be called above
 		// Try to open it
-   		rc = sqlite3_open(PATH, &db);
+   		rc = sqlite3_open(PATH, db);
 		if(rc  != SQLITE_OK) {
-			system(rmdb_cmd);
-			fprintf(stderr, ANSI_COLOR_RED "Can't open database: %s\n" ANSI_COLOR_RESET, sqlite3_errmsg(db));
+			remove(PATH);
+			fprintf(stderr, ANSI_COLOR_RED "Can't open database: %s\n" ANSI_COLOR_RESET, sqlite3_errmsg(&(**db)));
 			issue();
 			exit (1);
 		}
 
 		printf("[5/5] Configuring database.\n");
-		rc = sqlite3_exec(db, sql, NULL, 0, &err_msg);
+		rc = sqlite3_exec(&(**db), SQL, NULL, 0, &err_msg);
 		if (rc != SQLITE_OK ) {
 			fprintf(stderr, ANSI_COLOR_RED "SQL error: %s\n" ANSI_COLOR_RESET, err_msg);
 			issue();
 			sqlite3_free(err_msg);
-			sqlite3_close(db);
-			system(rmdb_cmd);
+			sqlite3_close(&(**db));
+			remove(PATH);
 			exit (1);
 		}
 
@@ -208,18 +257,15 @@ int database(void) {
 
    	} else {
    		// The database is created: just open it
-   		rc = sqlite3_open(PATH, &db);
+   		rc = sqlite3_open(PATH, db);
    		if(rc  != SQLITE_OK) {
-				fprintf(stderr, ANSI_COLOR_RED "Can't open database: %s.\n" ANSI_COLOR_RESET, sqlite3_errmsg(db));
+				fprintf(stderr, ANSI_COLOR_RED "Can't open database: %s.\n" ANSI_COLOR_RESET, sqlite3_errmsg(&(**db)));
 				issue();
 				exit (1);
 		} else {
-				printf("Opened database successfully\n");
+				printf("Opened database successfully.\n");
 		}
    	}
-
-   	sqlite3_close(db);
-   	return 0;
 }
 
 // Prints information about Gawake
@@ -229,49 +275,50 @@ void info(void) {
 	printf("\n[INFORMATION]\n");
 	printf("Gawake version: %s\n", VERSION);
 	printf("SQLite version: %s\n", sqlite3_libversion());
-	printf("Report issues: https://github.com/KelvinNovais/Gawake/issues\n\n");
-	
+	printf("Report issues: <https://github.com/KelvinNovais/Gawake/issues>\n\n");
+
 	printf("Gawake Copyright (C) 2021 - 2023 Kelvin Novais\nThis program comes with ABSOLUTELY NO WARRANTY; for details type \"show w\".\nThis is free software, and you are welcome to redistribute it under certain conditions; type \"show c\" for details.\n\n");
 	printf("(show w/show c/enter to skip) ···> ");
 	fgets(choice, 7, stdin);
 
 	// Checks if the previous string contains a '\n' character at the end; if not, the character is on the buffer and must be cleaned
-	if(strchr(choice, '\n') == NULL) { clrbff(); }
+	if(strchr(choice, '\n') == NULL) { clear_buffer(); }
 
 	if(strcmp(choice, "show w") == 0) {
 		printf("THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM \"AS IS\" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU.SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.\n\n");
 	} else if (strcmp(choice, "show c") == 0){
 		printf("Please, see the whole GNU General Public License version 3 on the file \"LICENSE\" together the original script. You also can find the lisense at <https://www.gnu.org/licenses/>\n\n");
-	}	
+	}
 }
 
 // Prints the issue URL and related instructions
 void issue(void) {
-	printf(ANSI_COLOR_RED "If it continues, consider reporting the bug (https://github.com/KelvinNovais/Gawake/issues)\n" ANSI_COLOR_RESET);
+	printf(ANSI_COLOR_RED "If it continues, consider reporting the bug <https://github.com/KelvinNovais/Gawake/issues>\n" ANSI_COLOR_RESET);
+}
+
+void exit_on_error(void) {
+	fprintf(stderr, ANSI_COLOR_RED "ERROR: %s\n" ANSI_COLOR_RESET, strerror(errno));
+	issue();
+	if (errno == EACCES) { printf(ANSI_COLOR_YELLOW "Do you have root privileges?\n" ANSI_COLOR_RESET); }
+	exit(EXIT_FAILURE);
 }
 
 // Clears the input buffer
-void clrbff(void) {
+void clear_buffer(void) {
 	int c;
 	while ((c = getchar()) != '\n' && c != EOF) { }
 }
 
 void user_input(int turnoff) {
-	/**
-	 * rule name
-	 * time (obs)
-	 * days
-	 * command
-	 * mode (obs)
-	 **/
-	char rule_name[32];
+	// TODO get sudo condition
+	char rule_name[33];
 	int time[3];
 	const char *DAYS_NAMES[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 	int days[7];
 	const char *MODES[] = {"off", "disk", "mem", "standby", "freeze", "no", "on", "disable"};
 	int mode = 0;
 	char command[128];
-	int not_valid = 1; // This variable is a lock for invalid inputs
+	int invalid = 1; // This variable is a lock for invalid inputs
 
 
 	// RULE NAME
@@ -279,21 +326,30 @@ void user_input(int turnoff) {
 	printf("\n");
 	 do {
 		printf("Enter the rule name (can't be null) ···> ");
-		fgets(rule_name, 32, stdin);
+		fgets(rule_name, 33, stdin);
 		// Checks if the previous string contains a '\n' character at the end; if not, the character is on the buffer and must be cleaned
-		if(strchr(rule_name, '\n') == NULL) { clrbff(); }
+		if(strchr(rule_name, '\n') == NULL) { clear_buffer(); }
 	} while (rule_name[0] == '\n') ;
 
-	// TODO TIME
+	// TIME
 	printf("\nEnter the time rule will be applied:\n");
-	const char *MSG[] = {"[Hour] (from 0 to 23) ", "[Minute] (from 0 to 59) ", "[Seconds] (from 0 to 59) "};
-	const char *TURNOFF_MSG = "[Minute] (00, 15, 30 or 45) ";
+	const char *MSG[] = {"[Hour] (from 00 to 23) ", "[Minutes] (from 00 to 59) ", "[Seconds] (from 00 to 59) "};
+	const char *TURNOFF_MSG = "[Minutes] (00, 15, 30 or 45) ";
 	printf("%*s", -30, MSG[0]);
 	get_int(&time[0], 3, 0, 23, 1);
 
+	// If it's a turn off rule, get the minutes as 0 or 15 or 30 or 45, only; don't get the seconds
 	if(turnoff) {
-		// TODO
 		printf("%*s", -30, TURNOFF_MSG);
+		invalid = 1;
+		do{
+			get_int(&time[1], 3, 0, 45, 1);
+			if (time[1] == 0 || time[1] == 15 || time[1] == 30 || time[1] == 45) {
+				invalid = 0;
+			} else {
+				invalid_val();
+			}
+		} while(invalid);
 	} else {
 		printf("%*s", -30, MSG[1]);
 		get_int(&time[1], 3, 0, 59, 1);
@@ -314,7 +370,7 @@ void user_input(int turnoff) {
 	printf("\nEnter a command (optional, enter to skip) ···> ");
 	fgets(command, 128, stdin);
 	// Checks if the previous string contains a '\n' character at the end; if not, the character is on the buffer and must be cleaned
-	if(strchr(command, '\n') == NULL) { clrbff(); }
+	if(strchr(command, '\n') == NULL) { clear_buffer(); }
 
 
 	// MODE
@@ -350,7 +406,6 @@ void get_int(int *ptr, int digits, int min, int max, int repeat) {
 		if ((fgets(user_input, sizeof(user_input), stdin)) && (sscanf(user_input, "%d", &val) == 1)) {
 			// ...check if the value is in the range and finishes the loop
 			if (val >= min && val <= max) {
-				printf("min: %d, max: %d\n", min, max);
 				invalid = 0;
 			}
 		}
@@ -358,7 +413,7 @@ void get_int(int *ptr, int digits, int min, int max, int repeat) {
 		// BUT, IF the user's input is longer than expected, invalidate the value
 		if(strchr(user_input, '\n') == NULL) {
 			if (getchar() != '\n') {
-				clrbff();
+				clear_buffer();
 				invalid = 1;
 			}
 		}
@@ -366,7 +421,6 @@ void get_int(int *ptr, int digits, int min, int max, int repeat) {
 		if (invalid && repeat) { invalid_val(); } // Print the invalid message only in case the repeat is required (and the input was invalid)
 	} while (invalid && repeat); // Only repeat if the function was called with "repeat = 1"
 	*ptr = val;
-	printf("get_int: %d\n", val);
 }
 
 // REFERENCES:

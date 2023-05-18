@@ -4,11 +4,13 @@
 #include <ctype.h>		// Character conversion
 #include <unistd.h>		// Check file existence
 #include <stdlib.h>		// Run system commands
-#include <sys/types.h>	// mkdir()
-#include <sys/stat.h>	// mkdir()
 #include <fcntl.h>		// open()
 #include <errno.h>		// Errors handling
 #include <pwd.h>		// Get user ID
+
+#include <sys/types.h>	// mkdir()
+#include <sys/stat.h>	// mkdir()
+#include <sys/wait.h>	// Child process
 
 // Defining colors for a better output
 #define ANSI_COLOR_RED     "\033[91m"
@@ -24,6 +26,8 @@
  * (1) THE DIR SHOULD NOT BE A SYSTEM DIRECTORY (E.G. INSTEAD OF /var/, USE A SUBFOLDER, LIKE /var/gawake)
  * (2) FOR THE PATH, YOU MUST JUST APPEND THE DATABASE NAME TO THE PREVIOUS 'DIR' VALUE, OTHERWISE YOU'LL GET ERRORS
  */
+
+#define DB_CHECKER "./db_checker"
 
 // Gawake version
 #define VERSION	"3.0"
@@ -56,58 +60,29 @@ int print_config(void *NotUsed, int argc, char **argv, char **azColName);
 void sqlite_exec_err(int rc, char **err_msg);
 int config(sqlite3 **db);
 int modify_rule(sqlite3 **db);
-
-#define HELPER_PROGRAM "./db_helper"
-#include <sys/wait.h>
-void private_db(sqlite3 **db){
-    int rc;
-    int fd;
-
-    pid_t pid = fork();
-    if (pid == 0) {
-        // Child process
-        execl(HELPER_PROGRAM, HELPER_PROGRAM, NULL);
-        perror("execl");
-        exit(1);
-    } else if (pid > 0) {
-        // Parent process
-        wait(NULL);
-    } else {
-        perror("fork");
-        exit(1);
-    }
-
-    // Read the file descriptor from the helper program (number 3)
-    fd = 3;
-
-    // Open the SQLite database using the received file descriptor
-    rc = sqlite3_open_v2(PATH, db, SQLITE_OPEN_READWRITE, NULL);
-    if (rc != SQLITE_OK) {
-        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(*db));
-        exit(1);
-    } else {
-        printf("Database successfully opened\n");
-    }
-}
+int confirm(void);
 
 int main(int argc, char **argv) {
 	////////////////// Test zone///////////////////////////
 
 	///////////////////////////////////////////////////////
 	/* TODO
-	 * Get gawake UID and EUID - DONE
-	 * Call db_helper
+	 * Schedule function
+	 * Schedule cron helper
+	 * Arguments
+	 * Turn on command
 	 */
-	//////////////////////////
+
+	// Getting UIDs
 	euid = geteuid();
 	get_gawake_uid();
-	//////////////////////////
 
-	// Database related variables
+	// Database variables
 	sqlite3 *db;
 
 	// Menu variables
-	int choice, lock = 1;
+	int lock = 1;
+	char choice;
 	const char *MENU =	"[a]\tAdd/remove/edit rules\n"\
 						"[s]\tSchedule wake up\n\n"\
 						"[c]\tConfigure Gawake\n"\
@@ -118,8 +93,7 @@ int main(int argc, char **argv) {
 
 	printf("Starting Gawake...\n");
 	database(&db);
-//	private_db(&db);
-	drop_priv(); // TODO
+	drop_priv();
 	printf("···> Choose an option:\n");
 	printf("%s", MENU);
 
@@ -152,7 +126,14 @@ int main(int argc, char **argv) {
 			printf("\n>>>> s\n"); // TODO
 			break;
 		case 'r':
-			printf("\n>>>> r\n"); // TODO
+			printf(ANSI_COLOR_YELLOW "WARNING: Reset database? All rules will be lost!\n" ANSI_COLOR_RESET);
+			if (confirm()) {
+				sqlite3_close(db);
+				raise_priv();
+				remove(PATH);
+				database(&db);
+				drop_priv();
+			}
 			break;
 		case 'c':
 			config(&db);
@@ -182,112 +163,30 @@ int main(int argc, char **argv) {
 // DEFINITIONS
 // Connection to the database
 void database(sqlite3 **db) {
-   	int rc;				// status of the connection attempt
-   	const char *SQL =	"CREATE TABLE rules_turnon ("\
-							"id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"\
-							"rule_name   TEXT NOT NULL,"\
-							"time        TEXT NOT NULL,"\
-							"sun         INTEGER NOT NULL,"\
-							"mon         INTEGER NOT NULL,"\
-							"tue         INTEGER NOT NULL,"\
-							"wed         INTEGER NOT NULL,"\
-							"thu         INTEGER NOT NULL,"\
-							"fri         INTEGER NOT NULL,"\
-							"sat         INTEGER NOT NULL,"\
-							"command     TEXT"\
-						");"\
-						"CREATE TABLE rules_turnoff ("\
-							"id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"\
-							"rule_name   TEXT NOT NULL,"\
-							"time        TEXT NOT NULL,"\
-							"sun         INTEGER NOT NULL,"\
-							"mon         INTEGER NOT NULL,"\
-							"tue         INTEGER NOT NULL,"\
-							"wed         INTEGER NOT NULL,"\
-							"thu         INTEGER NOT NULL,"\
-							"fri         INTEGER NOT NULL,"\
-							"sat         INTEGER NOT NULL,"\
-							"command     TEXT,"\
-							"mode        TEXT NOT NULL"\
-						");"\
-						"CREATE TABLE config ("\
-							"id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"\
-							"options     TEXT,"\
-							"db_time     TEXT,"\
-							"status      INTEGER NOT NULL,"\
-							"version     TEXT,"\
-							"commands   INTEGER NOT NULL,"\
-							"boot_time   INTEGER NOT NULL"\
-						");"\
-						"INSERT INTO rules_turnon (rule_name, time, sun, mon, tue, wed, thu, fri, sat, command)"\
-						"VALUES ('Example', '100000', 0, 0, 0, 0, 0, 0, 0, 'apt update ; apt upgrade -y ; apt autoremove -y');"\
-						"INSERT INTO rules_turnoff (rule_name, time, sun, mon, tue, wed, thu, fri, sat, mode)"\
-						"VALUES ('Example', '1030', 0, 0, 0, 0, 0, 0, 0, 'mem');"\
-						"INSERT INTO config (options, db_time, status, version, commands, boot_time) VALUES ('-a', 'localtime', 1, '" VERSION "', 0, 180);";
+	// Call the database checker
+	int rc;
+	pid_t pid = fork();
+	if (pid == 0) {
+		// Child process
+		execl(DB_CHECKER, DB_CHECKER, NULL);
+		fprintf(stderr, ANSI_COLOR_RED "ERROR (execl): %s\n" ANSI_COLOR_RESET, strerror(errno));
+		exit(EXIT_FAILURE);
+	} else if (pid > 0) {
+		// Parent process
+		wait(NULL);
+	} else {
+		fprintf(stderr, ANSI_COLOR_RED "ERROR (fork): %s\n" ANSI_COLOR_RESET, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
 
-   	printf("Opening database...\n");
-   	// If the database doesn't exist, create and configure it
-   	if (access(PATH, F_OK) != 0) {
-   		char *err_msg = 0;
-
-   		printf("Database not found, creating it...\n");
-   		// Check it the directory exists
-   		printf("[1/5] Creating directory.\n");
-   		struct stat dir;
-   		if (stat(DIR, &dir) == -1) {
-   			// Directory doesn't exist, creating it
-   		    if (mkdir(DIR, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP) == -1)
-   		    	exit_on_error();
-   		}
-
-   		printf("[2/5] Creating empty file for the database.\n");
-   		int fd = open(PATH, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
-		if (fd < 0)
-			exit_on_error();
-		close(fd);
-
-   		printf("[3/5] Setting directory and file permissions.\n");
-   		if (chown(DIR, 0, 0) == -1
-   			|| chown(PATH, 0, 0) == -1
-			|| chmod(DIR, 0660) == -1
-			|| chmod(PATH, 0660) == -1
-			)
-   			exit_on_error();
-
-
-		printf("[4/5] Creating database.\n");
-		// Try to open it
-		rc = sqlite3_open_v2(PATH, db, SQLITE_OPEN_READWRITE, NULL);
-		if (rc  != SQLITE_OK) {
-			remove(PATH);
-			fprintf(stderr, ANSI_COLOR_RED "Can't open database: %s\n" ANSI_COLOR_RESET, sqlite3_errmsg(&(**db)));
-			issue();
-			exit(EXIT_FAILURE);
-		}
-
-		printf("[5/5] Configuring database.\n");
-		rc = sqlite3_exec(&(**db), SQL, NULL, 0, &err_msg);
-		if (rc != SQLITE_OK ) {
-			fprintf(stderr, ANSI_COLOR_RED "SQL error: %s\n" ANSI_COLOR_RESET, err_msg);
-			issue();
-			sqlite3_free(err_msg);
-			sqlite3_close(&(**db));
-			remove(PATH);
-			exit(EXIT_FAILURE);
-		}
-
-		printf(ANSI_COLOR_GREEN "Database created successfully!\n" ANSI_COLOR_RESET);
-
-   	} else {
-   		// The database is created: just open it
-   		rc = sqlite3_open_v2(PATH, db, SQLITE_OPEN_READWRITE, NULL);
-   		if (rc  != SQLITE_OK) {
-			fprintf(stderr, ANSI_COLOR_RED "Can't open database: %s.\n" ANSI_COLOR_RESET, sqlite3_errmsg(&(**db)));
-			issue();
-			exit(EXIT_FAILURE);
-		} else
-			printf("Opened database successfully.\n");
-   	}
+	// Open the SQLite database
+	rc = sqlite3_open_v2(PATH, db, SQLITE_OPEN_READWRITE, NULL);
+	if (rc != SQLITE_OK) {
+		fprintf(stderr, ANSI_COLOR_RED "Can't open database: %s\n" ANSI_COLOR_RESET, sqlite3_errmsg(*db));
+		exit(EXIT_FAILURE);
+	} else {
+		printf(ANSI_COLOR_GREEN "Database opened successfully!\n" ANSI_COLOR_RESET);
+	}
 }
 
 // Prints information about Gawake
@@ -475,9 +374,9 @@ void raise_priv(void) {
 
 // Print Turn on and turn off tables
 int print_table(void *NotUsed, int argc, char **argv, char **azColName) {
-    NotUsed = 0;
+	NotUsed = 0;
 	printf("%s\n", argv[0]);
-    return EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }
 
 // Print config table
@@ -508,7 +407,7 @@ void sqlite_exec_err(int rc, char **err_msg) {
 int config(sqlite3 **db) {
 	int rc, option, number, alloc = 128;
 
-	char *sql, *string;	// to receive a string from the user input
+	char *sql = 0, *string = 0;	// to receive a string from the user input
 	string = (char *) calloc(1, 98);
 	sql = (char *) calloc(1, alloc);
 	// Exit if memory allocation fails
@@ -539,39 +438,37 @@ int config(sqlite3 **db) {
 				snprintf(sql, alloc, "UPDATE config SET status = %d", number);
 				break;
 			case 2: // COMMANDS
-				// TODO confirmation
-				snprintf(sql, alloc, "UPDATE config SET commands = %d", number);
-				strcat(sql, string);
+				// Print warning and ask confirmation only if commands are going to be enabled
+				if (number == 1)
+					printf(ANSI_COLOR_YELLOW "WARNING: All commands are executed as root. Keep in mind:\n"\
+						"It's your responsibility which commands you'll run;\nAny verification is done;\nSet the right permissions if you're going to run a script.\n" ANSI_COLOR_RESET);
+
+				if (number == 0 || confirm()) {
+					snprintf(sql, alloc, "UPDATE config SET commands = %d", number);
+					strcat(sql, string);
+				} else {
+					return EXIT_SUCCESS;
+				}
 				break;
 			case 3: // RTCWAKE OPTIONS
 				// Print warnings, get confirmation; if it's yes, receive the user input (string) and concatenate to the SQL statement
-				char choice;
-				printf(ANSI_COLOR_YELLOW "ATTENTION: BE CAREFUL while changing the options. DO NOT enter values ​​beyond those in the documentation, otherwise you can DAMAGE your system. Any verification is done.\n" ANSI_COLOR_RESET);
-				printf("Do you really want to continue? (y/N) ···> ");
-				choice = getchar();
-				// Reference [1]
-				if (choice != '\n' && getchar() != '\n') {
-					clear_buffer();
-					choice = 0 ;
-				} else {
-					choice = tolower(choice);
-				}
-				if (choice == 'y') {
+				printf(ANSI_COLOR_YELLOW "ATTENTION: BE CAREFUL while changing the options. Check the rtcwake documentation. DO NOT append the option with commands, otherwise you can DAMAGE your system. Any verification is done.\n" ANSI_COLOR_RESET);
+				if (confirm()) {
 					printf("rtcwake manpage: <https://www.man7.org/linux/man-pages/man8/rtcwake.8.html>\nGawake default value: \"-a\"\nEnter the options ···> ");
 					strcat(sql, "UPDATE config SET options = '");
 					fgets(string, 98, stdin);
-					strcat(sql, string);
-					strcat(sql, "'");
 					// Checks if the previous string contains a '\n' character at the end; if not, the character is on the buffer and must be cleaned
 					if (strchr(string, '\n') == NULL)
 						clear_buffer();
+					strcat(sql, string);
+					strcat(sql, "'");
 				}
 			}
 			// Insert data, handle errors, free allocated memory
-			rc = sqlite3_exec(&(**db), sql, NULL, 0, &err_msg);
 			raise_priv();
-			sqlite_exec_err(rc, &err_msg);
+			rc = sqlite3_exec(&(**db), sql, NULL, 0, &err_msg);
 			drop_priv();
+			sqlite_exec_err(rc, &err_msg);
 		}
 	}
 
@@ -582,7 +479,7 @@ int config(sqlite3 **db) {
 
 int modify_rule(sqlite3 **db) {
 	char *err_msg = 0;
-	char *sql;
+	char *sql = 0;
 	int rc, option, table, id;
 	struct sqlite3_stmt *selectstmt;
 	struct rules rule;
@@ -666,7 +563,7 @@ int modify_rule(sqlite3 **db) {
 			if (table == 1)
 				snprintf(sql, alloc, "UPDATE rules_turnon SET rule_name = '%s', time = '%02d%02d', sun = %d, mon = %d, tue = %d, wed = %d, thu = %d, fri = %d, sat = %d, command = '%s' "\
 						"WHERE id = %d;",
-						rule.rule_name, rule.time[0], rule.time[1], rule.time[2], rule.days[0], rule.days[1], rule.days[2], rule.days[3], rule.days[4], rule.days[5], rule.days[6], rule.command, id);
+						rule.rule_name, rule.time[0], rule.time[1], rule.days[0], rule.days[1], rule.days[2], rule.days[3], rule.days[4], rule.days[5], rule.days[6], rule.command, id);
 			else
 				snprintf(sql, alloc, "UPDATE rules_turnoff SET rule_name = '%s', time = '%02d%02d', sun = %d, mon = %d, tue = %d, wed = %d, thu = %d, fri = %d, sat = %d, command = '%s', mode = '%s' "\
 						"WHERE id = %d;",
@@ -682,9 +579,29 @@ int modify_rule(sqlite3 **db) {
 	return EXIT_SUCCESS;
 }
 
+int confirm(void) {
+	// Reference [1]
+	printf("Do you want to continue? (y/N) ···> ");
+	char choice = getchar();
+	if (choice != '\n' && getchar() != '\n') {
+		// More than one character: flush buffered line and invalidate the input
+		clear_buffer();
+		choice = 0 ;
+	} else {
+		choice = tolower(choice);
+	}
+
+	if (choice == 'y')
+		return 1;
+	else
+		return 0;
+}
+
 /* REFERENCES:
  * [1] https://stackoverflow.com/questions/42318747/how-do-i-limit-my-user-input
  * [2] https://www.ibm.com/docs/en/zos/2.1.0?topic=functions-getpwnam-access-user-database-by-user-name
  * [3] https://www.gnu.org/software/libc/manual/html_node/Setuid-Program-Example.html
+ * 
+ * rtcwake manpage: https://www.man7.org/linux/man-pages/man8/rtcwake.8.html
  */
 

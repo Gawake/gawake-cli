@@ -1,3 +1,21 @@
+// Checks if the Gawake directory and database exist, if not, create them. Requires root permissions.
+
+/*
+ * Gawake. A Linux software to make your PC wake up on a scheduled time. It makes the rtcwake command easier.
+ * Copyright (C) 2021 - 2023, Kelvin Novais
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, considering ONLY the version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>
+ */
+
 #include <unistd.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -9,19 +27,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-// Defining colors for a better output
-#define ANSI_COLOR_RED     "\033[91m"
-#define ANSI_COLOR_GREEN   "\033[92m"
-#define ANSI_COLOR_YELLOW  "\033[93m"
-#define ANSI_COLOR_RESET   "\x1b[0m"
-
-// Default directory and path to the database:
-// FOLLOW SAME INSTRUCTIONS ON main.c
-#define DIR		"/var/gawake/"
-#define PATH	DIR "gawake-cli.db"
-
-// Gawake version
-#define VERSION	"3.0"
+#include "gawake.h"
 
 void issue(void);
 
@@ -58,17 +64,18 @@ int main(void) {
 						"CREATE TABLE config ("\
 							"id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"\
 							"options     TEXT,"\
-							"db_time     TEXT,"\
 							"status      INTEGER NOT NULL,"\
 							"version     TEXT,"\
-							"commands   INTEGER NOT NULL,"\
+							"commands    INTEGER NOT NULL,"\
+							"localtime   INTEGER NOT NULL,"\
+							"def_mode    TEXT NOT NULL,"\
 							"boot_time   INTEGER NOT NULL"\
 						");"\
-						"INSERT INTO rules_turnon (rule_name, time, sun, mon, tue, wed, thu, fri, sat, command)"\
-						"VALUES ('Example', '100000', 0, 0, 0, 0, 0, 0, 0, 'apt update ; apt upgrade -y ; apt autoremove -y');"\
-						"INSERT INTO rules_turnoff (rule_name, time, sun, mon, tue, wed, thu, fri, sat, mode)"\
-						"VALUES ('Example', '1030', 0, 0, 0, 0, 0, 0, 0, 'mem');"\
-						"INSERT INTO config (options, db_time, status, version, commands, boot_time) VALUES ('-a', 'localtime', 1, '" VERSION "', 0, 180);";
+						"INSERT INTO rules_turnon (rule_name, time, sun, mon, tue, wed, thu, fri, sat)"\
+						"VALUES ('Example', '10:00:00', 0, 0, 0, 0, 0, 0, 0);"\
+						"INSERT INTO rules_turnoff (rule_name, time, sun, mon, tue, wed, thu, fri, sat, command, mode)"\
+						"VALUES ('Example', '11:30:00', 0, 0, 0, 0, 0, 0, 0, 'dnf update -y', 'mem');"\
+						"INSERT INTO config (options, status, version, commands, localtime, def_mode, boot_time) VALUES ('-a', 1, '" VERSION "', 0, 1, 'off', 180);";
 
 	printf("Opening database...\n");
 	// If the database doesn't exist, create and configure it
@@ -126,23 +133,6 @@ int main(void) {
 		}
 		printf(ANSI_COLOR_GREEN "Database created successfully!\n" ANSI_COLOR_RESET);
 	}
-
-
-
-//
-//    fd = open(PATH, O_RDWR);
-//    if (fd == -1) {
-//    	fprintf(stderr, ANSI_COLOR_RED "ERROR (on db_helper): %s\n" ANSI_COLOR_RESET, strerror(errno));
-//        return EXIT_FAILURE;
-//    }
-//    printf("Database successfully opened (on db_helper)\n");
-//    printf("Database file descriptor: %d (on db_helper)\n", fd);
-//
-//    // Pass the opened file descriptor to the parent process
-//    // Here, we use file descriptor number 3 for passing to the parent
-//    dup2(fd, 3);
-//    close(fd);
-
     return EXIT_SUCCESS;
 }
 

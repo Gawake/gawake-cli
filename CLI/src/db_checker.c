@@ -27,9 +27,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "gawake.h"
-
-void issue(void);
+#include "include/gawake.h"
+#include "include/issue.h"
 
 int main(void) {
 	int rc, fd;
@@ -88,12 +87,12 @@ int main(void) {
 		struct stat dir;
 		if (stat(DIR, &dir) == -1) {
 			// Directory doesn't exist, creating it
-			if (mkdir(DIR, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP) == -1)
+			if (mkdir(DIR, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH) == -1)
 				return EXIT_FAILURE;
 		}
 
 		printf("[2/5] Creating empty file for the database.\n");
-		fd = open(PATH, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+		fd = open(PATH, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
 		if (fd == -1) {
 			fprintf(stderr, ANSI_COLOR_RED "ERROR: %s\n" ANSI_COLOR_RESET, strerror(errno));
 			return EXIT_FAILURE;
@@ -135,8 +134,3 @@ int main(void) {
 	}
     return EXIT_SUCCESS;
 }
-
-void issue(void) {
-	printf(ANSI_COLOR_RED "If it continues, consider reporting the bug <https://github.com/KelvinNovais/Gawake/issues>\n" ANSI_COLOR_RESET);
-}
-

@@ -1,9 +1,7 @@
-database.db
-test.db
-gawake.db
-
-__pycache__/
+*.db
+*.o
+*.d
 
 run.sh
-*.o
-gawake-cli
+
+CLI/build/*

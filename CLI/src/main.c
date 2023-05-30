@@ -28,9 +28,12 @@
 #include <sys/types.h>	// mkdir()
 #include <sys/wait.h>	// Child process
 
-#include "gawake.h"
+#include "include/gawake.h"
+#include "include/get_time.h"
+#include "include/wday.h"
+#include "include/issue.h"
 
-#define DB_CHECKER "./db_checker"	// Database helper
+#define DB_CHECKER "/opt/gawake/bin/cli/db_checker"	// Database helper
 
 // Remember the effective and real UIDs
 static uid_t euid, uid;
@@ -64,9 +67,12 @@ void get_time(struct tm **);
 int wday(int);
 int schedule(sqlite3 **);
 void usage(void);
-void issue(void);
-int wday(int);
-void get_time(struct tm **);
+
+/*
+ * TODO Stop on Ctrl C
+ * TODO On config: more detailed info
+ * TODO (?) Receiving ID when changing rule: loop
+*/
 
 int main(int argc, char **argv) {
 	// Get UIDs; drop privileges right after
@@ -109,7 +115,6 @@ int main(int argc, char **argv) {
 			cflag = 1;
 			cvalue = optarg;
 			if (strlen(cvalue) != 14) {
-				printf("so %zu\n%s\n", sizeof(cvalue), cvalue); // TODO
 				printf("Invalid time stamp. It must be \"YYYYMMDDhhmmss\".\n");
 				return EXIT_FAILURE;
 			}
@@ -219,6 +224,7 @@ int main(int argc, char **argv) {
 		case 'r':
 			printf(ANSI_COLOR_YELLOW "WARNING: Reset database? All rules will be lost!\n" ANSI_COLOR_RESET);
 			if (confirm()) {
+                        	printf("Removing database...\n");
 				sqlite3_close(db);
 				raise_priv();
 				remove(PATH);
@@ -357,12 +363,12 @@ void user_input(struct rules *rule, int table) {
 	printf("%-30s", MSG[0]);
 	get_int(&( rule -> time[0]), 3, 0, 23, 1);
 
-	// If it's a turn off rule, get the minutes as 0 or 15 or 30 or 45, only; don't get the seconds
+	// If it's a turn off rule, get the minutes as 0 or 10 or 20 or 30 or 40 or 50, only; seconds ar 00, by default
 	if(table == 2) {
 		printf("%-30s", TURNOFF_MSG);
 		invalid = 1;
 		do {
-			get_int(&(rule -> time[1]), 3, 0, 45, 1);
+			get_int(&(rule -> time[1]), 3, 0, 50, 1);
 			if (rule -> time[1] == 0
 				|| rule -> time[1] == 10
 				|| rule -> time[1] == 20
@@ -374,6 +380,7 @@ void user_input(struct rules *rule, int table) {
 				invalid_val();
 
 		} while (invalid);
+                rule -> time[2] = 0;
 	} else {
 		printf("%-30s", MSG[1]);
 		get_int(&(rule -> time[1]), 3, 0, 59, 1);
@@ -456,11 +463,12 @@ void get_int(int *ptr, int digits, int min, int max, int repeat) {
 // Get the gawake's uid, an unprivileged user that is used to drop the root privileges
 void get_gawake_uid(void) {
 	// Reference [2] and [3]
-	struct passwd *p; // TODO: based on the official documentation, is the variable static?
+	struct passwd *p;
 	const char *USER = "gawake";
-	if ((p = getpwnam(USER)) == NULL)
-		fprintf(stderr, ANSI_COLOR_YELLOW "WARNING: Couldn't get gawake's UID\n" ANSI_COLOR_RESET);
-	else
+	if ((p = getpwnam(USER)) == NULL) {
+        	if (geteuid() == 0) // If coudn't drop privileges, but the user is already unprivileged, don't print the warning
+			fprintf(stderr, ANSI_COLOR_YELLOW "WARNING: Couldn't get gawake's UID\n" ANSI_COLOR_RESET);
+        } else
 		uid = (int) p -> pw_uid;
 }
 void drop_priv(void) {
@@ -544,7 +552,7 @@ int config(sqlite3 **db) {
 				// Print warning and ask confirmation only if commands are going to be enabled
 				if (number == 1)
 					printf(ANSI_COLOR_YELLOW "WARNING: All commands are executed as root. Keep in mind:\n"\
-						"It's your responsibility which commands you'll run;\nAny verification is done;\nSet the right permissions if you're going to run a script.\n" ANSI_COLOR_RESET);
+						"- It's your responsibility which commands you'll run;\n- Any verification is done;\n- Set the right permissions if you're going to run a script.\n" ANSI_COLOR_RESET);
 
 				if (number == 0 || confirm())
 					snprintf(sql, alloc, "UPDATE config SET commands = %d;", number);
@@ -846,49 +854,10 @@ void usage(void) {
 			"-m\tSet a mode; must be used together '-c'\n"\
 			"-s\tDirectly run the schedule function, based on the first upcoming turn on rule; you can set a different time with the '-d' option\n\n"\
 			"Examples:\n"\
-			"gawake-cli -s\t\t\t\tSchedule according to the next turn on rule\n"\
-			"gawake-cli -s -d 20251228153000 -m off\t\tSchedule wake for 28 December 2025, at 15:30:00; use mode off\n\n");
-}
-
-
-// Prints the issue URL and related instructions
-void issue(void) {
-	printf(ANSI_COLOR_RED "If it continues, consider reporting the bug <https://github.com/KelvinNovais/Gawake/issues>\n" ANSI_COLOR_RESET);
-}
-
-// Receives a week day from 0 to 13, and returns from 0 to 6 (Sunday to Saturday); in other words, two weeks must be represented from 0 to 6 instead of 0 to 13
-int wday(int num) {
-	switch(num) {
-	case 0:
-	case 7:
-		return 0;
-	case 1:
-	case 8:
-		return 1;
-	case 2:
-	case 9:
-		return 2;
-	case 3:
-	case 10:
-		return 3;
-	case 4:
-	case 11:
-		return 4;
-	case 5:
-	case 12:
-		return 5;
-	case 6:
-	case 13:
-		return 6;
-	}
-	return -1;
-}
-
-// Get the system time
-void get_time(struct tm **timeinfo) {
-	time_t rawtime;
-	time(&rawtime);
-	*timeinfo = localtime(&rawtime);
+			"%-45sSchedule according to the next turn on rule\n"\
+			"%-45sSchedule wake for 01 January 2025, at 09:45:00\n"\
+			"%-45sSchedule wake for 28 December 2025, at 15:30:00; use mode off\n\n",
+			"gawake-cli -s", "gawake-cli -s -d 20250115094500", "gawake-cli -s -d 20251228153000 -m off");
 }
 
 /* REFERENCES:

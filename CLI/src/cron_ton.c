@@ -20,10 +20,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <errno.h>
 
-#include "gawake.h"
-
-void get_time(struct tm **);
+#include "include/gawake.h"
+#include "include/get_time.h"
 
 int main (void) {
 	int rc, now, id_match = -1, alloc = 192, cmd_stat = 0, boot_time = 0;
@@ -99,16 +99,10 @@ int main (void) {
 	fprintf(stdout, "Match on turn on rule with ID [%d]\n", id_match);
 	if (cmd_stat && cmd[0] != '\0') { // If the commands are enabled, and if there's a command on the databse
 		fprintf(stdout, "Running command: %s\n", cmd);
-		system(cmd);
+		int stat = system(cmd);
+		if (stat != 0)
+			fprintf(stderr, "Command exited with error\n");
 	}
 
 	return EXIT_SUCCESS;
 }
-
-// Get the system time
-void get_time(struct tm **timeinfo) {
-	time_t rawtime;
-	time(&rawtime);
-	*timeinfo = localtime(&rawtime);
-}
-

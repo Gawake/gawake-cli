@@ -19,12 +19,11 @@
 #include <sqlite3.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
+#include <errno.h>
 
-#include "gawake.h"
-
-void get_time(struct tm **);
-int wday(int);
+#include "include/gawake.h"
+#include "include/get_time.h"
+#include "include/wday.h"
 
 int main (void) {
 	int rc, now, db_time = 1, id_match = -1, alloc = 192, cmd_stat = 0;
@@ -172,49 +171,18 @@ int main (void) {
 		return EXIT_SUCCESS;
 	}
 	// ELSE, SCHEDULE
+        int stat = 0;
 	fprintf(stdout, "Match on turn on rule with ID [%d]\n", id_match);
 	if (cmd_stat && cmd[0] != '\0') { // If the commands are enabled, and if there's a command on the databse
 		fprintf(stdout, "Running command: %s\n", cmd);
-		system(cmd);
+		stat = system(cmd);
+        	if (stat != 0)
+                	fprintf(stderr, "Command(set by user) exited with error\n");
 	}
 	snprintf(rtcwake_cmd, alloc, "rtcwake --date %s%s %s -m %s", date, time, options, mode);
 	fprintf(stdout, "Running rtcwake: %s\n", rtcwake_cmd);
 	system(rtcwake_cmd);
+	if (stat != 0)
+		fprintf(stderr, "[!] >>>>>>>>> rtcwake failed scheduling\n");
 	return EXIT_SUCCESS;
 }
-
-// Receives a week day from 0 to 13, and returns from 0 to 6 (Sunday to Saturday); in other words, two weeks must be represented from 0 to 6 instead of 0 to 13
-int wday(int num) {
-	switch(num) {
-	case 0:
-	case 7:
-		return 0;
-	case 1:
-	case 8:
-		return 1;
-	case 2:
-	case 9:
-		return 2;
-	case 3:
-	case 10:
-		return 3;
-	case 4:
-	case 11:
-		return 4;
-	case 5:
-	case 12:
-		return 5;
-	case 6:
-	case 13:
-		return 6;
-	}
-	return -1;
-}
-
-// Get the system time
-void get_time(struct tm **timeinfo) {
-	time_t rawtime;
-	time(&rawtime);
-	*timeinfo = localtime(&rawtime);
-}
-

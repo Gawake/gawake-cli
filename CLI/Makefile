@@ -34,6 +34,9 @@ install: all
 	install -v -o root -g root -m 644 gawake /etc/cron.d/	# src destination
 	# Folders: /var/gawake for the database; /var/gawake/logs for logs
 	mkdir -p -m 664 /var/gawake/logs/
+	# Adding Gawake user
+	# TODO check if is compatible for non Debian and Fedora distros
+	adduser -M gawake
 
 binaries: $(OBJECTS)
 	@mkdir -p $(OUTDIR)

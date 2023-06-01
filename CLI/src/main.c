@@ -120,20 +120,22 @@ int main(int argc, char **argv) {
 			}
 			break;
 		case 'm':
-			const char *MODES[] = {"off", "disk", "mem", "standby", "freeze", "no", "on", "disable"}; // For checking user input
-			int valid = 0;
-			mflag = 1;
-			mvalue = optarg;
-			for (int i = 0; i < 8; i++) {
-				if (strcmp(mvalue, MODES[i]) == 0) {
-					valid = 1; // If there is a valid mode, continue
-					break;
-				}
-			}
-			if (!valid) { // Exit on invalid mode
-				printf("Invalid mode\n");
-				return EXIT_FAILURE;
-			}
+      {
+			  const char *MODES[] = {"off", "disk", "mem", "standby", "freeze", "no", "on", "disable"}; // For checking user input
+			  int valid = 0;
+			  mflag = 1;
+			  mvalue = optarg;
+			  for (int i = 0; i < 8; i++) {
+			  	if (strcmp(mvalue, MODES[i]) == 0) {
+					  valid = 1; // If there is a valid mode, continue
+				  	break;
+				  }
+			  }
+			  if (!valid) { // Exit on invalid mode
+				  printf("Invalid mode\n");
+				  return EXIT_FAILURE;
+			  }
+      }
 			break;
 		case '?':
 			if (optopt == 'c')
@@ -150,8 +152,8 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	// Case 's' and 'c', and/or 'm'
-	if (sflag && cflag) {
+	// Case 's' and/or 'c'; 'm' is optional
+	if ((sflag && cflag) || cflag) {
 		char cmd[50];
 		snprintf(cmd, 50, "sudo rtcwake -a --date %s", cvalue);
 		if (mflag) {
@@ -380,7 +382,7 @@ void user_input(struct rules *rule, int table) {
 				invalid_val();
 
 		} while (invalid);
-                rule -> time[2] = 0;
+    rule -> time[2] = 0;
 	} else {
 		printf("%-30s", MSG[1]);
 		get_int(&(rule -> time[1]), 3, 0, 59, 1);
@@ -583,13 +585,15 @@ int config(sqlite3 **db) {
 				}
 				break;
 			case 5:
-				const char *MODES[] = {"off", "disk", "mem", "standby", "freeze", "no", "on", "disable"};
-				printf("Select a mode:\n");
-				for (int i = 0; i < 8; i++) {
-					printf("[%i]\t%s\n", i, MODES[i]);
-				}
-				get_int(&number, 2, 0, 7, 1);
-				snprintf(sql, alloc, "UPDATE config SET def_mode = '%s';", MODES[number]);
+        {
+				  const char *MODES[] = {"off", "disk", "mem", "standby", "freeze", "no", "on", "disable"};
+				  printf("Select a mode:\n");
+				  for (int i = 0; i < 8; i++) {
+				  	printf("[%i]\t%s\n", i, MODES[i]);
+				  }
+				  get_int(&number, 2, 0, 7, 1);
+				  snprintf(sql, alloc, "UPDATE config SET def_mode = '%s';", MODES[number]);
+        }
 				break;
 			}
 			// Insert data, handle errors, free allocated memory
@@ -612,9 +616,9 @@ int modify_rule(sqlite3 **db) {
 	struct sqlite3_stmt *selectstmt;
 	struct rules rule;
 	// SQL statements
-	const char *PRINT_TURNON =	"SELECT FORMAT(\"│ %-03i │ %-16.16s│ %s │  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│ %-40.40s│\", "\
+	const char *PRINT_TURNON =	"SELECT PRINTF(\"│ %-03i │ %-16.16s│ %s │  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│ %-40.40s│\", "\
 								"id, rule_name, time, sun, mon, tue, wed, thu, fri, sat, command) AS t_on FROM rules_turnon;";
-	const char *PRINT_TURNOFF =	"SELECT FORMAT(\"│ %-03i │ %-16.16s│ %s │  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│ %-30.30s│ %-8s│\", "\
+	const char *PRINT_TURNOFF =	"SELECT PRINTF(\"│ %-03i │ %-16.16s│ %s │  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│ %-30.30s│ %-8s│\", "\
 								"id, rule_name, time, sun, mon, tue, wed, thu, fri, sat, command, mode) AS t_off FROM rules_turnoff;";
 
 	// Print turn on/off tables, and handle with possible errors:

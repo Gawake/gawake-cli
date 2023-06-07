@@ -26,17 +26,19 @@ DEPFILES=$(patsubst %.c,%.d,$(CFILES))
 all: binaries
 
 install: all
-	# Install the main binary to /bin
-	install -v $(OUTDIR)gawake-cli /usr/bin/	# src destination
-	# Install the helper binaries to /opt/gawake/bin/cli
-	install -v -o root -g root -m 754 -D -t /opt/gawake/bin/cli/ $(OUTDIR){db_checker,cron_toff,cron_ton} # destination src
-	# Install the cron service to /etc/cron.d
-	install -v -o root -g root -m 644 gawake /etc/cron.d/	# src destination
-	# Folders: /var/gawake for the database; /var/gawake/logs for logs
-	mkdir -p -m 664 /var/gawake/logs/
-	# Adding Gawake user
-	# TODO check if is compatible for non Debian and Fedora distros
-	adduser -M gawake
+	@echo "Installing the main binary to /bin"
+	@install -v $(OUTDIR)gawake-cli /usr/bin/	# src destination
+	@echo "Installing the helper binaries to /opt/gawake/bin/cli"
+	@install -v -o root -g root -m 754 -D -t /opt/gawake/bin/cli/ $(OUTDIR){db_checker,cron_toff,cron_ton} # destination src
+	@echo "Installing the cron service to /etc/cron.d"
+	@# Uninstaller
+	@install -v -o root -g root -m 555 uninstall.sh /opt/gawake/	# src destination
+	@install -v -o root -g root -m 644 gawake /etc/cron.d/	# src destination
+	@# Folders: /var/gawake for the database; /var/gawake/logs for logs
+	@mkdir -p -m 664 /var/gawake/logs/
+	@echo "Adding Gawake user"
+	-@useradd -M gawake
+	@echo "Gawake installed successfully!"
 
 binaries: $(OBJECTS)
 	@mkdir -p $(OUTDIR)
@@ -50,7 +52,7 @@ binaries: $(OBJECTS)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -rf $(OBJECTS) $(DEPFILES) $(OUTDIR)
+	-rm -rf $(OBJECTS) $(DEPFILES) $(OUTDIR)
 
 # Include the dependencies
 -include $(DEPFILES)

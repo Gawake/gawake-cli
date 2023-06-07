@@ -1,10 +1,5 @@
 # Gawake
 
-<div align="center">
-  <img src="https://img.shields.io/static/v1?label=Platform&message=Linux&color=yellow&style=for-the-badge&logo=Linux" /> <img src="https://img.shields.io/static/v1?label=Language&message=Python3&color=blue&style=for-the-badge&logo=Python" /> <img src="https://img.shields.io/static/v1?label=Coded%20with&message=Neovim&color=stronggreen&style=for-the-badge&logo=Neovim" />
-</div>
-
-
 [1. What does Gawake do?](#what-does-gawake-do)
 
 [2. Gawake CLI](#gawake-cli)
@@ -27,32 +22,45 @@ Gawake makes the "rtcwake" linux command easier and more pratical. See the rtcwa
 
 ## Gawake CLI
 
-Here how it seems:
+How it seems:
 <div align="center"> <img src="https://user-images.githubusercontent.com/83086622/183774086-0c87c55b-77e1-4067-bb4f-04a4af008c5c.png" /> </div>
-
 
 <div align="center"> <img src="https://user-images.githubusercontent.com/83086622/183774102-da279d6b-37f2-4853-8eb4-4e804a053dc6.png" /> </div>
 
 ### Install
-To install, follow these steps:
+
+#### From the pre-compiled binaries
+
+```bash
+  # Download the latest release
+
+  # Run the install script
+  chmod +x install.sh
+  sudo ./install.sh
+```
+
+#### Compile it yourself
+
+Dependecies:
+
+```
+git
+gcc
+make
+sqlite-devel        # For Fedora
+libsqlite3-dev      # For Debian, Ubuntu, and derivatives
+```
 ```bash
   # Clone this repository
   git clone https://github.com/KelvinNovais/Gawake.git
-
-  # Move gawake script to /bin
-  sudo mv Gawake/CLI/gawake-cli.py /bin/gawake-cli
-
-  # Edit the crontab
-  sudo nano /etc/crontab
-
-  # Add these lines to the end of the crontab:
-  # GAWAKE
-  0 *   * * *	root	/bin/gawake-cli -c
-  15 *	* * *	root	/bin/gawake-cli -c
-  30 *	* * *	root	/bin/gawake-cli -c
-  45 *	* * *	root	/bin/gawake-cli -c
+  cd Gawake/cli/
+  
+  # Compile
+  make all
+  
+  # Install
+  sudo make install
 ```
-Important! You must have Pyhton in version 3 or later.
 
 ### Usage
 
@@ -64,13 +72,11 @@ Terminal commands:
   # To directly schedule wake up, run:
   $ gawake-cli -s
   
+  # To run a custom schedule:
+  # Scheduling for 2023-12-28 09:30:00, using the default mode
+  $ gawake-cli -c 20231228093000
   
-  ### Documentation only: ###
-  $ gawake-cli -c
-  # The previous command is used on crontab to check if there is a valid turn off rule at that time.
-  # If you want to schedule a wake up, use 'gawake-cli -s' instead.
+  # To run a custom schedule, with another mode:
+  # Scheduling for 2023-07-25 16:45:00
+  $ gawake-cli -c 20230725164500 -m disk
 ```
-
-### Comming features
-+ Run a command after your PC turning on (like opening the browser - for GUI, only);
-+ Graphical user interface;

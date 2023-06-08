@@ -22,11 +22,6 @@ Gawake makes the "rtcwake" linux command easier and more pratical. See the rtcwa
 
 ## Gawake CLI
 
-How it seems:
-<div align="center"> <img src="https://user-images.githubusercontent.com/83086622/183774086-0c87c55b-77e1-4067-bb4f-04a4af008c5c.png" /> </div>
-
-<div align="center"> <img src="https://user-images.githubusercontent.com/83086622/183774102-da279d6b-37f2-4853-8eb4-4e804a053dc6.png" /> </div>
-
 ### Install
 
 #### From the pre-compiled binaries
@@ -41,12 +36,14 @@ How it seems:
 
 #### Compile it yourself
 
-Dependecies:
+You will need:
 
 ```
 git
 gcc
 make
+
+# SQLite3 developer package:
 sqlite-devel        # For Fedora
 libsqlite3-dev      # For Debian, Ubuntu, and derivatives
 ```
@@ -79,4 +76,7 @@ Terminal commands:
   # To run a custom schedule, with another mode:
   # Scheduling for 2023-07-25 16:45:00
   $ gawake-cli -c 20230725164500 -m disk
+  
+  # To uninstall Gawake
+  $ gawake-cli -U
 ```

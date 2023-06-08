@@ -4,4 +4,5 @@
 
 run.sh
 
-CLI/build/*
+cli/build/*
+cli/releases/*

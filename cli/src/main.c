@@ -16,12 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>
  */
 
-/*
- * Possible implementations:
- * Updater function
- * Run commands as other user besides root
- * Very input when receiveing rtwake options/arguments (on function config)
- * Allow changing boot_time
+/*! TODO:
+ * (Possible implementations)
+ * @Gawake updater function
+ * @Run commands as other users, besides root
+ * @Verify user input when receiveing rtwake options/arguments (on function config)
+ * @Allow changing boot_time
+ * @Fix output log
+ * @Add manual schedule output to logs
  */
 
 #include <stdio.h>
@@ -561,7 +563,7 @@ int config(sqlite3 **db) {
   // Computer time
   struct tm *timeinfo;
   get_time(&timeinfo);
-  printf("Time information:\n%-35s %d-%02d-%02d %02d:%d:%02d\n",
+  printf("Time information:\n%-35s %d-%02d-%02d %02d:%02d:%02d\n",
          "Current local time and date:",
          timeinfo -> tm_year + 1900, timeinfo -> tm_mon + 1, timeinfo -> tm_mday, timeinfo -> tm_hour, timeinfo -> tm_min, timeinfo -> tm_sec);
 

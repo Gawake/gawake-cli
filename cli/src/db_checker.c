@@ -75,7 +75,7 @@ int main(void) {
                   "VALUES ('Example', '10:00:00', 0, 0, 0, 0, 0, 0, 0);"\
                   "INSERT INTO rules_turnoff (rule_name, time, sun, mon, tue, wed, thu, fri, sat, command, mode)"\
                   "VALUES ('Example', '11:30:00', 0, 0, 0, 0, 0, 0, 0, 'dnf update -y', 'mem');"\
-                  "INSERT INTO config (options, status, version, commands, localtime, def_mode, boot_time) VALUES ('-a', 1, '" VERSION "', 0, 1, 'off', 300);";
+                  "INSERT INTO config (options, status, version, commands, localtime, def_mode, boot_time) VALUES ('-a -v', 1, '" VERSION "', 0, 1, 'off', 300);";
 
   printf("Opening database...\n");
   // If the database doesn't exist, create and configure it
@@ -88,8 +88,11 @@ int main(void) {
     struct stat dir;
     if (stat(DIR, &dir) == -1) {
       // Directory doesn't exist, creating it
-      if (mkdir(DIR, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH) == -1)
+      if (mkdir(DIR, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) == -1)
         return EXIT_FAILURE;
+
+      // Creating logs directory
+      mkdir(LOGS, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
     }
 
     printf("[2/5] Creating empty file for the database.\n");
@@ -102,15 +105,10 @@ int main(void) {
 
     // Redundancy
     printf("[3/5] Setting directory and file permissions.\n");
-    if (chown(DIR, 0, 0) == -1
-        || chown(PATH, 0, 0) == -1
-        || chmod(DIR, 0664) == -1
-        || chmod(PATH, 0660) == -1
-        ) {
+    if (chown(DIR, 0, 0) == -1 || chown(PATH, 0, 0) == -1) {
       fprintf(stderr, ANSI_COLOR_RED "ERROR: %s\n" ANSI_COLOR_RESET, strerror(errno));
       return EXIT_FAILURE;
     }
-
 
     printf("[4/5] Creating database.\n");
     // Try to open it

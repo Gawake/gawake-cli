@@ -1,0 +1,6 @@
+data/com.kelvinnovais.Gawake.desktop.in
+data/com.kelvinnovais.Gawake.appdata.xml.in
+data/com.kelvinnovais.Gawake.gschema.xml
+src/main.c
+src/gawake-window.c
+src/gawake-window.ui

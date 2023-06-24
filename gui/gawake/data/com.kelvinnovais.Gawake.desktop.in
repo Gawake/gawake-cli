@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=gawake
+Exec=gawake
+Icon=com.kelvinnovais.Gawake
+Terminal=false
+Type=Application
+Categories=GTK;
+StartupNotify=true

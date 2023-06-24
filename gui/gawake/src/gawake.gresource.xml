@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/com/kelvinnovais/Gawake">
+    <file alias="style.css">css/gnome-clocks.css</file>
+    <file alias="style-hc.css">css/gnome-clocks.highcontrast.css</file>
+    <file alias="style-dark.css">css/gnome-clocks.dark.css</file>
+    <file preprocess="xml-stripblanks">ui/gawake-window.ui</file>
+    <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
+    <file preprocess="xml-stripblanks">ui/alarm-day-picker-row.ui</file>
+    <file preprocess="xml-stripblanks">ui/alarm-face.ui</file>
+    <file preprocess="xml-stripblanks">ui/alarm-ringing-panel.ui</file>
+    <file preprocess="xml-stripblanks">ui/alarm-row.ui</file>
+    <file preprocess="xml-stripblanks">ui/alarm-setup-dialog.ui</file>
+    <file preprocess="xml-stripblanks">ui/header-bar.ui</file>
+    <file preprocess="xml-stripblanks">ui/stopwatch-face.ui</file>
+    <file preprocess="xml-stripblanks">ui/stopwatch-laps-row.ui</file>
+    <file preprocess="xml-stripblanks">ui/timer-face.ui</file>
+    <file preprocess="xml-stripblanks">ui/timer-row.ui</file>
+    <file preprocess="xml-stripblanks">ui/timer-setup.ui</file>
+    <file preprocess="xml-stripblanks">ui/window.ui</file>
+    <file preprocess="xml-stripblanks">ui/world-face.ui</file>
+    <file preprocess="xml-stripblanks">ui/world-location-dialog.ui</file>
+    <file preprocess="xml-stripblanks">ui/world-location-dialog-row.ui</file>
+    <file preprocess="xml-stripblanks">ui/world-row.ui</file>
+    <file preprocess="xml-stripblanks">ui/world-standalone.ui</file>
+  </gresource>
+  <gresource prefix="/com/kelvinnovais/Gawake/icons/16x16/actions/">
+    <file alias="arrow3-up-symbolic.svg">gtk/icons/arrow3-up-symbolic.svg</file>
+    <file alias="system-shutdown-symbolic.svg">gtk/icons/system-shutdown-symbolic.svg</file>
+  </gresource>
+</gresources>
+

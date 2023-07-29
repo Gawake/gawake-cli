@@ -21,13 +21,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <string.h>
 
 #include "include/gawake.h"
 #include "include/get_time.h"
 #include "include/wday.h"
 
+// Apdend with ">> path/turn_off.log 2>&1"
+#define LOGS_OUTPUT " >> " LOGS "turn_off.log 2>&1"
+
 int main (void) {
-  int rc, now, db_time = 1, id_match = -1, alloc = 192, cmd_stat = 0, gawake_stat = 0;
+  int rc, now, db_time = 1, id_match = -1, alloc = 230, cmd_stat = 0, gawake_stat = 0;
 
   struct tm *timeinfo;                // Default structure, see documentation
   struct sqlite3_stmt *stmt;
@@ -75,7 +79,7 @@ int main (void) {
 
   // DO NOTHING IF GAWAKE IS DISABLED
   if (gawake_stat == 0) {
-    fprintf(stdout, "Gawake is disabled, exiting...");
+    fprintf(stdout, "Gawake is disabled, exiting...\n");
     return EXIT_SUCCESS;
   }
 
@@ -193,9 +197,10 @@ int main (void) {
     if (stat != 0)
       fprintf(stderr, "[!] >>>>>>>>> Command(set by user) exited with error\n");
   }
-  snprintf(rtcwake_cmd, alloc, "rtcwake --date %s%s %s -m %s", date, time, options, mode);
+  snprintf(rtcwake_cmd, alloc, "sudo rtcwake --date %s%s %s -m %s", date, time, options, mode);
   fprintf(stdout, "Running rtcwake: %s\n", rtcwake_cmd);
-  system(rtcwake_cmd);
+  strcat(rtcwake_cmd, LOGS_OUTPUT);    // Sending rtcwake output to the log
+  stat = system(rtcwake_cmd);
   if (stat != 0)
     fprintf(stderr, "[!] >>>>>>>>> rtcwake failed scheduling\n");
   return EXIT_SUCCESS;

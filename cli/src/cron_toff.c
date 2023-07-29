@@ -193,6 +193,7 @@ int main (void) {
   fprintf(stdout, "Match on turn on rule with ID [%d]\n", id_match);
   if (cmd_stat && cmd[0] != '\0') { // If the commands are enabled, and if there's a command on the databse
     fprintf(stdout, "Running command: %s\n", cmd);
+    fflush(stdout);
     stat = system(cmd);
     if (stat != 0)
       fprintf(stderr, "[!] >>>>>>>>> Command(set by user) exited with error\n");
@@ -200,6 +201,7 @@ int main (void) {
   snprintf(rtcwake_cmd, alloc, "sudo rtcwake --date %s%s %s -m %s", date, time, options, mode);
   fprintf(stdout, "Running rtcwake: %s\n", rtcwake_cmd);
   strcat(rtcwake_cmd, LOGS_OUTPUT);    // Sending rtcwake output to the log
+  fflush(stdout);
   stat = system(rtcwake_cmd);
   if (stat != 0)
     fprintf(stderr, "[!] >>>>>>>>> rtcwake failed scheduling\n");

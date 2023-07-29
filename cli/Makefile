@@ -12,10 +12,10 @@ CC=gcc
 OPT=-O0
 # Generate files that encode make rules for the .h dependencies
 DEPFLAGS=-MP -MD
+# LDFLAGS
+LDFLAGS=-lsqlite3
 # Automatically add the -I onto each include directory
 CFLAGS=-Wall -Wextra $(ARCH) -g $(foreach D,$(INCDIRS),-I$(D)) $(OPT) $(DEPFLAGS)
-# Link SQLite
-LINK=-lsqlite3
 
 # For-style iteration (foreach) and regular expression completions (wildcard)
 CFILES=$(foreach D,$(CODEDIRS),$(wildcard $(D)/*.c))
@@ -40,10 +40,10 @@ install: all
 
 binaries: $(OBJECTS)
 	@mkdir -p $(OUTDIR)
-	$(CC) $(CFLAGS) $(LINK) src/cron_toff.o src/utils/get_time.o src/utils/wday.o -o $(OUTDIR)cron_toff
-	$(CC) $(CFLAGS) $(LINK) src/cron_ton.o src/utils/get_time.o -o $(OUTDIR)cron_ton
-	$(CC) $(CFLAGS) $(LINK) src/db_checker.o src/utils/issue.o -o $(OUTDIR)db_checker
-	$(CC) $(CFLAGS) $(LINK) src/main.o src/utils/get_time.o src/utils/wday.o src/utils/issue.o -o $(OUTDIR)gawake-cli
+	$(CC) $(CFLAGS) src/cron_toff.o src/utils/get_time.o src/utils/wday.o -o $(OUTDIR)cron_toff $(LDFLAGS)
+	$(CC) $(CFLAGS) src/cron_ton.o src/utils/get_time.o -o $(OUTDIR)cron_ton $(LDFLAGS)
+	$(CC) $(CFLAGS) src/db_checker.o src/utils/issue.o -o $(OUTDIR)db_checker $(LDFLAGS)
+	$(CC) $(CFLAGS) src/main.o src/utils/get_time.o src/utils/wday.o src/utils/issue.o -o $(OUTDIR)gawake-cli $(LDFLAGS)
 
 # Only want the .c file dependency here, thus $< instead of $^.
 %.o:%.c

@@ -110,6 +110,7 @@ int main (void) {
   } else {
     fprintf(stdout, "Match on turn on rule with ID [%d]\n", id_match);
     fprintf(stdout, "Running command: %s\n", cmd);
+    fflush(stdout);
     int stat = system(cmd);
     if (stat != 0)
       fprintf(stderr, "Command exited with error\n");

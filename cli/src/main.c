@@ -20,9 +20,8 @@
  * (Possible implementations)
  * @Gawake updater function
  * @Run commands as other users, besides root
- * @Verify user input when receiveing rtwake options/arguments (on function config)
+ * @Verify user input when receiving rtcwake options/arguments (on function config)
  * @Allow changing boot_time
- * @Fix output log
  * @Add manual schedule output to logs
  */
 
@@ -289,7 +288,10 @@ void database(sqlite3 **db) {
   if (pid == 0) {
     // Child process
     execl(DB_CHECKER, DB_CHECKER, NULL);
-    fprintf(stderr, ANSI_COLOR_RED "ERROR (execl): %s\n" ANSI_COLOR_RESET, strerror(errno));
+    if (errno == 13)        // when gets "permission denied"
+      fprintf(stderr, ANSI_COLOR_RED "ERROR (execl): %s; do you have root privileges?\n" ANSI_COLOR_RESET, strerror(errno));
+    else
+      fprintf(stderr, ANSI_COLOR_RED "ERROR (execl): %s\n" ANSI_COLOR_RESET, strerror(errno));
     exit(EXIT_FAILURE);
   } else if (pid > 0) {
     // Parent process
@@ -302,7 +304,8 @@ void database(sqlite3 **db) {
   // Open the SQLite database
   rc = sqlite3_open_v2(PATH, db, SQLITE_OPEN_READWRITE, NULL);
   if (rc != SQLITE_OK) {
-    fprintf(stderr, ANSI_COLOR_RED "Can't open database: %s\n" ANSI_COLOR_RESET, sqlite3_errmsg(*db));
+    if (errno != 13)          // only print it when execl didn't get a "permission denied"
+      fprintf(stderr, ANSI_COLOR_RED "Can't open database: %s\n" ANSI_COLOR_RESET, sqlite3_errmsg(*db));
     exit(EXIT_FAILURE);
   } else {
     printf(ANSI_COLOR_GREEN "Database opened successfully!\n" ANSI_COLOR_RESET);

@@ -14,11 +14,11 @@
  * (2) FOR THE PATH, YOU MUST JUST APPEND THE DATABASE NAME TO THE PREVIOUS 'DIR' VALUE, OTHERWISE YOU'LL GET ERRORS
  */
 #define DIR	"/var/gawake/"
-#define PATH	DIR "gawake-cli.db"
+#define PATH DIR "gawake-cli.db"
 #define LOGS DIR "logs/"
 
-#define VERSION	"3.0.1"     // Gawake version
-#define CMD_LEN 129	        // Allowed length for commands
+#define VERSION	"3.0.2"     // Gawake version
+#define CMD_LEN 129         // Allowed length for commands
 
 #endif /* GAWAKE_H_ */
 

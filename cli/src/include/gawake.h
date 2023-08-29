@@ -16,9 +16,14 @@
 #define DIR	"/var/gawake/"
 #define PATH DIR "gawake-cli.db"
 #define LOGS DIR "logs/"
+// Apdend with " >> path/turn_off.log 2>&1"
+#define LOGS_OUTPUT " >> " LOGS "turn_off.log 2>&1"
 
 #define VERSION	"3.0.2"     // Gawake version
 #define CMD_LEN 129         // Allowed length for commands
+#define RULE_NAME_LEN 33    // Allowed length for rule name
+#define MODE_LEN 8          // Max rtcwake mode length
+#define FORMATTED_CMD_LEN (40 + CMD_LEN + MODE_LEN + sizeof(LOGS_OUTPUT) + 100)   // Max estimated length of a whole rtcwake command
 
 #endif /* GAWAKE_H_ */
 

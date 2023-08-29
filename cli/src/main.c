@@ -21,8 +21,7 @@
  * @Gawake updater function
  * @Run commands as other users, besides root
  * @Verify user input when receiving rtcwake options/arguments (on function config)
- * @Allow changing boot_time
- * @Add manual schedule output to logs
+ * @Allow changing boot_time delay
  */
 
 #include <stdio.h>
@@ -50,10 +49,10 @@
 static uid_t euid, uid;
 
 struct rules {
-  char rule_name[33];
+  char rule_name[RULE_NAME_LEN];
   int time[3];
   int days[7];
-  char mode[8];
+  char mode[MODE_LEN];
   char command[CMD_LEN];
 };
 
@@ -163,13 +162,23 @@ int main(int argc, char **argv) {
 
   // Case 's' and/or 'c'; 'm' is optional
   if ((sflag && cflag) || cflag) {
-    char cmd[50];
-    snprintf(cmd, 50, "sudo rtcwake -a --date %s", cvalue);
+    char cmd[FORMATTED_CMD_LEN];
+    snprintf(cmd, FORMATTED_CMD_LEN, "sudo rtcwake -a --date %s", cvalue);
     if (mflag) {
       strcat(cmd, " -m ");
       strcat(cmd, mvalue);
     }
     printf("Running rtcwake: %s\n", cmd);
+
+    // Sending this information to logs
+    strcat(cmd, LOGS_OUTPUT);           // append command to redirect it' output
+    struct tm *timeinfo;                // Default structure, see documentation
+    get_time(&timeinfo);
+
+    char to_log[100 + strlen(LOGS_OUTPUT)];
+    snprintf(to_log, sizeof(to_log), "echo \"%s[TURN OFF MANUALLY TRIGGERED]\n\"%s", asctime(timeinfo), LOGS_OUTPUT);
+    system(to_log);
+    fflush(stdout);
     system(cmd);
     return EXIT_SUCCESS;
   } else if (sflag) { // Case 's', only
@@ -219,18 +228,23 @@ int main(int argc, char **argv) {
 
     // Receives the user's input
     choice = getchar();
+    if (choice == EOF) {
+      // When <Ctrl D> was triggered: end execution
+      exit_handler(SIGINT);
 
-    /* Reference [1]
-    A valid answer will have two characters:
-    (1st) a letter in 'choice' and
-    (2nd) a newline on the buffer                             like: ('i', '\n')
-    IF the input is not "empty" ('\n') AND the subsequent character entered is not a newline */
-    if (choice != '\n' && getchar() != '\n') {
-      // flush buffered line and invalidate the input
+    } else if (choice != '\n' && getchar() != '\n') {
+      /* Reference [1]
+      A valid answer will have two characters:
+      (1st) a letter in 'choice' and
+      (2nd) a newline on the buffer                             like: ('i', '\n')
+      IF the input is not "empty" ('\n') AND the subsequent character entered is not a newline
+
+      flush buffered line and invalidate the input */
       clear_buffer();
-      choice = 0 ;
+      choice = 0;
+
     } else {
-      // just continue
+      // Previous conditions passed, just continue to the menu verification
       choice = tolower(choice);
     }
 
@@ -289,7 +303,7 @@ void database(sqlite3 **db) {
     // Child process
     execl(DB_CHECKER, DB_CHECKER, NULL);
     if (errno == 13)        // when gets "permission denied"
-      fprintf(stderr, ANSI_COLOR_RED "ERROR (execl): %s; do you have root privileges?\n" ANSI_COLOR_RESET, strerror(errno));
+      fprintf(stderr, ANSI_COLOR_RED "ERROR: %s; do you have enough privileges?\n" ANSI_COLOR_RESET, strerror(errno));
     else
       fprintf(stderr, ANSI_COLOR_RED "ERROR (execl): %s\n" ANSI_COLOR_RESET, strerror(errno));
     exit(EXIT_FAILURE);
@@ -308,6 +322,9 @@ void database(sqlite3 **db) {
       fprintf(stderr, ANSI_COLOR_RED "Can't open database: %s\n" ANSI_COLOR_RESET, sqlite3_errmsg(*db));
     exit(EXIT_FAILURE);
   } else {
+    char *err_msg = 0;
+    const char *UPTDATE_VERSION = "UPDATE config SET version = '" VERSION "';";
+    sqlite3_exec(*db, UPTDATE_VERSION, NULL, 0, &err_msg);
     printf(ANSI_COLOR_GREEN "Database opened successfully!\n" ANSI_COLOR_RESET);
   }
 }
@@ -364,7 +381,7 @@ void user_input(struct rules *rule, int table) {
   printf("\n");
   do {
     printf("Enter the rule name (can't be null) ···> ");
-    fgets(rule -> rule_name, 33, stdin);
+    fgets(rule -> rule_name, RULE_NAME_LEN, stdin);
     // Checks if the previous string contains a '\n' character at the end; if not, the character is on the buffer and must be cleaned
     if (strchr(rule -> rule_name, '\n') == NULL)
       clear_buffer();
@@ -509,14 +526,19 @@ void raise_priv(void) {
 }
 
 // Print Turn on and Turn off tables
-int print_table(void *NotUsed, int argc, char **argv, char **azColName) {
-  NotUsed = 0;
+int print_table(void __attribute__((__unused__)) *NotUsed,
+                int __attribute__((__unused__)) argc,
+                char **argv,
+                char __attribute__((__unused__)) **azColName) {
   printf("%s\n", argv[0]);
   return EXIT_SUCCESS;
 }
 
 // Print config table
-int print_config(void *NotUsed, int argc, char **argv, char **azColName) {
+int print_config(void __attribute__((__unused__)) *NotUsed, 
+                 int __attribute__((__unused__)) argc, 
+                 char **argv, 
+                 char __attribute__((__unused__)) **azColName) {
   NotUsed = 0;
   const char *LABELS[] = {"Gawake status: ", "Commands: ", "Use localtime: ", "rtcwake options: ", "Default mode: ", "For help/more information."};
   int val = 0;
@@ -546,13 +568,13 @@ void sqlite_exec_err(int rc, char **err_msg) {
 }
 
 int config(sqlite3 **db) {
-  int rc, option = 0, number, alloc = 128;
+  int rc, option = 0, number, alloc = 129;
   struct sqlite3_stmt *stmt;
 
 
   char *sql = 0, *string = 0;
-  string = (char *) calloc(1, 129);
-  sql = (char *) calloc(1, alloc);
+  string = (char *) calloc(1, alloc);
+  sql = (char *) calloc(1, 2*alloc);
   // Exit if memory allocation fails
   if (sql == NULL || string == NULL) {
     fprintf(stderr, ANSI_COLOR_YELLOW "WARNING: couldn't allocate memory, try again.\n" ANSI_COLOR_RESET);
@@ -642,13 +664,13 @@ int config(sqlite3 **db) {
           printf( "rtcwake manpage: <https://www.man7.org/linux/man-pages/man8/rtcwake.8.html>"\
                   "\nGawake already use \"--date\" and \"-m, --mode\", do not use them.\nGawake default options value: \"-a\"\nEnter the options ···> ");
           strcat(sql, "UPDATE config SET options = '");
-          fgets(string, 129, stdin);
+          fgets(string, alloc, stdin);
           // Checks if the previous string contains a '\n' character at the end; if not, the character is on the buffer and must be cleaned
           if (strchr(string, '\n') == NULL)
             clear_buffer();
           char *pch;
           pch = strstr(string, "\n"); // Remove new line character
-          if(pch != NULL)
+          if (pch != NULL)
             strncpy(pch, "\0", 1);
           strcat(sql, string);
           strcat(sql, "';");
@@ -832,7 +854,7 @@ int schedule(sqlite3 **db) {
   char time[7];
   const char *DB_TIMES[] = {"utc", "localtime"};
   const char *DAYS[] = {"sun", "mon", "tue", "wed", "thu", "fri", "sat"};       // Index(0 to 6) matches tm_wday; the string refers to SQLite column name
-  char query[alloc], rtcwake_cmd[alloc], buff[7], date[9], mode[8], options[alloc];
+  char query[alloc], rtcwake_cmd[FORMATTED_CMD_LEN], buff[7], date[9], mode[8], options[alloc];
 
   // GET THE DATABASE TIME: 0 FOR UTC AND 1 FOR LOCALTIME
   if (sqlite3_prepare_v2(*db, "SELECT localtime, def_mode, options FROM config WHERE id = 1;", -1, &stmt, NULL) != SQLITE_OK) {
@@ -931,7 +953,7 @@ int schedule(sqlite3 **db) {
   // ELSE, SCHEDULE
   sqlite3_close(*db);
   printf("Match on turn on rule with ID [%d]\n", id_match);
-  snprintf(rtcwake_cmd, alloc, "rtcwake --date %s%s %s -m %s", date, time, options, mode);
+  snprintf(rtcwake_cmd, FORMATTED_CMD_LEN, "rtcwake --date %s%s %s -m %s", date, time, options, mode);
   printf(ANSI_COLOR_GREEN "Running rtcwake: %s\n" ANSI_COLOR_RESET, rtcwake_cmd);
   raise_priv();
   system(rtcwake_cmd);

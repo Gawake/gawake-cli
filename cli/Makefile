@@ -15,7 +15,7 @@ DEPFLAGS=-MP -MD
 # LDFLAGS
 LDFLAGS=-lsqlite3
 # Automatically add the -I onto each include directory
-CFLAGS=-Wall -Wextra $(ARCH) -g $(foreach D,$(INCDIRS),-I$(D)) $(OPT) $(DEPFLAGS)
+CFLAGS=-Wall -Wextra -pedantic $(ARCH) -g $(foreach D,$(INCDIRS),-I$(D)) $(OPT) $(DEPFLAGS)
 
 # For-style iteration (foreach) and regular expression completions (wildcard)
 CFILES=$(foreach D,$(CODEDIRS),$(wildcard $(D)/*.c))

@@ -27,9 +27,6 @@
 #include "include/get_time.h"
 #include "include/wday.h"
 
-// Apdend with ">> path/turn_off.log 2>&1"
-#define LOGS_OUTPUT " >> " LOGS "turn_off.log 2>&1"
-
 int main (void) {
   int rc, now, db_time = 1, id_match = -1, alloc = 230, cmd_stat = 0, gawake_stat = 0;
 
@@ -41,7 +38,7 @@ int main (void) {
   char time[7];
   const char *DB_TIMES[] = {"utc", "localtime"};
   const char *DAYS[] = {"sun", "mon", "tue", "wed", "thu", "fri", "sat"};     // Index(0 to 6) matches tm_wday; the string refers to SQLite column name
-  char query[alloc], rtcwake_cmd[alloc], buff[7], date[9], mode[8], options[alloc], cmd[CMD_LEN];
+  char query[alloc], rtcwake_cmd[FORMATTED_CMD_LEN], buff[7], date[9], mode[8], options[alloc], cmd[CMD_LEN];
 
   // GET THE CURRENT TIME
   get_time(&timeinfo);                                                    // hour, minutes and seconds as integer members
@@ -198,7 +195,7 @@ int main (void) {
     if (stat != 0)
       fprintf(stderr, "[!] >>>>>>>>> Command(set by user) exited with error\n");
   }
-  snprintf(rtcwake_cmd, alloc, "sudo rtcwake --date %s%s %s -m %s", date, time, options, mode);
+  snprintf(rtcwake_cmd, FORMATTED_CMD_LEN, "sudo rtcwake --date %s%s %s -m %s", date, time, options, mode);
   fprintf(stdout, "Running rtcwake: %s\n", rtcwake_cmd);
   strcat(rtcwake_cmd, LOGS_OUTPUT);    // Sending rtcwake output to the log
   fflush(stdout);

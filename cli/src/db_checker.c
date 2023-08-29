@@ -34,7 +34,7 @@
 int main(void) {
   int rc, fd;
   sqlite3 *db;
-  const char *SQL = "CREATE TABLE rules_turnon ("\
+  const char *SQL = "CREATE TABLE IF NOT EXISTS rules_turnon ("\
                       "id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"\
                       "rule_name   TEXT NOT NULL,"\
                       "time        TEXT NOT NULL,"\
@@ -47,7 +47,7 @@ int main(void) {
                       "sat         INTEGER NOT NULL,"\
                       "command     TEXT"\
                   ");"\
-                  "CREATE TABLE rules_turnoff ("\
+                  "CREATE TABLE IF NOT EXISTS rules_turnoff ("\
                       "id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"\
                       "rule_name   TEXT NOT NULL,"\
                       "time        TEXT NOT NULL,"\
@@ -61,7 +61,7 @@ int main(void) {
                       "command     TEXT,"\
                       "mode        TEXT NOT NULL"\
                   ");"\
-                  "CREATE TABLE config ("\
+                  "CREATE TABLE IF NOT EXISTS config ("\
                       "id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"\
                       "options     TEXT,"\
                       "status      INTEGER NOT NULL,"\

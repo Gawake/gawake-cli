@@ -66,17 +66,17 @@ Terminal commands:
   # To access all functions, run:
   $ gawake-cli
   
-  # To directly schedule wake up, run:
+  # To directly [s]chedule wake up, run:
   $ gawake-cli -s
   
-  # To run a custom schedule:
+  # To run a [c]ustom schedule:
   # Scheduling for 2023-12-28 09:30:00, using the default mode
   $ gawake-cli -c 20231228093000
   
-  # To run a custom schedule, with another mode:
+  # To run a custom schedule, with another [m]ode:
   # Scheduling for 2023-07-25 16:45:00
   $ gawake-cli -c 20230725164500 -m disk
   
-  # To uninstall Gawake
+  # To [u]ninstall Gawake
   $ gawake-cli -U
 ```

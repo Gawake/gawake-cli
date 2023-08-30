@@ -5,7 +5,7 @@ err_counter=0
 gawake_cli=/usr/bin/gawake-cli
 helper_bins=/opt/gawake/bin/cli/
 cron=/etc/cron.d/gawake
-logs=/var/gawake/logs/
+logs_path=/var/gawake/logs/
 db_path=/var/gawake/gawake-cli.db
 
 # Removing the main binary from /bin
@@ -48,10 +48,10 @@ fi
 userdel gawake
 
 # Ask for confirmation before deleting logs and the database
-if [ -d "$logs" ]; then
+if [ -d "$logs_path" ]; then
   read -p "Do you want to remove the logs? [y/N] " logs
   if [ "$logs" = "y" ] || [ "$logs" = "Y" ]; then
-    if rm -rf $logs; then
+    if rm -rf $logs_path; then
       echo "Logs removed"
     else
       echo "COULDN'T REMOVE LOGS"

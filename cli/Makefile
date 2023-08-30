@@ -7,7 +7,8 @@ OUTDIR=./build/
 
 # C compiler
 CC=gcc
-#ARCH=-m32
+ARCH=native
+# For distribution use '64' or '32'
 # Optimization
 OPT=-O0
 # Generate files that encode make rules for the .h dependencies
@@ -15,7 +16,7 @@ DEPFLAGS=-MP -MD
 # LDFLAGS
 LDFLAGS=-lsqlite3
 # Automatically add the -I onto each include directory
-CFLAGS=-Wall -Wextra -pedantic $(ARCH) -g $(foreach D,$(INCDIRS),-I$(D)) $(OPT) $(DEPFLAGS)
+CFLAGS=-Wall -Wextra -pedantic -std=gnu18 -march=$(ARCH) -g $(foreach D,$(INCDIRS),-I$(D)) $(OPT) $(DEPFLAGS)
 
 # For-style iteration (foreach) and regular expression completions (wildcard)
 CFILES=$(foreach D,$(CODEDIRS),$(wildcard $(D)/*.c))
@@ -29,13 +30,15 @@ install: all
 	@echo "Installing the main binary to /bin"
 	@install -v $(OUTDIR)gawake-cli /usr/bin/	# src destination
 	@echo "Installing the helper binaries to /opt/gawake/bin/cli"
-	@install -v -o root -g root -m 754 -D -t /opt/gawake/bin/cli/ $(OUTDIR){db_checker,cron_toff,cron_ton} # destination src
+	@install -v -o root -g root -m 754 -D -t /opt/gawake/bin/cli/ $(OUTDIR)db_checker # destination src
+	@install -v -o root -g root -m 754 -D -t /opt/gawake/bin/cli/ $(OUTDIR)cron_toff
+	@install -v -o root -g root -m 754 -D -t /opt/gawake/bin/cli/ $(OUTDIR)cron_ton
 	@echo "Installing the cron service to /etc/cron.d"
 	@# Uninstaller
 	@install -v -o root -g root -m 555 uninstall.sh /opt/gawake/	# src destination
 	@install -v -o root -g root -m 644 gawake /etc/cron.d/	# src destination
 	@echo "Adding Gawake user"
-	-@useradd -M gawake
+	-@useradd -Mr gawake
 	@echo "Gawake installed successfully!"
 
 binaries: $(OBJECTS)

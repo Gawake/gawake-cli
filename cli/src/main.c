@@ -176,7 +176,7 @@ int main(int argc, char **argv) {
     get_time(&timeinfo);
 
     char to_log[100 + strlen(LOGS_OUTPUT)];
-    snprintf(to_log, sizeof(to_log), "echo \"%s[TURN OFF MANUALLY TRIGGERED]\n\"%s", asctime(timeinfo), LOGS_OUTPUT);
+    snprintf(to_log, sizeof(to_log), "echo \"\n%s[TURN OFF MANUALLY TRIGGERED]\n\"%s", asctime(timeinfo), LOGS_OUTPUT);
     system(to_log);
     fflush(stdout);
     system(cmd);

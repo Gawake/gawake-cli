@@ -7,8 +7,8 @@ OUTDIR=./build/
 
 # C compiler
 CC=gcc
-ARCH=native
-# For distribution use '64' or '32'
+# Archtecture (for distribution use -m64 or -m32)
+ARCH=-march=native
 # Optimization
 OPT=-O0
 # Generate files that encode make rules for the .h dependencies
@@ -16,7 +16,7 @@ DEPFLAGS=-MP -MD
 # LDFLAGS
 LDFLAGS=-lsqlite3
 # Automatically add the -I onto each include directory
-CFLAGS=-Wall -Wextra -pedantic -std=gnu18 -march=$(ARCH) -g $(foreach D,$(INCDIRS),-I$(D)) $(OPT) $(DEPFLAGS)
+CFLAGS=-Wall -Wextra -pedantic -std=gnu18 $(ARCH) -g $(foreach D,$(INCDIRS),-I$(D)) $(OPT) $(DEPFLAGS)
 
 # For-style iteration (foreach) and regular expression completions (wildcard)
 CFILES=$(foreach D,$(CODEDIRS),$(wildcard $(D)/*.c))
@@ -27,18 +27,25 @@ DEPFILES=$(patsubst %.c,%.d,$(CFILES))
 all: binaries
 
 install: all
+	@### Installation script equivalent to install.sh ###
+	@# [1] Install the main binary to /bin
 	@echo "Installing the main binary to /bin"
 	@install -v $(OUTDIR)gawake-cli /usr/bin/	# src destination
+	@# [2] Install the helper binaries to /opt/gawake/bin/cli
 	@echo "Installing the helper binaries to /opt/gawake/bin/cli"
 	@install -v -o root -g root -m 754 -D -t /opt/gawake/bin/cli/ $(OUTDIR)db_checker # destination src
 	@install -v -o root -g root -m 754 -D -t /opt/gawake/bin/cli/ $(OUTDIR)cron_toff
 	@install -v -o root -g root -m 754 -D -t /opt/gawake/bin/cli/ $(OUTDIR)cron_ton
-	@echo "Installing the cron service to /etc/cron.d"
-	@# Uninstaller
+	@# Note: $(OUTDIR){cron*,db_checker} didn't work on Debian
+	@# [3] Install the uninstall script
 	@install -v -o root -g root -m 555 uninstall.sh /opt/gawake/	# src destination
+	@# [4] Install the cron service to /etc/cron.d
+	@echo "Installing the cron service to /etc/cron.d"
 	@install -v -o root -g root -m 644 gawake /etc/cron.d/	# src destination
-	@echo "Adding Gawake user"
+	@# [5] Adding Gawake user
 	-@useradd -Mr gawake
+	@# [6] Creating logs directory
+	-@mkdir -p /var/gawake/logs/
 	@echo "Gawake installed successfully!"
 
 binaries: $(OBJECTS)

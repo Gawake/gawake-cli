@@ -2,6 +2,7 @@ gawake_sources = [
   'main.vala',
   'application.vala',
   'window.vala',
+  # 'header-bar-switcher.vala',
 ]
 
 gawake_deps = [

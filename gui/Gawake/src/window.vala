@@ -20,16 +20,28 @@
 
 namespace Gawake {
     [GtkTemplate (ui = "/com/kelvinnovais/Gawake/window.ui")]
-    public class Window : Gtk.ApplicationWindow {
-        // [GtkChild]
-        // private unowned Gtk.Label label;
+    public class Window : Adw.ApplicationWindow {
+        [GtkChild]
+        private unowned Gtk.Button add_rule;
+        [GtkChild]
+        private unowned Adw.ViewStack stack;
 
         public Window (Gtk.Application app) {
             Object (application: app);
         }
 
         construct {
+            add_rule.clicked.connect (add_rule_clicked);
+        }
 
+        void add_rule_clicked () {
+            string? current_page = stack.get_visible_child_name ();
+            stdout.printf ("Add rule button clicked\n");
+            stdout.printf ("Current page: %s\n", current_page);
         }
     }
 }
+
+/* DOCS:
+ * Libadwaita: https://gnome.pages.gitlab.gnome.org/libadwaita/doc/1.4/
+ */

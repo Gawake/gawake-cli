@@ -1,7 +1,7 @@
 {
     "app-id" : "com.kelvinnovais.Gawake",
     "runtime" : "org.gnome.Platform",
-    "runtime-version" : "44",
+    "runtime-version" : "45",
     "sdk" : "org.gnome.Sdk",
     "sdk-extensions" : [
         "org.freedesktop.Sdk.Extension.vala"
@@ -38,7 +38,7 @@
             "sources" : [
                 {
                     "type" : "git",
-                    "url" : "file:///home/kelvin/Desktop/Developing/Gawake/gui"
+                    "url" : "file:///home/kelvin/Desktop/Developing/Gawake-Adw"
                 }
             ]
         }

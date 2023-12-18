@@ -2,11 +2,11 @@ gawake_sources = [
   'main.vala',
   'application.vala',
   'window.vala',
-  # 'header-bar-switcher.vala',
 ]
 
 gawake_deps = [
   dependency('gtk4'),
+  dependency('libadwaita-1', version: '>= 1.4'),
 ]
 
 gawake_sources += gnome.compile_resources('gawake-resources',

@@ -19,12 +19,9 @@
  */
 
 namespace Gawake {
-    public class Application : Gtk.Application {
+    public class Application : Adw.Application {
         public Application () {
-            Object (
-                application_id: "com.kelvinnovais.Gawake",
-                flags: ApplicationFlags.DEFAULT_FLAGS
-            );
+            Object (application_id: "com.kelvinnovais.Gawake", flags: ApplicationFlags.DEFAULT_FLAGS);
         }
 
         construct {
@@ -47,17 +44,21 @@ namespace Gawake {
         }
 
         private void on_about_action () {
-            string[] authors = { "Kelvin Ribeiro Novais" };
-            Gtk.show_about_dialog (this.active_window,
-                                   "program-name", "Gawake",
-                                    "comments", "Turn on and turn off your computer automatically",
-                                   "logo-icon-name", "com.kelvinnovais.Gawake",
-                                   "authors", authors,
-                                   "version", "0.1.0",
-                                   "copyright", "© 2023 Kelvin Ribeiro Novais",
-                                   "website", "https://github.com/KelvinNovais/Gawake",
-                                   "website_label", "Source code",
-                                   "license_type", Gtk.License.GPL_3_0);
+            string[] developers = { "Kelvin Ribeiro Novais" };
+            var about = new Adw.AboutWindow () {
+                transient_for = this.active_window,
+                application_name = "Gawake",
+                comments =  "Turn on and turn off your computer automatically",
+                application_icon = "com.kelvinnovais.Gawake",
+                developer_name = "Kelvin Ribeiro Novais",
+                version = "0.1.0",
+                developers = developers,
+                copyright = "© 2023 Kelvin Novais",
+                website = "https://github.com/KelvinNovais/Gawake",
+                license_type = Gtk.License.GPL_3_0,
+            };
+
+            about.present ();
         }
 
         private void on_preferences_action () {

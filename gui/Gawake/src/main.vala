@@ -25,5 +25,4 @@ int main (string[] args) {
 
 /* TODO
  * Runtimes: https://docs.flatpak.org/en/latest/available-runtimes.html
- *
  */

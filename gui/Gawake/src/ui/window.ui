@@ -26,13 +26,16 @@
         <!-- ADW HEADER BAR -->
         <child type="top">
           <object class="AdwHeaderBar" id="header_bar">
+            <!-- Add rule button -->
             <child type="start">
               <object class="GtkButton" id="add_rule">
                 <property name="icon_name">list-add-symbolic</property>
                 <property name="tooltip-text" translatable="yes">Add new rule</property>
+                <signal name="clicked" handler="add_rule_clicked" swapped="no"/>
               </object>
             </child>
 
+            <!-- View Switcher -->
             <property name="title-widget">
               <object class="AdwViewSwitcher">
                 <property name="stack">stack</property>
@@ -40,6 +43,7 @@
               </object>
             </property>
 
+            <!-- Menu button -->
             <child type="end">
               <object class="GtkMenuButton">
                 <property name="primary">True</property>

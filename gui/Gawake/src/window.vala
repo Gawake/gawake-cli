@@ -19,25 +19,40 @@
  */
 
 namespace Gawake {
-    [GtkTemplate (ui = "/com/kelvinnovais/Gawake/window.ui")]
+    [GtkTemplate (ui = "/com/kelvinnovais/Gawake/ui/window.ui")]
     public class Window : Adw.ApplicationWindow {
-        [GtkChild]
-        private unowned Gtk.Button add_rule;
+        // [GtkChild]
+        // private unowned Gtk.Button add_rule;
         [GtkChild]
         private unowned Adw.ViewStack stack;
+
+        private DatabaseConnection dc;
 
         public Window (Gtk.Application app) {
             Object (application: app);
         }
 
         construct {
-            add_rule.clicked.connect (add_rule_clicked);
+            // add_rule.clicked.connect (add_rule_clicked);
+
+            dc = new DatabaseConnection ();
+            // TODO should it be an async operation?
+            // https://wiki.gnome.org/Projects/Vala/Tutorial#Asynchronous_Methods
+            int stat =  dc.init ();
+            stdout.printf ("Databases return code: %d%s\n", stat, stat == 0 ? " (ok)" : " (with error)");
+
+
+            // stdout.printf ("Database return status: %d\n", stat);
         }
 
+        [GtkCallback]
         void add_rule_clicked () {
-            string? current_page = stack.get_visible_child_name ();
-            stdout.printf ("Add rule button clicked\n");
-            stdout.printf ("Current page: %s\n", current_page);
+            string current_page = stack.get_visible_child_name ();
+
+            new RuleSetupDialog (current_page);
+            // current_page is equivalent to rule_type
+            // the add action is done on Rule Setup Dialog
+
         }
     }
 }

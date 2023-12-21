@@ -1,3 +1,23 @@
+/* rule-setup-dialog.vala
+ *
+ * Copyright 2023 Kelvin Novais
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 namespace Gawake {
     [GtkTemplate (ui = "/com/kelvinnovais/Gawake/ui/rule-setup-dialog.ui")]
     public class RuleSetupDialog : Adw.Window {
@@ -32,7 +52,7 @@ namespace Gawake {
 
         construct {
             dc = new DatabaseConnection ();
-            rule.selected_days = new int[7];
+            rule.selected_days = new uint8[7];
         }
 
         public RuleSetupDialog (string rule_type) {

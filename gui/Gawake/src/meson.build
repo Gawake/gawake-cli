@@ -5,6 +5,7 @@ gawake_sources = [
   'utils.vala',
   'database-connection.vala',
   'rule-setup-dialog.vala',
+  'rule-row.vala',
 ]
 
 # FIXME

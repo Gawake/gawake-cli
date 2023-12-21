@@ -1,17 +1,40 @@
+/* database-connection.vala
+ *
+ * Copyright 2023 Kelvin Novais
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 using Sqlite;
 
 namespace Gawake {
 
     struct Rule {
+        uint8? id;
         string hour;
         string minutes;
-        int[] selected_days;
+        uint8[] selected_days;
         string? name;
         string? mode;
+        bool? active;
     }
 
     private class DatabaseAttributes : GLib.Object {
         public static Sqlite.Database shared_db;
+        public static Sqlite.Statement stmt;
         public static int rc;
         public static string errmsg;
         public static string user;
@@ -36,11 +59,15 @@ namespace Gawake {
 
     internal class DatabaseConnection : DatabaseAttributes {
         private static Connector connector;
+        private RuleRow rule_row;
+
         private static bool shared_db_success;
         private static bool user_db_success;
+        private static Rule rule;
 
         static construct {
             connector = new Connector ();
+            rule.selected_days = new uint8[7];
         }
 
         public int init () {
@@ -48,6 +75,8 @@ namespace Gawake {
             // [ ] Check for the database file existence;
             // [ ] Handle with possible errors (database does not exist);
             // [ ] Open the database connection.
+
+            stdout.printf ("Opening databases...\n");
 
             shared_db_success = connector.open_shared_db ();
             // user_db_success = connector.open_user_db ();
@@ -70,23 +99,25 @@ namespace Gawake {
 
         public bool add_rule (Rule rule, string table) {
             string sql =
-                """INSERT INTO %s (rule_name, time, sun, mon, tue, wed, thu, fri, sat, active%s)
-                VALUES ('%s', '%s%s00', %d, %d, %d, %d, %d, %d, %d, 1%s);""".printf (
-                                                                                     table,
-                                                                                     // If the it's the turnoff table, add option "mode" at the end of the columns list...
-                                                                                     (table == "rules_turnoff") ? (", mode") : "",
-                                                                                     rule.name,
-                                                                                     rule.hour,
-                                                                                     rule.minutes,
-                                                                                     rule.selected_days[0],
-                                                                                     rule.selected_days[1],
-                                                                                     rule.selected_days[2],
-                                                                                     rule.selected_days[3],
-                                                                                     rule.selected_days[4],
-                                                                                     rule.selected_days[5],
-                                                                                     rule.selected_days[6],
-                                                                                     // ... and add the respective value
-                                                                                     (table == "rules_turnoff") ? (", '%s'".printf (rule.mode)) : ""
+                """
+                INSERT INTO %s (rule_name, time, sun, mon, tue, wed, thu, fri, sat, active%s)
+                VALUES ('%s', '%s%s00', %d, %d, %d, %d, %d, %d, %d, 1%s);
+                """.printf (
+                            table,
+                            // If the it's the turnoff table, add option "mode" at the end of the columns list...
+                            (table == "rules_turnoff") ? (", mode") : "",
+                            rule.name,
+                            rule.hour,
+                            rule.minutes,
+                            rule.selected_days[0],
+                            rule.selected_days[1],
+                            rule.selected_days[2],
+                            rule.selected_days[3],
+                            rule.selected_days[4],
+                            rule.selected_days[5],
+                            rule.selected_days[6],
+                            // ... and add the respective value
+                            (table == "rules_turnoff") ? (", '%s'".printf (rule.mode)) : ""
                 );
 
 #if PREPROCESSOR_DEBUG
@@ -100,13 +131,47 @@ namespace Gawake {
 
             return true;
         }
-    }
+
+        public bool load_shared (Gtk.ListBox listbox, string table) {
+            // QUERY RULES
+            // Prepare statement
+            if ((rc = shared_db.prepare_v2 (@"SELECT * FROM $table;", -1, out stmt, null)) == Sqlite.ERROR) {
+                stderr.printf ("[load_shared1] SQL error: %d, %s\n", rc, shared_db.errmsg ());
+                return false;
+            }
+            // Assign to variables
+            while ((rc = stmt.step ()) == Sqlite.ROW) {
+                rule.id = (uint8) stmt.column_int (0);
+                rule.name = stmt.column_text (1);
+                rule.hour = stmt.column_text (2).substring (0, 2);
+                rule.minutes = stmt.column_text (2).substring (2, 2);
+                rule.selected_days[0] = (uint8) stmt.column_int (3);
+                rule.selected_days[1] = (uint8) stmt.column_int (4);
+                rule.selected_days[2] = (uint8) stmt.column_int (5);
+                rule.selected_days[3] = (uint8) stmt.column_int (6);
+                rule.selected_days[4] = (uint8) stmt.column_int (7);
+                rule.selected_days[5] = (uint8) stmt.column_int (8);
+                rule.selected_days[6] = (uint8) stmt.column_int (9);
+                rule.active = (bool) stmt.column_int (10);
+                rule.mode = (table == "rules_turnoff") ? stmt.column_text (11) : "";
+
+                rule_row = new RuleRow (rule);
+                listbox.append (rule_row.get_rule_row ());
+                listbox.row_activated (rule_row);
+            }
+            // Check if successful
+            if (rc != Sqlite.DONE) {
+                stderr.printf ("[load_shared2] SQL error: %d, %s\n", rc, shared_db.errmsg ());
+                return false;
+            }
+
+            return true;
+        }
+    } // DatabaseConnection
+
 
     private class Connector : DatabaseAttributes {
         construct {
-            // TODO remove later
-            GLib.DateTime now = new GLib.DateTime.now_local ();
-            stdout.printf ("[%02d:%02d:%02d] Opening databases...\n", now.get_hour (), now.get_minute (), now.get_second ());
         }
 
         public bool open_shared_db () {
@@ -184,7 +249,7 @@ namespace Gawake {
 
             return true;
         }
-    }
+    } // Connector
 } // namespace Gawake
 
 /* DOCS.:

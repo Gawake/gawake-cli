@@ -5,6 +5,7 @@
     <property name="destroy_with_parent">True</property>
     <property name="default-width">520</property>
     <property name="default-height">520</property> <!-- "original": 580 -->
+    <!-- TODO add dynamic title -->
     <property name="title" translatable="yes">New Rule</property>
 
     <!-- TODO Escape when "Esc" is pressed -->
@@ -117,14 +118,15 @@
                       </object>
                     </child>
 
-                    <child>
-                      <!-- TODO AM and PM should be visible (?); revealer is possible on the code -->
-                      <object class="AdwBin" id="am_pm_bin">
-                        <property name="visible">False</property>
-                        <property name="margin_start">6</property>
-                        <property name="margin_end">6</property>
-                      </object>
-                    </child>
+                    <!-- TODO AM and PM should be implemented? -->
+                    <!-- <child> -->
+                    <!--   <object class="AdwBin" id="am_pm_bin"> -->
+                    <!--     <property name="visible">False</property> -->
+                    <!--     <property name="margin_start">6</property> -->
+                    <!--     <property name="margin_end">6</property> -->
+                    <!--   </object> -->
+                    <!-- </child> -->
+
                   </object>
                 </child>
 
@@ -163,14 +165,17 @@
                                 <child>
                                   <object class="GtkToggleButton" id="day_0">
                                     <property name="label" translatable="yes">S</property>
+                                    <property name="tooltip-text" translatable="yes">Sunday</property>
                                     <style>
                                       <class name="circular"/>
+                                      <class name="weekend"/>
                                     </style>
                                   </object>
                                 </child>
                                 <child>
                                   <object class="GtkToggleButton" id="day_1">
                                     <property name="label" translatable="yes">M</property>
+                                    <property name="tooltip-text" translatable="yes">Monday</property>
                                     <style>
                                       <class name="circular"/>
                                     </style>
@@ -179,6 +184,7 @@
                                 <child>
                                   <object class="GtkToggleButton" id="day_2">
                                     <property name="label" translatable="yes">T</property>
+                                    <property name="tooltip-text" translatable="yes">Tuesday</property>
                                     <style>
                                       <class name="circular"/>
                                     </style>
@@ -187,6 +193,7 @@
                                 <child>
                                   <object class="GtkToggleButton" id="day_3">
                                     <property name="label" translatable="yes">W</property>
+                                    <property name="tooltip-text" translatable="yes">Wednesday</property>
                                     <style>
                                       <class name="circular"/>
                                     </style>
@@ -195,6 +202,7 @@
                                 <child>
                                   <object class="GtkToggleButton" id="day_4">
                                     <property name="label" translatable="yes">T</property>
+                                    <property name="tooltip-text" translatable="yes">Thursday</property>
                                     <style>
                                       <class name="circular"/>
                                     </style>
@@ -203,6 +211,7 @@
                                 <child>
                                   <object class="GtkToggleButton" id="day_5">
                                     <property name="label" translatable="yes">F</property>
+                                    <property name="tooltip-text" translatable="yes">Friday</property>
                                     <style>
                                       <class name="circular"/>
                                     </style>
@@ -211,8 +220,10 @@
                                 <child>
                                   <object class="GtkToggleButton" id="day_6">
                                     <property name="label" translatable="yes">S</property>
+                                    <property name="tooltip-text" translatable="yes">Saturday</property>
                                     <style>
                                       <class name="circular"/>
+                                      <class name="weekend"/>
                                     </style>
                                   </object>
                                 </child>
@@ -234,6 +245,7 @@
                     <!-- FIXME when revealed, it doesn't work -->
                     <child>
                       <object class="GtkRevealer" id="mode_revealer">
+                        <property name="transition_type">none</property>
                         <property name="reveal-child">False</property>
                         <child>
                           <object class="AdwComboRow" id="mode">

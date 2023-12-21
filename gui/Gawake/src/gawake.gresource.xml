@@ -9,5 +9,6 @@
 
     <file preprocess="xml-stripblanks">ui/window.ui</file>
     <file preprocess="xml-stripblanks">ui/rule-setup-dialog.ui</file>
+    <file preprocess="xml-stripblanks">ui/rule-row.ui</file>
   </gresource>
 </gresources>

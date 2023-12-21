@@ -21,28 +21,52 @@
 namespace Gawake {
     [GtkTemplate (ui = "/com/kelvinnovais/Gawake/ui/window.ui")]
     public class Window : Adw.ApplicationWindow {
-        // [GtkChild]
-        // private unowned Gtk.Button add_rule;
         [GtkChild]
         private unowned Adw.ViewStack stack;
+        [GtkChild]
+        private unowned Gtk.ListBox turnon_listbox;
+        [GtkChild]
+        private unowned Gtk.ListBox turnoff_listbox;
 
         private DatabaseConnection dc;
 
-        public Window (Gtk.Application app) {
-            Object (application: app);
+        construct {
+            dc = new DatabaseConnection ();
         }
 
-        construct {
-            // add_rule.clicked.connect (add_rule_clicked);
+        public Window (Gtk.Application app) {
+            Object (application: app);
 
-            dc = new DatabaseConnection ();
+            load_content ();
+        }
+
+        private void load_content () {
             // TODO should it be an async operation?
             // https://wiki.gnome.org/Projects/Vala/Tutorial#Asynchronous_Methods
-            int stat =  dc.init ();
-            stdout.printf ("Databases return code: %d%s\n", stat, stat == 0 ? " (ok)" : " (with error)");
+            int dc_status = dc.init ();
+            stdout.printf ("Databases return code: %d%s\n", dc_status, dc_status == 0 ? " (ok)" : " (with error)");
 
+            switch (dc_status) {
+            case 0:
+                // TODO
+                break;
+            case -1:
+                // TODO
+                break;
+            case -2:
+                dc.load_shared (turnon_listbox, "rules_turnon");
+                turnon_listbox.row_activated.connect (edit);
+                dc.load_shared (turnoff_listbox, "rules_turnoff");
+                turnoff_listbox.row_activated.connect (edit);
+                break;
+            case -3:
+                // TODO
+                break;
+            }
+        }
 
-            // stdout.printf ("Database return status: %d\n", stat);
+        public void edit () {
+           message ("Edit");
         }
 
         [GtkCallback]
@@ -52,7 +76,6 @@ namespace Gawake {
             new RuleSetupDialog (current_page);
             // current_page is equivalent to rule_type
             // the add action is done on Rule Setup Dialog
-
         }
     }
 }

@@ -23,16 +23,17 @@
     <property name="content">
       <!-- ADW TOOLBAR VIEW -->
       <object class="AdwToolbarView">
+        <property name="top_bar_style">raised</property>
 
         <!-- ADW HEADER BAR -->
         <child type="top">
           <object class="AdwHeaderBar" id="header_bar">
             <!-- Add rule button -->
             <child type="start">
-              <object class="GtkButton" id="add_rule">
+              <object class="GtkButton" id="add_button">
                 <property name="icon_name">list-add-symbolic</property>
                 <property name="tooltip-text" translatable="yes">Add new rule</property>
-                <signal name="clicked" handler="add_rule_clicked" swapped="no"/>
+                <signal name="clicked" handler="add_button_clicked" swapped="no"/>
               </object>
             </child>
 

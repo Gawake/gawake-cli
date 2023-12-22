@@ -53,6 +53,26 @@
                 </style>
               </object>
             </child>
+
+            <!-- MODE -->
+            <child>
+              <object class="GtkRevealer" id="mode_revealer">
+                <property name="reveal-child">false</property>
+                <child>
+                  <object class="GtkLabel" id="mode">
+                    <property name="tooltip_text" translatable="yes">Mode</property>
+                    <property name="hexpand">True</property>
+                    <property name="ellipsize">end</property>
+                    <property name="xalign">0</property>
+                    <style>
+                      <class name="dim-label"/>
+                      <class name="caption"/>
+                    </style>
+                  </object>
+                </child>
+              </object>
+            </child>
+
           </object>
         </child>
 
@@ -73,7 +93,7 @@
                 <property name="halign">center</property>
                 <property name="valign">center</property>
                 <property name="icon_name">edit-delete-symbolic</property>
-                <signal name="clicked" handler="delete" swapped="no"/>
+                <signal name="clicked" handler="delete_rule" swapped="no"/>
                 <style>
                   <class name="circular"/>
                   <class name="flat"/>

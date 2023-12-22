@@ -32,14 +32,18 @@ namespace Gawake {
         bool? active;
     }
 
-    private class DatabaseAttributes : GLib.Object {
-        public static Sqlite.Database shared_db;
-        public static Sqlite.Statement stmt;
-        public static int rc;
-        public static string errmsg;
-        public static string user;
-        public static string shared_db_dir;
-        public static string shared_db_path;
+    internal class DatabaseConnection {
+        private static Sqlite.Database shared_db;
+        private static Sqlite.Statement stmt;
+        private static int rc;
+        private static string errmsg;
+        private static string user;
+        private static string shared_db_dir;
+        private static string shared_db_path;
+
+        private RuleRow rule_row;
+
+        private static Rule rule;
 
         static construct {
             Utils utils = new Utils ();
@@ -54,47 +58,8 @@ namespace Gawake {
             stdout.printf ("\tDatabase directory: %s\n", db_dir);
             stdout.printf ("\tDatabase path: %s\n", db_path);
 #endif
-        }
-    }
 
-    internal class DatabaseConnection : DatabaseAttributes {
-        private static Connector connector;
-        private RuleRow rule_row;
-
-        private static bool shared_db_success;
-        private static bool user_db_success;
-        private static Rule rule;
-
-        static construct {
-            connector = new Connector ();
             rule.selected_days = new uint8[7];
-        }
-
-        public int init () {
-            // [ ] TODO
-            // [ ] Check for the database file existence;
-            // [ ] Handle with possible errors (database does not exist);
-            // [ ] Open the database connection.
-
-            stdout.printf ("Opening databases...\n");
-
-            shared_db_success = connector.open_shared_db ();
-            // user_db_success = connector.open_user_db ();
-
-            // Return code when successfully opens:
-            // shared and user:  0
-            // only user:       -1
-            // only shared:     -2
-            // none:            -3
-            if (shared_db_success && user_db_success) {
-                return 0;
-            } else if (user_db_success && !shared_db_success) {
-                return -1;
-            } else if (shared_db_success && !user_db_success) {
-                return -2;
-            } else {
-                return -3;
-            }
         }
 
         public bool add_rule (Rule rule, string table) {
@@ -121,7 +86,7 @@ namespace Gawake {
                 );
 
 #if PREPROCESSOR_DEBUG
-            stdout.printf ("SQL:\n%s\n", sql);
+            stdout.printf ("Add rule SQL:\n%s\n", sql);
 #endif
             rc = shared_db.exec (sql, null, out errmsg);
             if (rc != Sqlite.OK) {
@@ -132,8 +97,54 @@ namespace Gawake {
             return true;
         }
 
+        public bool edit_rule (Rule rule, string table, int id) {
+            string sql = """
+            UPDATE %s SET rule_name = '%s', time = '%s%s00', sun = %d, mon = %d, tue = %d, wed = %d, thu = %d, fri = %d, sat = %d,
+            active = %d%s WHERE id = %d;
+            """.printf (
+                        table,
+                        rule.name,
+                        rule.hour,
+                        rule.minutes,
+                        rule.selected_days[0],
+                        rule.selected_days[1],
+                        rule.selected_days[2],
+                        rule.selected_days[3],
+                        rule.selected_days[4],
+                        rule.selected_days[5],
+                        rule.selected_days[6],
+                        rule.active ? 1 : 0,
+                        (table == "rules_turnoff") ? @", mode = '$(rule.mode)'" : "",
+                        id
+                );
+
+            rc = shared_db.exec (sql, null, out errmsg);
+            if (rc != Sqlite.OK) {
+                stderr.printf ("Error: %s\n", errmsg);
+                return false;
+            }
+            return true;
+        }
+
+        public bool delete_rule (string table, int id) {
+            rc = shared_db.exec (@"DELETE FROM $table WHERE id = $id;", null, out errmsg);
+            if (rc != Sqlite.OK) {
+                stderr.printf ("Error: %s\n", errmsg);
+                return false;
+            }
+            return true;
+        }
+
+        public bool enable_disable_rule (string table, int id, bool state) {
+            rc = shared_db.exec (@"UPDATE $table SET active = $(state) WHERE id = $id;", null, out errmsg);
+            if (rc != Sqlite.OK) {
+                stderr.printf ("Error: %s\n", errmsg);
+                return false;
+            }
+            return true;
+        }
+
         public bool load_shared (Gtk.ListBox listbox, string table) {
-            // QUERY RULES
             // Prepare statement
             if ((rc = shared_db.prepare_v2 (@"SELECT * FROM $table;", -1, out stmt, null)) == Sqlite.ERROR) {
                 stderr.printf ("[load_shared1] SQL error: %d, %s\n", rc, shared_db.errmsg ());
@@ -155,10 +166,12 @@ namespace Gawake {
                 rule.active = (bool) stmt.column_int (10);
                 rule.mode = (table == "rules_turnoff") ? stmt.column_text (11) : "";
 
-                rule_row = new RuleRow (rule);
+                // create the rule row
+                rule_row = new RuleRow (rule, listbox);
+                // append to the list box
                 listbox.append (rule_row.get_rule_row ());
-                listbox.row_activated (rule_row);
             }
+
             // Check if successful
             if (rc != Sqlite.DONE) {
                 stderr.printf ("[load_shared2] SQL error: %d, %s\n", rc, shared_db.errmsg ());
@@ -167,14 +180,47 @@ namespace Gawake {
 
             return true;
         }
-    } // DatabaseConnection
 
+        public Rule query_rule (string table, int id) {
+            Rule rule = {
+                0,
+                "00",
+                "00",
+                { 0, 0, 0, 0, 0, 0, 0 },
+                "",
+                "",
+                true
+            };
 
-    private class Connector : DatabaseAttributes {
-        construct {
+            // Prepare statement
+            if ((rc = shared_db.prepare_v2 (@"SELECT * FROM $table WHERE id = $id;", -1, out stmt, null)) == Sqlite.ERROR) {
+                stderr.printf ("[load_shared1] SQL error: %d, %s\n", rc, shared_db.errmsg ());
+            }
+            // Assign to variables
+            while ((rc = stmt.step ()) == Sqlite.ROW) {
+                rule.id = (uint8) stmt.column_int (0);
+                rule.name = stmt.column_text (1);
+                rule.hour = stmt.column_text (2).substring (0, 2);
+                rule.minutes = stmt.column_text (2).substring (2, 2);
+                rule.selected_days[0] = (uint8) stmt.column_int (3);
+                rule.selected_days[1] = (uint8) stmt.column_int (4);
+                rule.selected_days[2] = (uint8) stmt.column_int (5);
+                rule.selected_days[3] = (uint8) stmt.column_int (6);
+                rule.selected_days[4] = (uint8) stmt.column_int (7);
+                rule.selected_days[5] = (uint8) stmt.column_int (8);
+                rule.selected_days[6] = (uint8) stmt.column_int (9);
+                rule.active = (bool) stmt.column_int (10);
+                rule.mode = (table == "rules_turnoff") ? stmt.column_text (11) : "";
+            }
+            // Check if successful
+            if (rc != Sqlite.DONE) {
+                stderr.printf ("[load_shared2] SQL error: %d, %s\n", rc, shared_db.errmsg ());
+            }
+
+            return rule;
         }
 
-        public bool open_shared_db () {
+        public bool init_shared_db () {
             // Check if the directory exists
             // TODO (non-default base directory locations): https://docs.flatpak.org/en/latest/sandbox-permissions.html
             File directory = File.new_for_path (shared_db_dir);
@@ -249,7 +295,7 @@ namespace Gawake {
 
             return true;
         }
-    } // Connector
+    } // DatabaseConnection
 } // namespace Gawake
 
 /* DOCS.:

@@ -5,8 +5,6 @@
     <property name="destroy_with_parent">True</property>
     <property name="default-width">520</property>
     <property name="default-height">520</property> <!-- "original": 580 -->
-    <!-- TODO add dynamic title -->
-    <property name="title" translatable="yes">New Rule</property>
 
     <!-- TODO Escape when "Esc" is pressed -->
     <!-- <child> -->
@@ -23,6 +21,7 @@
     <property name="content">
 
       <object class="AdwToolbarView">
+        <property name="top_bar_style">raised</property>
 
         <child type="top">
           <object class="AdwHeaderBar">
@@ -43,7 +42,7 @@
               <object class="GtkButton" id="add_button">
                 <property name="label" translatable="yes">_Add</property>
                 <property name="use-underline">True</property>
-                <signal name="clicked" handler="add_rule_button_clicked" swapped="no"/>
+                <!-- <signal name="clicked" handler="add_rule_button_clicked" swapped="no"/> -->
                 <style>
                   <class name="suggested-action"/>
                 </style>
@@ -244,27 +243,21 @@
                     <!-- Mode -->
                     <!-- FIXME when revealed, it doesn't work -->
                     <child>
-                      <object class="GtkRevealer" id="mode_revealer">
-                        <property name="transition_type">none</property>
-                        <property name="reveal-child">False</property>
-                        <child>
-                          <object class="AdwComboRow" id="mode">
-                            <property name="activatable">False</property>
-                            <property name="title" translatable="yes">Mode</property>
-                            <property name="model">
-                              <object class="GtkStringList">
-                                <!-- TODO add help/information about these values, based on page https://www.man7.org/linux/man-pages/man8/rtcwake.8.html -->
-                                <items>
-                                  <item translatable="yes">Off</item>
-                                  <item translatable="yes">Disk</item>
-                                  <item translatable="yes">Standby</item>
-                                  <item translatable="yes">Memory</item>
-                                  <item translatable="yes">Freeze</item>
-                                </items>
-                              </object>
-                            </property>
+                      <object class="AdwComboRow" id="mode">
+                        <!-- <property name="activatable">False</property> -->
+                        <property name="title" translatable="yes">Mode</property>
+                        <property name="model">
+                          <object class="GtkStringList">
+                            <!-- TODO add help/information about these values, based on page https://www.man7.org/linux/man-pages/man8/rtcwake.8.html -->
+                            <items>
+                              <item translatable="yes">Off</item>
+                              <item translatable="yes">Disk</item>
+                              <item translatable="yes">Standby</item>
+                              <item translatable="yes">Memory</item>
+                              <item translatable="yes">Freeze</item>
+                            </items>
                           </object>
-                        </child>
+                        </property>
                       </object>
                     </child>
 

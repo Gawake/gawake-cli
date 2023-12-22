@@ -1,8 +1,5 @@
-*.db
-*.o
-*.d
-
-run.sh
-
-cli/build/*
-cli/releases/*
+build
+_build
+*~
+.flatpak-builder/
+.flatpak/

@@ -19,7 +19,7 @@
  */
 
 namespace Gawake {
-    [GtkTemplate (ui = "/com/kelvinnovais/Gawake/ui/rule-setup-dialog.ui")]
+    [GtkTemplate (ui = "/io/github/kelvinnovais/Gawake/ui/rule-setup-dialog.ui")]
     public class RuleSetupDialog : Adw.Window {
         [GtkChild]
         private unowned Gtk.SpinButton h_spinbutton;
@@ -44,7 +44,7 @@ namespace Gawake {
         [GtkChild]
         private unowned Adw.ComboRow mode;
         [GtkChild]
-        private unowned Gtk.Button add_button;
+        private unowned Gtk.Button action_button;
 
         internal signal void done ();
 
@@ -58,9 +58,35 @@ namespace Gawake {
             rule.selected_days = new uint8[7];
         }
 
+        private void test () {
+	        string ls_stdout;
+	        string ls_stderr;
+	        int ls_status;
+
+	        try {
+		        Process.spawn_command_line_sync ("sudo whoami",
+									        out ls_stdout,
+									        out ls_stderr,
+									        out ls_status);
+
+		        // Output: <File list>
+		        print ("stdout:\n");
+		        // Output: ````
+		        print (ls_stdout);
+		        print ("stderr:\n");
+		        print (ls_stderr);
+		        // Output: ``0``
+		        print ("Status: %d\n", ls_status);
+	        } catch (SpawnError e) {
+		        print ("Error: %s\n", e.message);
+	        }
+        }
+
         public RuleSetupDialog.add (string rule_type) {
-            // Set title
-            title = ("New rule");
+            test ();
+            // Set title and button label
+            title = (("New rule"));
+            action_button.set_label (("Add"));
 
             // Set mode Adw.ComboRow visibility
             this.rule_type = rule_type;
@@ -69,7 +95,7 @@ namespace Gawake {
             }
 
             // Connect add button signal to the add function
-            add_button.clicked.connect (add_rule);
+            action_button.clicked.connect (add_rule);
 
             this.present ();
         }
@@ -77,8 +103,9 @@ namespace Gawake {
         public RuleSetupDialog.edit (string rule_type, int id) {
             this.id = id;
 
-            // Set title
-            title = ("Edit rule");
+            // Set title and button label
+            title = (("Edit rule"));
+            action_button.set_label (("Done"));
 
             // Set mode Adw.ComboRow visibility
             this.rule_type = rule_type;
@@ -87,7 +114,7 @@ namespace Gawake {
             }
 
             // Connect add button signal to the add function
-            add_button.clicked.connect (edit_rule);
+            action_button.clicked.connect (edit_rule);
 
             // Replace window fields with queried data
             rule = dc.query_rule (

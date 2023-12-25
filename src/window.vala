@@ -21,7 +21,7 @@
 // TODO see https://www.vala-project.org/doc/vala/Methods.html#Contract_programming
 
 namespace Gawake {
-    [GtkTemplate (ui = "/com/kelvinnovais/Gawake/ui/window.ui")]
+    [GtkTemplate (ui = "/io/github/kelvinnovais/Gawake/ui/window.ui")]
     public class Window : Adw.ApplicationWindow {
         [GtkChild]
         private unowned Adw.ViewStack stack;

@@ -37,12 +37,9 @@
               </object>
             </child>
 
-            <!-- Add button -->
+            <!-- Add/done button -->
             <child type="end">
-              <object class="GtkButton" id="add_button">
-                <property name="label" translatable="yes">_Add</property>
-                <property name="use-underline">True</property>
-                <!-- <signal name="clicked" handler="add_rule_button_clicked" swapped="no"/> -->
+              <object class="GtkButton" id="action_button">
                 <style>
                   <class name="suggested-action"/>
                 </style>
@@ -241,10 +238,8 @@
                     </child>
 
                     <!-- Mode -->
-                    <!-- FIXME when revealed, it doesn't work -->
                     <child>
                       <object class="AdwComboRow" id="mode">
-                        <!-- <property name="activatable">False</property> -->
                         <property name="title" translatable="yes">Mode</property>
                         <property name="model">
                           <object class="GtkStringList">
@@ -260,13 +255,6 @@
                         </property>
                       </object>
                     </child>
-
-                    <!-- <child> -->
-                    <!--   <object class="AdwComboRow" id="snooze_duration"> -->
-                    <!--     <property name="activatable">False</property> -->
-                    <!--     <property name="title" translatable="yes">Snooze Duration</property> -->
-                    <!--   </object> -->
-                    <!-- </child> -->
 
                     <style>
                       <class name="boxed-list"/>

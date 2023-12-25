@@ -21,7 +21,7 @@
 // TODO set translatable fields
 // TODO is there a way to optimize memory here?
 namespace Gawake {
-    [GtkTemplate (ui = "/com/kelvinnovais/Gawake/ui/rule-row.ui")]
+    [GtkTemplate (ui = "/io/github/kelvinnovais/Gawake/ui/rule-row.ui")]
     private class RuleRow : Gtk.ListBoxRow {
         [GtkChild]
         private unowned Gtk.Switch toggle;
@@ -161,7 +161,6 @@ namespace Gawake {
             return (int.parse (this.get_id ().substring (2, 3)));
         }
 
-        // TODO
         private bool enable_disable () {
             dc.enable_disable_rule (
                                     get_rule_table (),

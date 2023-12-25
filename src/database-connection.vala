@@ -223,6 +223,7 @@ namespace Gawake {
         public bool init_shared_db () {
             // Check if the directory exists
             // TODO (non-default base directory locations): https://docs.flatpak.org/en/latest/sandbox-permissions.html
+            // (!) Can not access /var or other directories outside the sand box
             File directory = File.new_for_path (shared_db_dir);
             FileType d_exists = directory.query_file_type (FileQueryInfoFlags.NOFOLLOW_SYMLINKS);
             if (d_exists != GLib.FileType.DIRECTORY) {

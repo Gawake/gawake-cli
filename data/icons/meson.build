@@ -1,4 +1,4 @@
-application_id = 'com.kelvinnovais.Gawake'
+application_id = 'io.github.kelvinnovais.Gawake'
 
 scalable_dir = 'hicolor' / 'scalable' / 'apps'
 install_data(

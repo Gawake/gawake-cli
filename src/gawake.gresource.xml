@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-  <gresource prefix="/com/kelvinnovais/Gawake">
+  <gresource prefix="/io/github/kelvinnovais/Gawake">
     <!-- CSS -->
     <file alias="style.css">css/gawake.css</file>
 

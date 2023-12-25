@@ -22,7 +22,3 @@ int main (string[] args) {
     var app = new Gawake.Application ();
     return app.run (args);
 }
-
-/* TODO
- * Runtimes: https://docs.flatpak.org/en/latest/available-runtimes.html
- */

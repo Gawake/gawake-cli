@@ -21,7 +21,7 @@
 namespace Gawake {
     public class Application : Adw.Application {
         public Application () {
-            Object (application_id: "com.kelvinnovais.Gawake", flags: ApplicationFlags.DEFAULT_FLAGS);
+            Object (application_id: "io.github.kelvinnovais.Gawake", flags: ApplicationFlags.DEFAULT_FLAGS);
         }
 
         construct {
@@ -49,9 +49,10 @@ namespace Gawake {
                 transient_for = this.active_window,
                 application_name = "Gawake",
                 comments =  "Turn on and turn off your computer automatically",
-                application_icon = "com.kelvinnovais.Gawake",
+                application_icon = "io.github.kelvinnovais.Gawake",
                 developer_name = "Kelvin Ribeiro Novais",
                 version = "0.1.0",
+                issue_url = "https://github.com/KelvinNovais/Gawake/issues",
                 developers = developers,
                 copyright = "© 2023 Kelvin Novais",
                 website = "https://github.com/KelvinNovais/Gawake",

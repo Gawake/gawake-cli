@@ -1,6 +1,6 @@
 desktop_file = i18n.merge_file(
-        input: 'com.kelvinnovais.Gawake.desktop.in',
-       output: 'com.kelvinnovais.Gawake.desktop',
+        input: 'io.github.kelvinnovais.Gawake.desktop.in',
+       output: 'io.github.kelvinnovais.Gawake.desktop',
          type: 'desktop',
        po_dir: '../po',
       install: true,
@@ -13,8 +13,8 @@ if desktop_utils.found()
 endif
 
 appstream_file = i18n.merge_file(
-        input: 'com.kelvinnovais.Gawake.metainfo.xml.in',
-       output: 'com.kelvinnovais.Gawake.metainfo.xml',
+        input: 'io.github.kelvinnovais.Gawake.metainfo.xml.in',
+       output: 'io.github.kelvinnovais.Gawake.metainfo.xml',
        po_dir: '../po',
       install: true,
   install_dir: get_option('datadir') / 'metainfo'
@@ -24,7 +24,7 @@ appstreamcli = find_program('appstreamcli', required: false, disabler: true)
 test('Validate appstream file', appstreamcli,
      args: ['validate', '--no-net', '--explain', appstream_file])
 
-install_data('com.kelvinnovais.Gawake.gschema.xml',
+install_data('io.github.kelvinnovais.Gawake.gschema.xml',
   install_dir: get_option('datadir') / 'glib-2.0' / 'schemas'
 )
 

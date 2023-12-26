@@ -1,0 +1,8 @@
+*.db
+*.o
+*.d
+
+run.sh
+
+build/*
+releases/*

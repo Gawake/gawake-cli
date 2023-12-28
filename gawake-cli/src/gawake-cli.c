@@ -26,16 +26,13 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <sqlite3.h>
+
 #include <ctype.h>          // Character conversion
-#include <unistd.h>         // Check file existence
 #include <stdlib.h>         // Run system commands
 #include <errno.h>          // Errors handling
-#include <pwd.h>            // Get user ID
 #include <time.h>
 #include <signal.h>
 
-#include <sys/types.h>      // mkdir()
 #include <sys/wait.h>       // Child process
 
 #include "include/gawake.h"
@@ -45,27 +42,12 @@
 
 #define DB_CHECKER "/opt/gawake/bin/cli/db_checker"       // Database helper
 
-// Remember the effective and real UIDs
-static uid_t euid, uid;
-
-struct rules {
-  char rule_name[RULE_NAME_LEN];
-  int time[3];
-  int days[7];
-  char mode[MODE_LEN];
-  char command[CMD_LEN];
-};
-
 // DECLARATIONS
-void database(sqlite3 **);
 void info(void);
 void clear_buffer(void);
 void user_input(struct rules *, int);
 void invalid_val(void);
 void get_int(int *, int, int, int, int);
-void get_gawake_uid(void);
-void drop_priv(void);
-void raise_priv(void);
 int print_table(void *, int, char **, char **);
 int print_config(void *, int, char **, char **);
 void sqlite_exec_err(int, char **);
@@ -80,14 +62,10 @@ void exit_handler(int);
 void exit_aux(sqlite3 **, int);
 
 int main(int argc, char **argv) {
-  // Get UIDs; drop privileges right after
-  euid = geteuid();
-  get_gawake_uid();
-  drop_priv();
 
   // Database connection object
   sqlite3 *db;
-  
+
   // Menu variables
   int lock = 1;
   char choice;
@@ -294,40 +272,6 @@ int main(int argc, char **argv) {
 }
 
 // DEFINITIONS
-// Connection to the database
-void database(sqlite3 **db) {
-  // Call the database checker/helper
-  int rc;
-  pid_t pid = fork();
-  if (pid == 0) {
-    // Child process
-    execl(DB_CHECKER, DB_CHECKER, NULL);
-    if (errno == 13)        // when gets "permission denied"
-      fprintf(stderr, ANSI_COLOR_RED "ERROR: %s; do you have enough privileges?\n" ANSI_COLOR_RESET, strerror(errno));
-    else
-      fprintf(stderr, ANSI_COLOR_RED "ERROR (execl): %s\n" ANSI_COLOR_RESET, strerror(errno));
-    exit(EXIT_FAILURE);
-  } else if (pid > 0) {
-    // Parent process
-    wait(NULL);
-  } else {
-    fprintf(stderr, ANSI_COLOR_RED "ERROR (fork): %s\n" ANSI_COLOR_RESET, strerror(errno));
-    exit(EXIT_FAILURE);
-  }
-
-  // Open the SQLite database
-  rc = sqlite3_open_v2(PATH, db, SQLITE_OPEN_READWRITE, NULL);
-  if (rc != SQLITE_OK) {
-    if (errno != 13)          // only print it when execl didn't get a "permission denied"
-      fprintf(stderr, ANSI_COLOR_RED "Can't open database: %s\n" ANSI_COLOR_RESET, sqlite3_errmsg(*db));
-    exit(EXIT_FAILURE);
-  } else {
-    char *err_msg = 0;
-    const char *UPTDATE_VERSION = "UPDATE config SET version = '" VERSION "';";
-    sqlite3_exec(*db, UPTDATE_VERSION, NULL, 0, &err_msg);
-    printf(ANSI_COLOR_GREEN "Database opened successfully!\n" ANSI_COLOR_RESET);
-  }
-}
 
 // Prints information about Gawake
 void info(void) {
@@ -499,32 +443,6 @@ void get_int(int *ptr, int digits, int min, int max, int repeat) {
   *ptr = val;
 }
 
-// Get the gawake's uid, an unprivileged user that is used to drop the root privileges
-void get_gawake_uid(void) {
-  // Reference [2] and [3]
-  struct passwd *p;
-  const char *USER = "gawake";
-  if ((p = getpwnam(USER)) == NULL) {
-    if (geteuid() == 0) // If coudn't drop privileges, but the user is already unprivileged, don't print the warning
-      fprintf(stderr, ANSI_COLOR_YELLOW "WARNING: Couldn't get gawake's UID\n" ANSI_COLOR_RESET);
-  } else
-    uid = (int) p -> pw_uid;
-}
-
-// Drop root privileges to user "gawake"
-void drop_priv(void) {
-  if (seteuid(uid) != 0) {
-    if (geteuid() == 0) // If coudn't drop privileges, but the user is already unprivileged, don't print the warning
-      fprintf(stderr, ANSI_COLOR_YELLOW "WARNING: Couldn't drop privileges\n" ANSI_COLOR_RESET);
-  }
-}
-
-// Raise to root privileges
-void raise_priv(void) {
-  if (seteuid(euid) != 0)
-    fprintf(stderr, ANSI_COLOR_YELLOW "WARNING: Couldn't raise privileges\n" ANSI_COLOR_RESET);
-}
-
 // Print Turn on and Turn off tables
 int print_table(void __attribute__((__unused__)) *NotUsed,
                 int __attribute__((__unused__)) argc,
@@ -535,9 +453,9 @@ int print_table(void __attribute__((__unused__)) *NotUsed,
 }
 
 // Print config table
-int print_config(void __attribute__((__unused__)) *NotUsed, 
-                 int __attribute__((__unused__)) argc, 
-                 char **argv, 
+int print_config(void __attribute__((__unused__)) *NotUsed,
+                 int __attribute__((__unused__)) argc,
+                 char **argv,
                  char __attribute__((__unused__)) **azColName) {
   NotUsed = 0;
   const char *LABELS[] = {"Gawake status: ", "Commands: ", "Use localtime: ", "rtcwake options: ", "Default mode: ", "For help/more information."};
@@ -583,7 +501,7 @@ int config(sqlite3 **db) {
 
   const char *PRINT_CONFIG = "SELECT status, commands, localtime, options, def_mode FROM config";
   char *err_msg = 0;
-  
+
   // Print information about time
   // Computer time
   struct tm *timeinfo;
@@ -987,12 +905,12 @@ void exit_aux(sqlite3 **ptr, int sig) {
   // Declaring an SQLite object to store the database pointer locally
   static sqlite3 *db_ptr;
 
-  /* 
+  /*
    * The pointer is assigned only when the function is called with a signal different from SIGINT;
    * that is done once, on the main function, just for storing the database pointer.
    * In this way, it's possible to have a signal handler function, without the need of passing parameters to it:
    * signal(SIGINT, exit_handler)       <--- no need to pass the database pointer
-   */ 
+   */
   if (sig != SIGINT) {                                // Assing pointer
     db_ptr = *ptr;
   }

@@ -1,0 +1,26 @@
+<node>
+  <interface name="io.github.kelvinnovais.Database">
+
+    <method name="AddRule">
+      <!-- This is a container type https://dbus.freedesktop.org/doc/dbus-specification.html#container-types -->
+      <!-- Data types described on "struct Rules" at gawake_types.h -->
+      <!-- For testing on D-Bus Inspector: -->
+      <!-- ((1, 0x07, 0x0f, [true, false, true, false, true, false, true], 'Rule name', 0x01, false),) -->
+      <arg name="rule" direction="in" type="(qyyabsyb)"/>
+
+      <arg name="success" direction="out" type="b"/>
+    </method>
+
+    <signal name="Notification">
+      <arg name="icon_blob" type="ay"/>
+      <arg name="height" type="i"/>
+      <arg name="messages" type="as"/>
+    </signal>
+
+    <!-- TODO should I remove it?-->
+    <property name="Verbose" type="b" access="readwrite"/>
+  </interface>
+</node>
+
+<!-- Documentation available by running man "gdbus-codegen" -->
+<!-- or at https://manpages.ubuntu.com/manpages/focal/en/man1/gdbus-codegen.1.html -->

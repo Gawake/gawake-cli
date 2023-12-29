@@ -5,6 +5,7 @@
 
 #include <inttypes.h>
 #include <stdbool.h>
+#include <glib.h>
 
 #define RULE_NAME_LENGTH 33    // Allowed length for rule name
 
@@ -19,11 +20,31 @@ typedef enum
   SATURDAY
 } Week;
 
+// ATTENTION: must be synced
 typedef enum
 {
-  ON,
+  T_ON,
+  T_OFF
+} Table;
+
+static const char *TABLE[] = {
+  "rules_turnon",
+  "rules_turnoff"
+};
+
+// ATTENTION: must be synced
+typedef enum
+{
+  MEM,
+  DISK,
   OFF
 } Mode;
+
+static const char *MODE[] = {
+  "mem",
+  "disk",
+  "off"
+};
 
 typedef enum
 {
@@ -39,10 +60,22 @@ typedef struct
   uint8_t hour;                   // y
   Minutes minutes;                // y
   bool days[7];                   // ab
-  // TODO test overbounding this variable
-  char name[RULE_NAME_LENGTH];    // s
+  char *name;                     // s
   Mode mode;                      // y
   bool active;                    // b
+  uint8_t table;                  // y
 } Rule;
+
+typedef struct
+{
+  guint16 id;                    // q
+  guint8 hour;                   // y
+  Minutes minutes;               // y
+  gboolean days[7];              // ab
+  gchar *name;                   // s
+  Mode mode;                     // y
+  gboolean active;               // b
+  guint8 table;                  // y
+} gRule;
 
 #endif /* GAWAKE_TYPES_H_ */

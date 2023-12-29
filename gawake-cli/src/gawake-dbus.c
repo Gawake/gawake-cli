@@ -166,12 +166,133 @@ _g_value_equal (const GValue *a, const GValue *b)
 
 /* ---- Introspection data for io.github.kelvinnovais.Database ---- */
 
-static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_rule =
+static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_hour =
 {
   {
     -1,
-    (gchar *) "rule",
-    (gchar *) "(qyyabsyb)",
+    (gchar *) "hour",
+    (gchar *) "y",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_minutes =
+{
+  {
+    -1,
+    (gchar *) "minutes",
+    (gchar *) "y",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_day_0 =
+{
+  {
+    -1,
+    (gchar *) "day_0",
+    (gchar *) "b",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_day_1 =
+{
+  {
+    -1,
+    (gchar *) "day_1",
+    (gchar *) "b",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_day_2 =
+{
+  {
+    -1,
+    (gchar *) "day_2",
+    (gchar *) "b",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_day_3 =
+{
+  {
+    -1,
+    (gchar *) "day_3",
+    (gchar *) "b",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_day_4 =
+{
+  {
+    -1,
+    (gchar *) "day_4",
+    (gchar *) "b",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_day_5 =
+{
+  {
+    -1,
+    (gchar *) "day_5",
+    (gchar *) "b",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_day_6 =
+{
+  {
+    -1,
+    (gchar *) "day_6",
+    (gchar *) "b",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_name =
+{
+  {
+    -1,
+    (gchar *) "name",
+    (gchar *) "s",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_mode =
+{
+  {
+    -1,
+    (gchar *) "mode",
+    (gchar *) "y",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_table =
+{
+  {
+    -1,
+    (gchar *) "table",
+    (gchar *) "y",
     NULL
   },
   FALSE
@@ -179,7 +300,18 @@ static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_
 
 static const GDBusArgInfo * const _gawake_database_method_info_add_rule_IN_ARG_pointers[] =
 {
-  &_gawake_database_method_info_add_rule_IN_ARG_rule.parent_struct,
+  &_gawake_database_method_info_add_rule_IN_ARG_hour.parent_struct,
+  &_gawake_database_method_info_add_rule_IN_ARG_minutes.parent_struct,
+  &_gawake_database_method_info_add_rule_IN_ARG_day_0.parent_struct,
+  &_gawake_database_method_info_add_rule_IN_ARG_day_1.parent_struct,
+  &_gawake_database_method_info_add_rule_IN_ARG_day_2.parent_struct,
+  &_gawake_database_method_info_add_rule_IN_ARG_day_3.parent_struct,
+  &_gawake_database_method_info_add_rule_IN_ARG_day_4.parent_struct,
+  &_gawake_database_method_info_add_rule_IN_ARG_day_5.parent_struct,
+  &_gawake_database_method_info_add_rule_IN_ARG_day_6.parent_struct,
+  &_gawake_database_method_info_add_rule_IN_ARG_name.parent_struct,
+  &_gawake_database_method_info_add_rule_IN_ARG_mode.parent_struct,
+  &_gawake_database_method_info_add_rule_IN_ARG_table.parent_struct,
   NULL
 };
 
@@ -219,92 +351,14 @@ static const GDBusMethodInfo * const _gawake_database_method_info_pointers[] =
   NULL
 };
 
-static const _ExtendedGDBusArgInfo _gawake_database_signal_info_notification_ARG_icon_blob =
-{
-  {
-    -1,
-    (gchar *) "icon_blob",
-    (gchar *) "ay",
-    NULL
-  },
-  FALSE
-};
-
-static const _ExtendedGDBusArgInfo _gawake_database_signal_info_notification_ARG_height =
-{
-  {
-    -1,
-    (gchar *) "height",
-    (gchar *) "i",
-    NULL
-  },
-  FALSE
-};
-
-static const _ExtendedGDBusArgInfo _gawake_database_signal_info_notification_ARG_messages =
-{
-  {
-    -1,
-    (gchar *) "messages",
-    (gchar *) "as",
-    NULL
-  },
-  FALSE
-};
-
-static const GDBusArgInfo * const _gawake_database_signal_info_notification_ARG_pointers[] =
-{
-  &_gawake_database_signal_info_notification_ARG_icon_blob.parent_struct,
-  &_gawake_database_signal_info_notification_ARG_height.parent_struct,
-  &_gawake_database_signal_info_notification_ARG_messages.parent_struct,
-  NULL
-};
-
-static const _ExtendedGDBusSignalInfo _gawake_database_signal_info_notification =
-{
-  {
-    -1,
-    (gchar *) "Notification",
-    (GDBusArgInfo **) &_gawake_database_signal_info_notification_ARG_pointers,
-    NULL
-  },
-  "notification"
-};
-
-static const GDBusSignalInfo * const _gawake_database_signal_info_pointers[] =
-{
-  &_gawake_database_signal_info_notification.parent_struct,
-  NULL
-};
-
-static const _ExtendedGDBusPropertyInfo _gawake_database_property_info_verbose =
-{
-  {
-    -1,
-    (gchar *) "Verbose",
-    (gchar *) "b",
-    G_DBUS_PROPERTY_INFO_FLAGS_READABLE | G_DBUS_PROPERTY_INFO_FLAGS_WRITABLE,
-    NULL
-  },
-  "verbose",
-  FALSE,
-  TRUE
-};
-
-static const GDBusPropertyInfo * const _gawake_database_property_info_pointers[] =
-{
-  &_gawake_database_property_info_verbose.parent_struct,
-  NULL
-};
-
 static const _ExtendedGDBusInterfaceInfo _gawake_database_interface_info =
 {
   {
     -1,
     (gchar *) "io.github.kelvinnovais.Database",
     (GDBusMethodInfo **) &_gawake_database_method_info_pointers,
-    (GDBusSignalInfo **) &_gawake_database_signal_info_pointers,
-    (GDBusPropertyInfo **) &_gawake_database_property_info_pointers,
+    NULL,
+    NULL,
     NULL
   },
   "database",
@@ -335,9 +389,8 @@ gawake_database_interface_info (void)
  * Returns: The last property id.
  */
 guint
-gawake_database_override_properties (GObjectClass *klass, guint property_id_begin)
+gawake_database_override_properties (GObjectClass *klass G_GNUC_UNUSED, guint property_id_begin)
 {
-  g_object_class_override_property (klass, property_id_begin++, "verbose");
   return property_id_begin - 1;
 }
 
@@ -353,8 +406,6 @@ gawake_database_override_properties (GObjectClass *klass, guint property_id_begi
  * GawakeDatabaseIface:
  * @parent_iface: The parent interface.
  * @handle_add_rule: Handler for the #GawakeDatabase::handle-add-rule signal.
- * @get_verbose: Getter for the #GawakeDatabase:verbose property.
- * @notification: Handler for the #GawakeDatabase::notification signal.
  *
  * Virtual table for the D-Bus interface <link linkend="gdbus-interface-io-github-kelvinnovais-Database.top_of_page">io.github.kelvinnovais.Database</link>.
  */
@@ -370,7 +421,18 @@ gawake_database_default_init (GawakeDatabaseIface *iface)
    * GawakeDatabase::handle-add-rule:
    * @object: A #GawakeDatabase.
    * @invocation: A #GDBusMethodInvocation.
-   * @arg_rule: Argument passed by remote caller.
+   * @arg_hour: Argument passed by remote caller.
+   * @arg_minutes: Argument passed by remote caller.
+   * @arg_day_0: Argument passed by remote caller.
+   * @arg_day_1: Argument passed by remote caller.
+   * @arg_day_2: Argument passed by remote caller.
+   * @arg_day_3: Argument passed by remote caller.
+   * @arg_day_4: Argument passed by remote caller.
+   * @arg_day_5: Argument passed by remote caller.
+   * @arg_day_6: Argument passed by remote caller.
+   * @arg_name: Argument passed by remote caller.
+   * @arg_mode: Argument passed by remote caller.
+   * @arg_table: Argument passed by remote caller.
    *
    * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-io-github-kelvinnovais-Database.AddRule">AddRule()</link> D-Bus method.
    *
@@ -386,97 +448,26 @@ gawake_database_default_init (GawakeDatabaseIface *iface)
     NULL,
     g_cclosure_marshal_generic,
     G_TYPE_BOOLEAN,
-    2,
-    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_VARIANT);
+    13,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_UCHAR, G_TYPE_UCHAR, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_UCHAR, G_TYPE_UCHAR);
 
-  /* GObject signals for received D-Bus signals: */
-  /**
-   * GawakeDatabase::notification:
-   * @object: A #GawakeDatabase.
-   * @arg_icon_blob: Argument.
-   * @arg_height: Argument.
-   * @arg_messages: Argument.
-   *
-   * On the client-side, this signal is emitted whenever the D-Bus signal <link linkend="gdbus-signal-io-github-kelvinnovais-Database.Notification">"Notification"</link> is received.
-   *
-   * On the service-side, this signal can be used with e.g. g_signal_emit_by_name() to make the object emit the D-Bus signal.
-   */
-  g_signal_new ("notification",
-    G_TYPE_FROM_INTERFACE (iface),
-    G_SIGNAL_RUN_LAST,
-    G_STRUCT_OFFSET (GawakeDatabaseIface, notification),
-    NULL,
-    NULL,
-    g_cclosure_marshal_generic,
-    G_TYPE_NONE,
-    3, G_TYPE_STRING, G_TYPE_INT, G_TYPE_STRV);
-
-  /* GObject properties for D-Bus properties: */
-  /**
-   * GawakeDatabase:verbose:
-   *
-   * Represents the D-Bus property <link linkend="gdbus-property-io-github-kelvinnovais-Database.Verbose">"Verbose"</link>.
-   *
-   * Since the D-Bus property for this #GObject property is both readable and writable, it is meaningful to both read from it and write to it on both the service- and client-side.
-   */
-  g_object_interface_install_property (iface,
-    g_param_spec_boolean ("verbose", "Verbose", "Verbose", FALSE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-}
-
-/**
- * gawake_database_get_verbose: (skip)
- * @object: A #GawakeDatabase.
- *
- * Gets the value of the <link linkend="gdbus-property-io-github-kelvinnovais-Database.Verbose">"Verbose"</link> D-Bus property.
- *
- * Since this D-Bus property is both readable and writable, it is meaningful to use this function on both the client- and service-side.
- *
- * Returns: The property value.
- */
-gboolean 
-gawake_database_get_verbose (GawakeDatabase *object)
-{
-  return GAWAKE_DATABASE_GET_IFACE (object)->get_verbose (object);
-}
-
-/**
- * gawake_database_set_verbose: (skip)
- * @object: A #GawakeDatabase.
- * @value: The value to set.
- *
- * Sets the <link linkend="gdbus-property-io-github-kelvinnovais-Database.Verbose">"Verbose"</link> D-Bus property to @value.
- *
- * Since this D-Bus property is both readable and writable, it is meaningful to use this function on both the client- and service-side.
- */
-void
-gawake_database_set_verbose (GawakeDatabase *object, gboolean value)
-{
-  g_object_set (G_OBJECT (object), "verbose", value, NULL);
-}
-
-/**
- * gawake_database_emit_notification:
- * @object: A #GawakeDatabase.
- * @arg_icon_blob: Argument to pass with the signal.
- * @arg_height: Argument to pass with the signal.
- * @arg_messages: Argument to pass with the signal.
- *
- * Emits the <link linkend="gdbus-signal-io-github-kelvinnovais-Database.Notification">"Notification"</link> D-Bus signal.
- */
-void
-gawake_database_emit_notification (
-    GawakeDatabase *object,
-    const gchar *arg_icon_blob,
-    gint arg_height,
-    const gchar *const *arg_messages)
-{
-  g_signal_emit_by_name (object, "notification", arg_icon_blob, arg_height, arg_messages);
 }
 
 /**
  * gawake_database_call_add_rule:
  * @proxy: A #GawakeDatabaseProxy.
- * @arg_rule: Argument to pass with the method invocation.
+ * @arg_hour: Argument to pass with the method invocation.
+ * @arg_minutes: Argument to pass with the method invocation.
+ * @arg_day_0: Argument to pass with the method invocation.
+ * @arg_day_1: Argument to pass with the method invocation.
+ * @arg_day_2: Argument to pass with the method invocation.
+ * @arg_day_3: Argument to pass with the method invocation.
+ * @arg_day_4: Argument to pass with the method invocation.
+ * @arg_day_5: Argument to pass with the method invocation.
+ * @arg_day_6: Argument to pass with the method invocation.
+ * @arg_name: Argument to pass with the method invocation.
+ * @arg_mode: Argument to pass with the method invocation.
+ * @arg_table: Argument to pass with the method invocation.
  * @cancellable: (nullable): A #GCancellable or %NULL.
  * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
  * @user_data: User data to pass to @callback.
@@ -490,15 +481,37 @@ gawake_database_emit_notification (
 void
 gawake_database_call_add_rule (
     GawakeDatabase *proxy,
-    GVariant *arg_rule,
+    guchar arg_hour,
+    guchar arg_minutes,
+    gboolean arg_day_0,
+    gboolean arg_day_1,
+    gboolean arg_day_2,
+    gboolean arg_day_3,
+    gboolean arg_day_4,
+    gboolean arg_day_5,
+    gboolean arg_day_6,
+    const gchar *arg_name,
+    guchar arg_mode,
+    guchar arg_table,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data)
 {
   g_dbus_proxy_call (G_DBUS_PROXY (proxy),
     "AddRule",
-    g_variant_new ("(@(qyyabsyb))",
-                   arg_rule),
+    g_variant_new ("(yybbbbbbbsyy)",
+                   arg_hour,
+                   arg_minutes,
+                   arg_day_0,
+                   arg_day_1,
+                   arg_day_2,
+                   arg_day_3,
+                   arg_day_4,
+                   arg_day_5,
+                   arg_day_6,
+                   arg_name,
+                   arg_mode,
+                   arg_table),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -539,7 +552,18 @@ _out:
 /**
  * gawake_database_call_add_rule_sync:
  * @proxy: A #GawakeDatabaseProxy.
- * @arg_rule: Argument to pass with the method invocation.
+ * @arg_hour: Argument to pass with the method invocation.
+ * @arg_minutes: Argument to pass with the method invocation.
+ * @arg_day_0: Argument to pass with the method invocation.
+ * @arg_day_1: Argument to pass with the method invocation.
+ * @arg_day_2: Argument to pass with the method invocation.
+ * @arg_day_3: Argument to pass with the method invocation.
+ * @arg_day_4: Argument to pass with the method invocation.
+ * @arg_day_5: Argument to pass with the method invocation.
+ * @arg_day_6: Argument to pass with the method invocation.
+ * @arg_name: Argument to pass with the method invocation.
+ * @arg_mode: Argument to pass with the method invocation.
+ * @arg_table: Argument to pass with the method invocation.
  * @out_success: (out) (optional): Return location for return parameter or %NULL to ignore.
  * @cancellable: (nullable): A #GCancellable or %NULL.
  * @error: Return location for error or %NULL.
@@ -553,7 +577,18 @@ _out:
 gboolean
 gawake_database_call_add_rule_sync (
     GawakeDatabase *proxy,
-    GVariant *arg_rule,
+    guchar arg_hour,
+    guchar arg_minutes,
+    gboolean arg_day_0,
+    gboolean arg_day_1,
+    gboolean arg_day_2,
+    gboolean arg_day_3,
+    gboolean arg_day_4,
+    gboolean arg_day_5,
+    gboolean arg_day_6,
+    const gchar *arg_name,
+    guchar arg_mode,
+    guchar arg_table,
     gboolean *out_success,
     GCancellable *cancellable,
     GError **error)
@@ -561,8 +596,19 @@ gawake_database_call_add_rule_sync (
   GVariant *_ret;
   _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
     "AddRule",
-    g_variant_new ("(@(qyyabsyb))",
-                   arg_rule),
+    g_variant_new ("(yybbbbbbbsyy)",
+                   arg_hour,
+                   arg_minutes,
+                   arg_day_0,
+                   arg_day_1,
+                   arg_day_2,
+                   arg_day_3,
+                   arg_day_4,
+                   arg_day_5,
+                   arg_day_6,
+                   arg_name,
+                   arg_mode,
+                   arg_table),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -639,70 +685,19 @@ gawake_database_proxy_finalize (GObject *object)
 }
 
 static void
-gawake_database_proxy_get_property (GObject      *object,
-  guint         prop_id,
-  GValue       *value,
+gawake_database_proxy_get_property (GObject      *object G_GNUC_UNUSED,
+  guint         prop_id G_GNUC_UNUSED,
+  GValue       *value G_GNUC_UNUSED,
   GParamSpec   *pspec G_GNUC_UNUSED)
 {
-  const _ExtendedGDBusPropertyInfo *info;
-  GVariant *variant;
-  g_assert (prop_id != 0 && prop_id - 1 < 1);
-  info = (const _ExtendedGDBusPropertyInfo *) _gawake_database_property_info_pointers[prop_id - 1];
-  variant = g_dbus_proxy_get_cached_property (G_DBUS_PROXY (object), info->parent_struct.name);
-  if (info->use_gvariant)
-    {
-      g_value_set_variant (value, variant);
-    }
-  else
-    {
-      if (variant != NULL)
-        g_dbus_gvariant_to_gvalue (variant, value);
-    }
-  if (variant != NULL)
-    g_variant_unref (variant);
 }
 
 static void
-gawake_database_proxy_set_property_cb (GDBusProxy *proxy,
-  GAsyncResult *res,
-  gpointer      user_data)
-{
-  const _ExtendedGDBusPropertyInfo *info = user_data;
-  GError *error;
-  GVariant *_ret;
-  error = NULL;
-  _ret = g_dbus_proxy_call_finish (proxy, res, &error);
-  if (!_ret)
-    {
-      g_warning ("Error setting property '%s' on interface io.github.kelvinnovais.Database: %s (%s, %d)",
-                 info->parent_struct.name, 
-                 error->message, g_quark_to_string (error->domain), error->code);
-      g_error_free (error);
-    }
-  else
-    {
-      g_variant_unref (_ret);
-    }
-}
-
-static void
-gawake_database_proxy_set_property (GObject      *object,
-  guint         prop_id,
-  const GValue *value,
+gawake_database_proxy_set_property (GObject      *object G_GNUC_UNUSED,
+  guint         prop_id G_GNUC_UNUSED,
+  const GValue *value G_GNUC_UNUSED,
   GParamSpec   *pspec G_GNUC_UNUSED)
 {
-  const _ExtendedGDBusPropertyInfo *info;
-  GVariant *variant;
-  g_assert (prop_id != 0 && prop_id - 1 < 1);
-  info = (const _ExtendedGDBusPropertyInfo *) _gawake_database_property_info_pointers[prop_id - 1];
-  variant = g_dbus_gvalue_to_gvariant (value, G_VARIANT_TYPE (info->parent_struct.signature));
-  g_dbus_proxy_call (G_DBUS_PROXY (object),
-    "org.freedesktop.DBus.Properties.Set",
-    g_variant_new ("(ssv)", "io.github.kelvinnovais.Database", info->parent_struct.name, variant),
-    G_DBUS_CALL_FLAGS_NONE,
-    -1,
-    NULL, (GAsyncReadyCallback) gawake_database_proxy_set_property_cb, (GDBusPropertyInfo *) &info->parent_struct);
-  g_variant_unref (variant);
 }
 
 static void
@@ -775,21 +770,6 @@ gawake_database_proxy_g_properties_changed (GDBusProxy *_proxy,
     }
 }
 
-static gboolean 
-gawake_database_proxy_get_verbose (GawakeDatabase *object)
-{
-  GawakeDatabaseProxy *proxy = GAWAKE_DATABASE_PROXY (object);
-  GVariant *variant;
-  gboolean value = 0;
-  variant = g_dbus_proxy_get_cached_property (G_DBUS_PROXY (proxy), "Verbose");
-  if (variant != NULL)
-    {
-      value = g_variant_get_boolean (variant);
-      g_variant_unref (variant);
-    }
-  return value;
-}
-
 static void
 gawake_database_proxy_init (GawakeDatabaseProxy *proxy)
 {
@@ -817,17 +797,14 @@ gawake_database_proxy_class_init (GawakeDatabaseProxyClass *klass)
   proxy_class->g_signal = gawake_database_proxy_g_signal;
   proxy_class->g_properties_changed = gawake_database_proxy_g_properties_changed;
 
-  gawake_database_override_properties (gobject_class, 1);
-
 #if GLIB_VERSION_MAX_ALLOWED < GLIB_VERSION_2_38
   g_type_class_add_private (klass, sizeof (GawakeDatabaseProxyPrivate));
 #endif
 }
 
 static void
-gawake_database_proxy_iface_init (GawakeDatabaseIface *iface)
+gawake_database_proxy_iface_init (GawakeDatabaseIface *iface G_GNUC_UNUSED)
 {
-  iface->get_verbose = gawake_database_proxy_get_verbose;
 }
 
 /**
@@ -1217,53 +1194,9 @@ out:
   return g_variant_builder_end (&builder);
 }
 
-static gboolean _gawake_database_emit_changed (gpointer user_data);
-
 static void
-gawake_database_skeleton_dbus_interface_flush (GDBusInterfaceSkeleton *_skeleton)
+gawake_database_skeleton_dbus_interface_flush (GDBusInterfaceSkeleton *_skeleton G_GNUC_UNUSED)
 {
-  GawakeDatabaseSkeleton *skeleton = GAWAKE_DATABASE_SKELETON (_skeleton);
-  gboolean emit_changed = FALSE;
-
-  g_mutex_lock (&skeleton->priv->lock);
-  if (skeleton->priv->changed_properties_idle_source != NULL)
-    {
-      g_source_destroy (skeleton->priv->changed_properties_idle_source);
-      skeleton->priv->changed_properties_idle_source = NULL;
-      emit_changed = TRUE;
-    }
-  g_mutex_unlock (&skeleton->priv->lock);
-
-  if (emit_changed)
-    _gawake_database_emit_changed (skeleton);
-}
-
-static void
-_gawake_database_on_signal_notification (
-    GawakeDatabase *object,
-    const gchar *arg_icon_blob,
-    gint arg_height,
-    const gchar *const *arg_messages)
-{
-  GawakeDatabaseSkeleton *skeleton = GAWAKE_DATABASE_SKELETON (object);
-
-  GList      *connections, *l;
-  GVariant   *signal_variant;
-  connections = g_dbus_interface_skeleton_get_connections (G_DBUS_INTERFACE_SKELETON (skeleton));
-
-  signal_variant = g_variant_ref_sink (g_variant_new ("(^ayi^as)",
-                   arg_icon_blob,
-                   arg_height,
-                   arg_messages));
-  for (l = connections; l != NULL; l = l->next)
-    {
-      GDBusConnection *connection = l->data;
-      g_dbus_connection_emit_signal (connection,
-        NULL, g_dbus_interface_skeleton_get_object_path (G_DBUS_INTERFACE_SKELETON (skeleton)), "io.github.kelvinnovais.Database", "Notification",
-        signal_variant, NULL);
-    }
-  g_variant_unref (signal_variant);
-  g_list_free_full (connections, g_object_unref);
 }
 
 static void gawake_database_skeleton_iface_init (GawakeDatabaseIface *iface);
@@ -1281,158 +1214,12 @@ static void
 gawake_database_skeleton_finalize (GObject *object)
 {
   GawakeDatabaseSkeleton *skeleton = GAWAKE_DATABASE_SKELETON (object);
-  guint n;
-  for (n = 0; n < 1; n++)
-    g_value_unset (&skeleton->priv->properties[n]);
-  g_free (skeleton->priv->properties);
   g_list_free_full (skeleton->priv->changed_properties, (GDestroyNotify) _changed_property_free);
   if (skeleton->priv->changed_properties_idle_source != NULL)
     g_source_destroy (skeleton->priv->changed_properties_idle_source);
   g_main_context_unref (skeleton->priv->context);
   g_mutex_clear (&skeleton->priv->lock);
   G_OBJECT_CLASS (gawake_database_skeleton_parent_class)->finalize (object);
-}
-
-static void
-gawake_database_skeleton_get_property (GObject      *object,
-  guint         prop_id,
-  GValue       *value,
-  GParamSpec   *pspec G_GNUC_UNUSED)
-{
-  GawakeDatabaseSkeleton *skeleton = GAWAKE_DATABASE_SKELETON (object);
-  g_assert (prop_id != 0 && prop_id - 1 < 1);
-  g_mutex_lock (&skeleton->priv->lock);
-  g_value_copy (&skeleton->priv->properties[prop_id - 1], value);
-  g_mutex_unlock (&skeleton->priv->lock);
-}
-
-static gboolean
-_gawake_database_emit_changed (gpointer user_data)
-{
-  GawakeDatabaseSkeleton *skeleton = GAWAKE_DATABASE_SKELETON (user_data);
-  GList *l;
-  GVariantBuilder builder;
-  GVariantBuilder invalidated_builder;
-  guint num_changes;
-
-  g_mutex_lock (&skeleton->priv->lock);
-  g_variant_builder_init (&builder, G_VARIANT_TYPE ("a{sv}"));
-  g_variant_builder_init (&invalidated_builder, G_VARIANT_TYPE ("as"));
-  for (l = skeleton->priv->changed_properties, num_changes = 0; l != NULL; l = l->next)
-    {
-      ChangedProperty *cp = l->data;
-      GVariant *variant;
-      const GValue *cur_value;
-
-      cur_value = &skeleton->priv->properties[cp->prop_id - 1];
-      if (!_g_value_equal (cur_value, &cp->orig_value))
-        {
-          variant = g_dbus_gvalue_to_gvariant (cur_value, G_VARIANT_TYPE (cp->info->parent_struct.signature));
-          g_variant_builder_add (&builder, "{sv}", cp->info->parent_struct.name, variant);
-          g_variant_unref (variant);
-          num_changes++;
-        }
-    }
-  if (num_changes > 0)
-    {
-      GList *connections, *ll;
-      GVariant *signal_variant;
-      signal_variant = g_variant_ref_sink (g_variant_new ("(sa{sv}as)", "io.github.kelvinnovais.Database",
-                                           &builder, &invalidated_builder));
-      connections = g_dbus_interface_skeleton_get_connections (G_DBUS_INTERFACE_SKELETON (skeleton));
-      for (ll = connections; ll != NULL; ll = ll->next)
-        {
-          GDBusConnection *connection = ll->data;
-
-          g_dbus_connection_emit_signal (connection,
-                                         NULL, g_dbus_interface_skeleton_get_object_path (G_DBUS_INTERFACE_SKELETON (skeleton)),
-                                         "org.freedesktop.DBus.Properties",
-                                         "PropertiesChanged",
-                                         signal_variant,
-                                         NULL);
-        }
-      g_variant_unref (signal_variant);
-      g_list_free_full (connections, g_object_unref);
-    }
-  else
-    {
-      g_variant_builder_clear (&builder);
-      g_variant_builder_clear (&invalidated_builder);
-    }
-  g_list_free_full (skeleton->priv->changed_properties, (GDestroyNotify) _changed_property_free);
-  skeleton->priv->changed_properties = NULL;
-  skeleton->priv->changed_properties_idle_source = NULL;
-  g_mutex_unlock (&skeleton->priv->lock);
-  return FALSE;
-}
-
-static void
-_gawake_database_schedule_emit_changed (GawakeDatabaseSkeleton *skeleton, const _ExtendedGDBusPropertyInfo *info, guint prop_id, const GValue *orig_value)
-{
-  ChangedProperty *cp;
-  GList *l;
-  cp = NULL;
-  for (l = skeleton->priv->changed_properties; l != NULL; l = l->next)
-    {
-      ChangedProperty *i_cp = l->data;
-      if (i_cp->info == info)
-        {
-          cp = i_cp;
-          break;
-        }
-    }
-  if (cp == NULL)
-    {
-      cp = g_new0 (ChangedProperty, 1);
-      cp->prop_id = prop_id;
-      cp->info = info;
-      skeleton->priv->changed_properties = g_list_prepend (skeleton->priv->changed_properties, cp);
-      g_value_init (&cp->orig_value, G_VALUE_TYPE (orig_value));
-      g_value_copy (orig_value, &cp->orig_value);
-    }
-}
-
-static void
-gawake_database_skeleton_notify (GObject      *object,
-  GParamSpec *pspec G_GNUC_UNUSED)
-{
-  GawakeDatabaseSkeleton *skeleton = GAWAKE_DATABASE_SKELETON (object);
-  g_mutex_lock (&skeleton->priv->lock);
-  if (skeleton->priv->changed_properties != NULL &&
-      skeleton->priv->changed_properties_idle_source == NULL)
-    {
-      skeleton->priv->changed_properties_idle_source = g_idle_source_new ();
-      g_source_set_priority (skeleton->priv->changed_properties_idle_source, G_PRIORITY_DEFAULT);
-      g_source_set_callback (skeleton->priv->changed_properties_idle_source, _gawake_database_emit_changed, g_object_ref (skeleton), (GDestroyNotify) g_object_unref);
-      g_source_set_name (skeleton->priv->changed_properties_idle_source, "[generated] _gawake_database_emit_changed");
-      g_source_attach (skeleton->priv->changed_properties_idle_source, skeleton->priv->context);
-      g_source_unref (skeleton->priv->changed_properties_idle_source);
-    }
-  g_mutex_unlock (&skeleton->priv->lock);
-}
-
-static void
-gawake_database_skeleton_set_property (GObject      *object,
-  guint         prop_id,
-  const GValue *value,
-  GParamSpec   *pspec)
-{
-  const _ExtendedGDBusPropertyInfo *info;
-  GawakeDatabaseSkeleton *skeleton = GAWAKE_DATABASE_SKELETON (object);
-  g_assert (prop_id != 0 && prop_id - 1 < 1);
-  info = (const _ExtendedGDBusPropertyInfo *) _gawake_database_property_info_pointers[prop_id - 1];
-  g_mutex_lock (&skeleton->priv->lock);
-  g_object_freeze_notify (object);
-  if (!_g_value_equal (value, &skeleton->priv->properties[prop_id - 1]))
-    {
-      if (g_dbus_interface_skeleton_get_connection (G_DBUS_INTERFACE_SKELETON (skeleton)) != NULL &&
-          info->emits_changed_signal)
-        _gawake_database_schedule_emit_changed (skeleton, info, prop_id, &skeleton->priv->properties[prop_id - 1]);
-      g_value_copy (value, &skeleton->priv->properties[prop_id - 1]);
-      g_object_notify_by_pspec (object, pspec);
-    }
-  g_mutex_unlock (&skeleton->priv->lock);
-  g_object_thaw_notify (object);
 }
 
 static void
@@ -1446,19 +1233,6 @@ gawake_database_skeleton_init (GawakeDatabaseSkeleton *skeleton)
 
   g_mutex_init (&skeleton->priv->lock);
   skeleton->priv->context = g_main_context_ref_thread_default ();
-  skeleton->priv->properties = g_new0 (GValue, 1);
-  g_value_init (&skeleton->priv->properties[0], G_TYPE_BOOLEAN);
-}
-
-static gboolean 
-gawake_database_skeleton_get_verbose (GawakeDatabase *object)
-{
-  GawakeDatabaseSkeleton *skeleton = GAWAKE_DATABASE_SKELETON (object);
-  gboolean value;
-  g_mutex_lock (&skeleton->priv->lock);
-  value = g_value_get_boolean (&(skeleton->priv->properties[0]));
-  g_mutex_unlock (&skeleton->priv->lock);
-  return value;
 }
 
 static void
@@ -1469,12 +1243,6 @@ gawake_database_skeleton_class_init (GawakeDatabaseSkeletonClass *klass)
 
   gobject_class = G_OBJECT_CLASS (klass);
   gobject_class->finalize = gawake_database_skeleton_finalize;
-  gobject_class->get_property = gawake_database_skeleton_get_property;
-  gobject_class->set_property = gawake_database_skeleton_set_property;
-  gobject_class->notify       = gawake_database_skeleton_notify;
-
-
-  gawake_database_override_properties (gobject_class, 1);
 
   skeleton_class = G_DBUS_INTERFACE_SKELETON_CLASS (klass);
   skeleton_class->get_info = gawake_database_skeleton_dbus_interface_get_info;
@@ -1488,10 +1256,8 @@ gawake_database_skeleton_class_init (GawakeDatabaseSkeletonClass *klass)
 }
 
 static void
-gawake_database_skeleton_iface_init (GawakeDatabaseIface *iface)
+gawake_database_skeleton_iface_init (GawakeDatabaseIface *iface G_GNUC_UNUSED)
 {
-  iface->notification = _gawake_database_on_signal_notification;
-  iface->get_verbose = gawake_database_skeleton_get_verbose;
 }
 
 /**

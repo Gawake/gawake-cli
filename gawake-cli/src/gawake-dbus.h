@@ -30,20 +30,21 @@ struct _GawakeDatabaseIface
 {
   GTypeInterface parent_iface;
 
-
-
   gboolean (*handle_add_rule) (
     GawakeDatabase *object,
     GDBusMethodInvocation *invocation,
-    GVariant *arg_rule);
-
-  gboolean  (*get_verbose) (GawakeDatabase *object);
-
-  void (*notification) (
-    GawakeDatabase *object,
-    const gchar *arg_icon_blob,
-    gint arg_height,
-    const gchar *const *arg_messages);
+    guchar arg_hour,
+    guchar arg_minutes,
+    gboolean arg_day_0,
+    gboolean arg_day_1,
+    gboolean arg_day_2,
+    gboolean arg_day_3,
+    gboolean arg_day_4,
+    gboolean arg_day_5,
+    gboolean arg_day_6,
+    const gchar *arg_name,
+    guchar arg_mode,
+    guchar arg_table);
 
 };
 
@@ -61,19 +62,21 @@ void gawake_database_complete_add_rule (
 
 
 
-/* D-Bus signal emissions functions: */
-void gawake_database_emit_notification (
-    GawakeDatabase *object,
-    const gchar *arg_icon_blob,
-    gint arg_height,
-    const gchar *const *arg_messages);
-
-
-
 /* D-Bus method calls: */
 void gawake_database_call_add_rule (
     GawakeDatabase *proxy,
-    GVariant *arg_rule,
+    guchar arg_hour,
+    guchar arg_minutes,
+    gboolean arg_day_0,
+    gboolean arg_day_1,
+    gboolean arg_day_2,
+    gboolean arg_day_3,
+    gboolean arg_day_4,
+    gboolean arg_day_5,
+    gboolean arg_day_6,
+    const gchar *arg_name,
+    guchar arg_mode,
+    guchar arg_table,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
@@ -86,16 +89,22 @@ gboolean gawake_database_call_add_rule_finish (
 
 gboolean gawake_database_call_add_rule_sync (
     GawakeDatabase *proxy,
-    GVariant *arg_rule,
+    guchar arg_hour,
+    guchar arg_minutes,
+    gboolean arg_day_0,
+    gboolean arg_day_1,
+    gboolean arg_day_2,
+    gboolean arg_day_3,
+    gboolean arg_day_4,
+    gboolean arg_day_5,
+    gboolean arg_day_6,
+    const gchar *arg_name,
+    guchar arg_mode,
+    guchar arg_table,
     gboolean *out_success,
     GCancellable *cancellable,
     GError **error);
 
-
-
-/* D-Bus property accessors: */
-gboolean gawake_database_get_verbose (GawakeDatabase *object);
-void gawake_database_set_verbose (GawakeDatabase *object, gboolean value);
 
 
 /* ---- */

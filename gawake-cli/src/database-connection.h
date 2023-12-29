@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <glib.h>
+#include <glib/gprintf.h>
 
 #include "gawake.h"
 #include "gawake-types.h"
@@ -13,10 +15,14 @@
 #define PATH DIR "gawake.db"
 #define LOGS DIR "logs/"
 
-int connect_database(sqlite3 **db);
-int set_connection (void);
+#define ALLOC 256
+
+gint connect_database(sqlite3 **db);
+gint set_connection (void);
 sqlite3 *get_connection (void);
-int
- add_rule (Rule rule);
+gboolean rule_validated (gRule *rule); // TODO
+gboolean add_rule (const gRule *rule);
+gboolean edit_rule (const Rule *rule); // TODO
+gboolean delete_rule (int id, int table); // TODO
 
 #endif /* DATABASE_CONNECTION_H_ */

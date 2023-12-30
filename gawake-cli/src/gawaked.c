@@ -52,6 +52,8 @@ int main (void)
                   NULL,                                // user_data
                   NULL);                               // user_data_free_func
 
+
+
   g_main_loop_run (loop);
 
   return EXIT_SUCCESS;
@@ -74,6 +76,13 @@ on_name_acquired (GDBusConnection *connection,
                                     connection,
                                     "/io/github/kelvinnovais/Gawake",
                                     &error);
+
+  g_dbus_connection_export_action_group (
+    connection,                                   /* GDBusConnection* connection, */
+    "/io/github/kelvinnovais/Gawake",             /* const gchar* object_path, */
+    NULL,                                         /* GActionGroup* action_group, */
+    &error                                        /* GError** error */
+  );
 
   //MyDBusAlarm *alarm_interface;
   //alarm_interface = my_dbus_alarm_skeleton_new();

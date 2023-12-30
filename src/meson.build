@@ -3,7 +3,8 @@ gawake_sources = [
   'application.vala',
   'window.vala',
   'utils.vala',
-  'database-connection.vala',
+  'database-connection.vala', # TODO remove
+  'dbus-connection.vala',
   'rule-setup-dialog.vala',
   'rule-row.vala',
 ]
@@ -11,7 +12,8 @@ gawake_sources = [
 gawake_deps = [
   dependency('gtk4'),
   dependency('libadwaita-1', version: '>= 1.4'),
-  dependency('sqlite3'),
+  dependency('sqlite3'), # TODO remove
+  dependency('gio-2.0'),
 ]
 
 gawake_sources += gnome.compile_resources('gawake-resources',

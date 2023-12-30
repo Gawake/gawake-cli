@@ -1,4 +1,5 @@
-/* database-connection.vala
+/* ! NOT USED ANYMORE !
+ * database-connection.vala
  *
  * Copyright 2023 Kelvin Novais
  *
@@ -303,3 +304,4 @@ namespace Gawake {
  * https://vala-language.org/vala-docs/sqlite3/Sqlite.Database.html
  * https://wiki.gnome.org/Projects/Vala/SqliteSample
  */
+

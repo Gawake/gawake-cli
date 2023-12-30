@@ -245,11 +245,9 @@
                           <object class="GtkStringList">
                             <!-- TODO add help/information about these values, based on page https://www.man7.org/linux/man-pages/man8/rtcwake.8.html -->
                             <items>
-                              <item translatable="yes">Off</item>
-                              <item translatable="yes">Disk</item>
-                              <item translatable="yes">Standby</item>
                               <item translatable="yes">Memory</item>
-                              <item translatable="yes">Freeze</item>
+                              <item translatable="yes">Disk</item>
+                              <item translatable="yes">Off</item>
                             </items>
                           </object>
                         </property>

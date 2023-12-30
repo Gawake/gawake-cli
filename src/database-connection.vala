@@ -23,16 +23,6 @@ using Sqlite;
 
 namespace Gawake {
 
-    struct Rule {
-        uint8? id;
-        string hour;
-        string minutes;
-        uint8[] selected_days;
-        string? name;
-        string? mode;
-        bool? active;
-    }
-
     internal class DatabaseConnection {
         private static Sqlite.Database shared_db;
         private static Sqlite.Statement stmt;
@@ -60,30 +50,29 @@ namespace Gawake {
             stdout.printf ("\tDatabase path: %s\n", db_path);
 #endif
 
-            rule.selected_days = new uint8[7];
+            rule.days = new bool[7];
         }
 
-        public bool add_rule (Rule rule, string table) {
+        public bool add_rule (Rule rule) {
             string sql =
                 """
                 INSERT INTO %s (rule_name, time, sun, mon, tue, wed, thu, fri, sat, active%s)
-                VALUES ('%s', '%s%s00', %d, %d, %d, %d, %d, %d, %d, 1%s);
+                VALUES ('%s', '%02d%02d00', %d, %d, %d, %d, %d, %d, %d, 1%s);
                 """.printf (
-                            table,
+                            TABLE[rule.table],
                             // If the it's the turnoff table, add option "mode" at the end of the columns list...
-                            (table == "rules_turnoff") ? (", mode") : "",
+                            (rule.table == Table.T_OFF) ? (", mode") : "",
                             rule.name,
                             rule.hour,
                             rule.minutes,
-                            rule.selected_days[0],
-                            rule.selected_days[1],
-                            rule.selected_days[2],
-                            rule.selected_days[3],
-                            rule.selected_days[4],
-                            rule.selected_days[5],
-                            rule.selected_days[6],
-                            // ... and add the respective value
-                            (table == "rules_turnoff") ? (", '%s'".printf (rule.mode)) : ""
+                            (int) rule.days[0],
+                            (int) rule.days[1],
+                            (int) rule.days[2],
+                            (int) rule.days[3],
+                            (int) rule.days[4],
+                            (int) rule.days[5],
+                            (int) rule.days[6],
+                            (rule.mode == Mode.NONE) ? "" : @", $(rule.mode)"
                 );
 
 #if PREPROCESSOR_DEBUG
@@ -98,24 +87,24 @@ namespace Gawake {
             return true;
         }
 
-        public bool edit_rule (Rule rule, string table, int id) {
+        public bool edit_rule (Rule rule, int id) {
             string sql = """
-            UPDATE %s SET rule_name = '%s', time = '%s%s00', sun = %d, mon = %d, tue = %d, wed = %d, thu = %d, fri = %d, sat = %d,
+            UPDATE %s SET rule_name = '%s', time = '%02d%02d00', sun = %d, mon = %d, tue = %d, wed = %d, thu = %d, fri = %d, sat = %d,
             active = %d%s WHERE id = %d;
             """.printf (
-                        table,
+                        TABLE[rule.table],
                         rule.name,
                         rule.hour,
                         rule.minutes,
-                        rule.selected_days[0],
-                        rule.selected_days[1],
-                        rule.selected_days[2],
-                        rule.selected_days[3],
-                        rule.selected_days[4],
-                        rule.selected_days[5],
-                        rule.selected_days[6],
+                        (int) rule.days[0],
+                        (int) rule.days[1],
+                        (int) rule.days[2],
+                        (int) rule.days[3],
+                        (int) rule.days[4],
+                        (int) rule.days[5],
+                        (int) rule.days[6],
                         rule.active ? 1 : 0,
-                        (table == "rules_turnoff") ? @", mode = '$(rule.mode)'" : "",
+                        (rule.table == Table.T_OFF) ? @", mode = $(rule.mode)" : "",
                         id
                 );
 
@@ -127,8 +116,8 @@ namespace Gawake {
             return true;
         }
 
-        public bool delete_rule (string table, int id) {
-            rc = shared_db.exec (@"DELETE FROM $table WHERE id = $id;", null, out errmsg);
+        public bool delete_rule (Table table, int id) {
+            rc = shared_db.exec (@"DELETE FROM $(TABLE[table]) WHERE id = $id;", null, out errmsg);
             if (rc != Sqlite.OK) {
                 stderr.printf ("Error: %s\n", errmsg);
                 return false;
@@ -136,8 +125,8 @@ namespace Gawake {
             return true;
         }
 
-        public bool enable_disable_rule (string table, int id, bool state) {
-            rc = shared_db.exec (@"UPDATE $table SET active = $(state) WHERE id = $id;", null, out errmsg);
+        public bool enable_disable_rule (Table table, int id, bool state) {
+            rc = shared_db.exec (@"UPDATE $(TABLE[table]) SET active = $(state) WHERE id = $id;", null, out errmsg);
             if (rc != Sqlite.OK) {
                 stderr.printf ("Error: %s\n", errmsg);
                 return false;
@@ -145,27 +134,27 @@ namespace Gawake {
             return true;
         }
 
-        public bool load_shared (Gtk.ListBox listbox, string table) {
+        public bool load_shared (Gtk.ListBox listbox, Table table) {
             // Prepare statement
-            if ((rc = shared_db.prepare_v2 (@"SELECT * FROM $table;", -1, out stmt, null)) == Sqlite.ERROR) {
+            if ((rc = shared_db.prepare_v2 (@"SELECT * FROM $(TABLE[table]);", -1, out stmt, null)) == Sqlite.ERROR) {
                 stderr.printf ("[load_shared1] SQL error: %d, %s\n", rc, shared_db.errmsg ());
                 return false;
             }
             // Assign to variables
             while ((rc = stmt.step ()) == Sqlite.ROW) {
-                rule.id = (uint8) stmt.column_int (0);
+                rule.id = (uint16) stmt.column_int (0);
                 rule.name = stmt.column_text (1);
-                rule.hour = stmt.column_text (2).substring (0, 2);
-                rule.minutes = stmt.column_text (2).substring (2, 2);
-                rule.selected_days[0] = (uint8) stmt.column_int (3);
-                rule.selected_days[1] = (uint8) stmt.column_int (4);
-                rule.selected_days[2] = (uint8) stmt.column_int (5);
-                rule.selected_days[3] = (uint8) stmt.column_int (6);
-                rule.selected_days[4] = (uint8) stmt.column_int (7);
-                rule.selected_days[5] = (uint8) stmt.column_int (8);
-                rule.selected_days[6] = (uint8) stmt.column_int (9);
+                rule.hour = (uint8) int.parse (stmt.column_text (2).substring (0, 2));
+                rule.minutes = int.parse (stmt.column_text (2).substring (2, 2));
+                rule.days[0] = (bool) stmt.column_int (3);
+                rule.days[1] = (bool) stmt.column_int (4);
+                rule.days[2] = (bool) stmt.column_int (5);
+                rule.days[3] = (bool) stmt.column_int (6);
+                rule.days[4] = (bool) stmt.column_int (7);
+                rule.days[5] = (bool) stmt.column_int (8);
+                rule.days[6] = (bool) stmt.column_int (9);
                 rule.active = (bool) stmt.column_int (10);
-                rule.mode = (table == "rules_turnoff") ? stmt.column_text (11) : "";
+                rule.mode = stmt.column_int (11);
 
                 // create the rule row
                 rule_row = new RuleRow (rule, listbox);
@@ -185,11 +174,11 @@ namespace Gawake {
         public Rule query_rule (string table, int id) {
             Rule rule = {
                 0,
-                "00",
-                "00",
-                { 0, 0, 0, 0, 0, 0, 0 },
+                0,
+                0,
+                { false, false, false, false, false, false, false },
                 "",
-                "",
+                Mode.OFF,
                 true
             };
 
@@ -199,19 +188,19 @@ namespace Gawake {
             }
             // Assign to variables
             while ((rc = stmt.step ()) == Sqlite.ROW) {
-                rule.id = (uint8) stmt.column_int (0);
+                rule.id = (uint16) stmt.column_int (0);
                 rule.name = stmt.column_text (1);
-                rule.hour = stmt.column_text (2).substring (0, 2);
-                rule.minutes = stmt.column_text (2).substring (2, 2);
-                rule.selected_days[0] = (uint8) stmt.column_int (3);
-                rule.selected_days[1] = (uint8) stmt.column_int (4);
-                rule.selected_days[2] = (uint8) stmt.column_int (5);
-                rule.selected_days[3] = (uint8) stmt.column_int (6);
-                rule.selected_days[4] = (uint8) stmt.column_int (7);
-                rule.selected_days[5] = (uint8) stmt.column_int (8);
-                rule.selected_days[6] = (uint8) stmt.column_int (9);
+                rule.hour = (uint8) int.parse (stmt.column_text (2).substring (0, 2));
+                rule.minutes = int.parse (stmt.column_text (2).substring (2, 2));
+                rule.days[0] = (bool) stmt.column_int (3);
+                rule.days[1] = (bool) stmt.column_int (4);
+                rule.days[2] = (bool) stmt.column_int (5);
+                rule.days[3] = (bool) stmt.column_int (6);
+                rule.days[4] = (bool) stmt.column_int (7);
+                rule.days[5] = (bool) stmt.column_int (8);
+                rule.days[6] = (bool) stmt.column_int (9);
                 rule.active = (bool) stmt.column_int (10);
-                rule.mode = (table == "rules_turnoff") ? stmt.column_text (11) : "";
+                rule.mode = stmt.column_int (11);
             }
             // Check if successful
             if (rc != Sqlite.DONE) {

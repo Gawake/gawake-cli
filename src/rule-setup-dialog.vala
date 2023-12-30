@@ -49,48 +49,22 @@ namespace Gawake {
         internal signal void done ();
 
         private DatabaseConnection dc;
-        private string rule_type;
         private static Rule rule;
         private int id;
 
         construct {
             dc = new DatabaseConnection ();
-            rule.selected_days = new uint8[7];
+            rule.days = new bool[7];
         }
 
-        private void test () {
-	        string ls_stdout;
-	        string ls_stderr;
-	        int ls_status;
-
-	        try {
-		        Process.spawn_command_line_sync ("sudo whoami",
-									        out ls_stdout,
-									        out ls_stderr,
-									        out ls_status);
-
-		        // Output: <File list>
-		        print ("stdout:\n");
-		        // Output: ````
-		        print (ls_stdout);
-		        print ("stderr:\n");
-		        print (ls_stderr);
-		        // Output: ``0``
-		        print ("Status: %d\n", ls_status);
-	        } catch (SpawnError e) {
-		        print ("Error: %s\n", e.message);
-	        }
-        }
-
-        public RuleSetupDialog.add (string rule_type) {
-            test ();
+        public RuleSetupDialog.add (Table table) {
             // Set title and button label
-            title = (("New rule"));
-            action_button.set_label (("Add"));
+            title = (("New rule")); // TODO translate support
+            action_button.set_label (("Add")); // TODO translate support
 
             // Set mode Adw.ComboRow visibility
-            this.rule_type = rule_type;
-            if (this.rule_type == "on") {
+            rule.table = table;
+            if (rule.table == Table.T_ON) {
                 mode.set_visible (false);
             }
 
@@ -100,16 +74,16 @@ namespace Gawake {
             this.present ();
         }
 
-        public RuleSetupDialog.edit (string rule_type, int id) {
+        public RuleSetupDialog.edit (Table table, int id) {
             this.id = id;
 
             // Set title and button label
-            title = (("Edit rule"));
-            action_button.set_label (("Done"));
+            title = (("Edit rule")); // TODO translate support
+            action_button.set_label (("Done")); // TODO translate support
 
             // Set mode Adw.ComboRow visibility
-            this.rule_type = rule_type;
-            if (this.rule_type == "on") {
+            rule.table = table;
+            if (rule.table == Table.T_ON) {
                 mode.set_visible (false);
             }
 
@@ -118,63 +92,43 @@ namespace Gawake {
 
             // Replace window fields with queried data
             rule = dc.query_rule (
-                                  (rule_type == "on") ? "rules_turnon" : "rules_turnoff",
+                                  (table == T_ON) ? "rules_turnon" : "rules_turnoff",
                                   id
             );
-            h_spinbutton.set_value (double.parse (rule.hour));
-            m_spinbutton.set_value (double.parse (rule.minutes));
+            h_spinbutton.set_value (rule.hour);
+            m_spinbutton.set_value ((double) rule.minutes);
 
-            day_0.set_active ((bool) rule.selected_days[0]);
-            day_1.set_active ((bool) rule.selected_days[1]);
-            day_2.set_active ((bool) rule.selected_days[2]);
-            day_3.set_active ((bool) rule.selected_days[3]);
-            day_4.set_active ((bool) rule.selected_days[4]);
-            day_5.set_active ((bool) rule.selected_days[5]);
-            day_6.set_active ((bool) rule.selected_days[6]);
+            day_0.set_active (rule.days[0]);
+            day_1.set_active (rule.days[1]);
+            day_2.set_active (rule.days[2]);
+            day_3.set_active (rule.days[3]);
+            day_4.set_active (rule.days[4]);
+            day_5.set_active (rule.days[5]);
+            day_6.set_active (rule.days[6]);
 
             name_entry.set_text (rule.name);
 
             this.present ();
         }
 
+        // Get user input values from the Dialog
         private void get_inserted () {
-            // Get hour and minutes as integer...
-            uint8 hour = (uint8) h_spinbutton.get_value_as_int ();
-            uint8 minutes = (uint8) m_spinbutton.get_value_as_int ();
-            // ...and convert to string
-            rule.hour = "%02d".printf (hour);
-            rule.minutes = "%02d".printf (minutes);
+            // Get hour and minutes
+            rule.hour = (uint8) h_spinbutton.get_value_as_int ();
+            rule.minutes = (uint8) m_spinbutton.get_value_as_int ();
 
-            rule.selected_days[0] = (day_0.get_active () == true) ? 1 : 0;
-            rule.selected_days[1] = (day_1.get_active () == true) ? 1 : 0;
-            rule.selected_days[2] = (day_2.get_active () == true) ? 1 : 0;
-            rule.selected_days[3] = (day_3.get_active () == true) ? 1 : 0;
-            rule.selected_days[4] = (day_4.get_active () == true) ? 1 : 0;
-            rule.selected_days[5] = (day_5.get_active () == true) ? 1 : 0;
-            rule.selected_days[6] = (day_6.get_active () == true) ? 1 : 0;
+            rule.days[0] = day_0.get_active ();
+            rule.days[1] = day_1.get_active ();
+            rule.days[2] = day_2.get_active ();
+            rule.days[3] = day_3.get_active ();
+            rule.days[4] = day_4.get_active ();
+            rule.days[5] = day_5.get_active ();
+            rule.days[6] = day_6.get_active ();
 
             rule.name = name_entry.get_text ();
 
-            if (rule_type == "off") {
-                uint mode_selected = mode.get_selected ();
-
-                switch (mode_selected) {
-                case 0:
-                    rule.mode = "off";
-                    break;
-                case 1:
-                    rule.mode = "disk";
-                    break;
-                case 2:
-                    rule.mode = "standby";
-                    break;
-                case 3:
-                    rule.mode = "mem";
-                    break;
-                case 4:
-                    rule.mode = "freeze";
-                    break;
-                }
+            if (rule.table == Table.T_OFF) {
+                rule.mode = mode.get_selected ();
             }
         }
 
@@ -186,14 +140,13 @@ namespace Gawake {
             stdout.printf ("Rule days:\n");
             const string[] days = { "S", "M", "T", "W", "T", "F", "S" };
             for (int i = 0; i < 7; i++) {
-                stdout.printf ("\t%s: %d\n", days[i], (int) rule.selected_days[i]);
+                stdout.printf ("\t%s: %d\n", days[i], (int) rule.days[i]);
             }
             stdout.printf ("Rule name: %s\n", rule.name);
             stdout.printf ("Rule type: %s\n", rule_type);
 #endif
 
-            string table = (rule_type == "on") ? "rules_turnon" : "rules_turnoff";
-            bool success = dc.add_rule (rule, table);
+            bool success = dc.add_rule (rule);
 
             stdout.printf ("Rule added successfully: %s\n", success ? "true" : "false");
             if (success)
@@ -210,14 +163,13 @@ namespace Gawake {
             stdout.printf ("Rule days:\n");
             const string[] days = { "S", "M", "T", "W", "T", "F", "S" };
             for (int i = 0; i < 7; i++) {
-                stdout.printf ("\t%s: %d\n", days[i], (int) rule.selected_days[i]);
+                stdout.printf ("\t%s: %d\n", days[i], (int) rule.days[i]);
             }
             stdout.printf ("Rule name: %s\n", rule.name);
             stdout.printf ("Rule type: %s\n", rule_type);
 #endif
 
-            string table = (rule_type == "on") ? "rules_turnon" : "rules_turnoff";
-            bool success = dc.edit_rule (rule, table, id);
+            bool success = dc.edit_rule (rule, id);
 
             stdout.printf ("Rule edited successfully: %s\n", success ? "true" : "false");
             if (success)

@@ -37,7 +37,7 @@ namespace Gawake {
     }
 
     // ATTENTION: must be synced
-    enum Table {
+    public enum Table {
         T_ON,
         T_OFF
     }
@@ -51,13 +51,15 @@ namespace Gawake {
     enum Mode {
         MEM,
         DISK,
-        OFF
+        OFF,
+        NONE
     }
 
     const string[] MODE = {
         "mem",
         "disk",
-        "off"
+        "off",
+        null
     };
 
     enum Minutes {
@@ -67,21 +69,20 @@ namespace Gawake {
         M_45 = 45
     }
 
-    // struct Rule {
-    // uint16 id;
-    // uint8 hour;
-    // Minutes minutes;
-    // bool[] days;
-    // string name;
-    // Mode mode;
-    // bool active;
-    // uint8 table;
-    // }
+    struct Rule {
+        uint16 id;
+        uint8 hour;
+        Minutes minutes;
+        bool[] days;
+        string name;
+        Mode mode;
+        bool active;
+        uint8 table;
+    }
 
-    [DBus (name = "io.github.kelvinnovais.Database")]
-    public interface Database : Object {
-        public abstract bool add_rule (
-            uint8 hour,
+    [DBus (name = "io.github.kelvinnovais.Gawake")]
+    public interface GawakeDBus : Object {
+        public abstract bool add_rule (uint8 hour,
             uint8 minutes,
             bool day_0,
             bool day_1,
@@ -95,34 +96,35 @@ namespace Gawake {
             uint8 table) throws GLib.IOError;
     }
 
-    internal class DBusConnection : Object {
-        public Database gdbus = null;
+    internal class GDBusConnection : Object {
+        public GawakeDBus gdbus;
 
         construct {
-
             // https://valadoc.org/gio-2.0/GLib.DBusConnection.get_proxy_sync.html
             gdbus = Bus.get_proxy_sync (BusType.SESSION,
                                         "io.github.kelvinnovais.Gawake",
-                                        "/io/github/kelvinnovais/Gawake"
-                                        );
+                                        "/io/github/kelvinnovais/Gawake",
+                                        NONE,
+                                        null
+            );
         }
 
         public void add_rule_parser () {
             bool ret = gdbus.add_rule (
-                10,
-                15,
-                true,
-                false,
-                true,
-                false,
-                true,
-                false,
-                true,
-                "Test Flatpak",
-                1,
-                1
+                                       10,
+                                       15,
+                                       true,
+                                       false,
+                                       true,
+                                       false,
+                                       true,
+                                       false,
+                                       true,
+                                       "Test Flatpak",
+                                       1,
+                                       1
             );
-        }
 
+        }
     }
 }

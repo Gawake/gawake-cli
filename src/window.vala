@@ -30,18 +30,18 @@ namespace Gawake {
         [GtkChild]
         private unowned Gtk.ListBox turnoff_listbox;
 
-        private DBusConnection dbc;
-        private DatabaseConnection dc;
+        private GDBusConnection bus;
+        private DatabaseConnection dc; // TODO remove
         private static bool shared_db_status = false;
         private static bool user_db_status = false;
 
         construct {
-            dbc = new DBusConnection ();
-            dc = new DatabaseConnection ();
+            // bus = new GDBusConnection ();
+            dc = new DatabaseConnection (); // TODO remove
 
             turnon_listbox.row_activated.connect ((rule_row) => {
                 RuleSetupDialog rsd = new RuleSetupDialog.edit (
-                                                                "on",
+                                                                Table.T_ON,
                                                                 int.parse (rule_row.get_id ().substring (2, 3))
                 );
                 rsd.done.connect (update);
@@ -49,7 +49,7 @@ namespace Gawake {
 
             turnoff_listbox.row_activated.connect ((rule_row) => {
                 RuleSetupDialog rsd = new RuleSetupDialog.edit (
-                                                                "off",
+                                                                Table.T_OFF,
                                                                 int.parse (rule_row.get_id ().substring (2, 3))
                 );
                 rsd.done.connect (update);
@@ -87,8 +87,8 @@ namespace Gawake {
                 turnon_listbox.remove_all ();
                 turnoff_listbox.remove_all ();
 
-                dc.load_shared (turnon_listbox, "rules_turnon");
-                dc.load_shared (turnoff_listbox, "rules_turnoff");
+                dc.load_shared (turnon_listbox, Table.T_ON);
+                dc.load_shared (turnoff_listbox, Table.T_OFF);
             }
         }
 
@@ -98,15 +98,23 @@ namespace Gawake {
                 turnon_listbox.remove_all ();
                 turnoff_listbox.remove_all ();
 
-                dc.load_shared (turnon_listbox, "rules_turnon");
-                dc.load_shared (turnoff_listbox, "rules_turnoff");
+                dc.load_shared (turnon_listbox, Table.T_ON);
+                dc.load_shared (turnoff_listbox, Table.T_OFF);
             }
         }
 
         [GtkCallback]
         void add_button_clicked () {
-            string current_page = stack.get_visible_child_name ();
-            dbc.add_rule_parser ();
+            Table current_page = Table.T_ON;
+            // returns "on" or "off"
+            switch (stack.get_visible_child_name ()) {
+            case "on":
+                current_page = Table.T_ON;
+                break;
+            case "off":
+                current_page = Table.T_OFF;
+                break;
+            }
 
             // current_page is equivalent to rule_type
             // the add action is done on Rule Setup Dialog class

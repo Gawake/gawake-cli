@@ -37,6 +37,15 @@ namespace Gawake {
         private unowned Gtk.Label mode;
 
         private static DatabaseConnection dc;
+        static string[] days_abbreviation = { // TODO translators support
+                    ("Sun"),
+                    ("Mon"),
+                    ("Tue"),
+                    ("Wed"),
+                    ("Thu"),
+                    ("Fri"),
+                    ("Sat")
+        };
         private Gtk.ListBox listbox;
 
         static construct {
@@ -58,19 +67,19 @@ namespace Gawake {
             }
 
             // Time
-            time.set_label ("%s:%s".printf (rule.hour, rule.minutes));
+            time.set_label ("%02d:%02d".printf (rule.hour, rule.minutes));
 
             // Repeats: ...
             uint8 sum = 0;
-            foreach (int day_state in rule.selected_days) { sum += (uint8) day_state; }
+            foreach (bool day_state in rule.days) { sum += (uint8) day_state; }
             switch (sum) {
             case 7:
                 // ...if all days are set;
-                repeats.set_label (("Every Day"));
+                repeats.set_label (("Every Day"));  // TODO translators support
                 break;
             case 1:
                 // ...if only one day is set
-                string[] days_plural = {
+                string[] days_plural = { // TODO translators support
                     ("Sundays"),
                     ("Mondays"),
                     ("Tuesdays"),
@@ -80,7 +89,7 @@ namespace Gawake {
                     ("Saturdays")
                 };
                 for (int i = 0; i < 7; i++) {
-                    if ((bool) rule.selected_days[i]) {
+                    if (rule.days[i]) {
                         repeats.set_label (days_plural[i]);
                         break;
                     }
@@ -93,18 +102,8 @@ namespace Gawake {
             default:
                 // ...if only some days are set
                 string repeated_days = "";
-                string[] days_abbreviation = {
-                    ("Sun"),
-                    ("Mon"),
-                    ("Tue"),
-                    ("Wed"),
-                    ("Thu"),
-                    ("Fri"),
-                    ("Sat")
-                };
-
                 for (int i = 0; i < 7; i++) {
-                    repeated_days += (rule.selected_days[i] == 1) ? ("%s, ".printf (days_abbreviation[i])) : "";
+                    repeated_days += (rule.days[i]) ? ("%s, ".printf (days_abbreviation[i])) : "";
                 }
                 // remove the last unnecessary ", "
                 repeated_days = repeated_days[0 : -2];
@@ -114,46 +113,37 @@ namespace Gawake {
             }
 
             // Mode
-            if (rule.mode != "") {
+            if (rule.table == Table.T_OFF) {
                 mode_revealer.set_reveal_child (true);
 
-                string mode_label = "";
                 switch (rule.mode) {
-                case "off":
-                    mode_label = ("Off");
+                case Mode.OFF:
+                    mode.set_label ("Off"); // TODO translators support
                     break;
-                case "disk":
-                    mode_label = ("Disk");
+                case Mode.DISK:
+                    mode.set_label ("Disk"); // TODO translators support
                     break;
-                case "standby":
-                    mode_label = ("Standby");
-                    break;
-                case "mem":
-                    mode_label = ("Memory");
-                    break;
-                case "freeze":
-                    mode_label = ("Freeze");
+                case Mode.MEM:
+                    mode.set_label ("Memory"); // TODO translators support
                     break;
                 }
-
-                mode.set_label (mode_label);
             }
 
             // Set Gtk element id (numerically equal to the database's id):
             // Format on_XXX for turn on rules
             // Format of_XXX for turn off rules
-            this.set_id ("%s%03d".printf ((rule.mode == "") ? "on" : "of", rule.id));
+            this.set_id ("%s%03d".printf ((rule.table == Table.T_ON) ? "on" : "of", rule.id));
         }
 
         public Gtk.ListBoxRow get_rule_row () {
             return this;
         }
 
-        private string get_rule_table () {
+        private Table get_rule_table () {
             // get the Gtk element id, and substring to the rule part
             // if it's eaqual to 'on', convert to rules_turnon;
             // else, to rules_turnoff
-            return (this.get_id ().substring (0, 2)) == "on" ? "rules_turnon" : "rules_turnoff";
+            return (this.get_id ().substring (0, 2)) == "on" ? Table.T_ON : Table.T_OFF;
         }
 
         private int get_rule_id () {

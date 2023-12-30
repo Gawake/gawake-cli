@@ -12,7 +12,12 @@
         "--socket=fallback-x11",
         "--device=dri",
         "--socket=wayland",
-        "--talk-name=io.github.kelvinnovais.Gawake"
+        "--talk-name=io.github.kelvinnovais.Gawake",
+	"--talk-name=org.freedesktop.Flatpak",
+        "--talk-name=org.gnome.SessionManager",
+        "--system-talk-name=org.freedesktop.login1",
+        "--socket=system-bus",
+        "--socket=session-bus"
     ],
     "build-options" : {
         "append-path" : "/usr/lib/sdk/vala/bin",

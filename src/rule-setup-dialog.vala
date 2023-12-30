@@ -246,3 +246,4 @@ namespace Gawake {
         }
     } // class RuleSetupDialog
 } // namespace Gawake"
+

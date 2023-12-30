@@ -13,7 +13,6 @@ gawake_deps = [
   dependency('gtk4'),
   dependency('libadwaita-1', version: '>= 1.4'),
   dependency('sqlite3'), # TODO remove
-  dependency('gio-2.0'),
 ]
 
 gawake_sources += gnome.compile_resources('gawake-resources',

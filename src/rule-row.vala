@@ -188,3 +188,4 @@ namespace Gawake {
         }
     } // class RuleRow
 } // namespace Gawake
+

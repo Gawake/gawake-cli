@@ -67,30 +67,62 @@ namespace Gawake {
         M_45 = 45
     }
 
-    struct Rule {
-        uint16 id;
-        uint8 hour;
-        Minutes minutes;
-        bool days[7];
-        string name;
-        Mode mode;
-        bool active;
-        uint8 table;
-    }
+    // struct Rule {
+    // uint16 id;
+    // uint8 hour;
+    // Minutes minutes;
+    // bool[] days;
+    // string name;
+    // Mode mode;
+    // bool active;
+    // uint8 table;
+    // }
 
-    [DBus (name = "io.github.kelvinnovais.Gawake")]
-    interface Gawake : Object {
+    [DBus (name = "io.github.kelvinnovais.Database")]
+    public interface Database : Object {
         public abstract bool add_rule (
-
-        ) throws IOError;
-
+            uint8 hour,
+            uint8 minutes,
+            bool day_0,
+            bool day_1,
+            bool day_2,
+            bool day_3,
+            bool day_4,
+            bool day_5,
+            bool day_6,
+            string name,
+            uint8 mode,
+            uint8 table) throws GLib.IOError;
     }
 
-    internal class DBusConnection {
+    internal class DBusConnection : Object {
+        public Database gdbus = null;
+
         construct {
+
+            // https://valadoc.org/gio-2.0/GLib.DBusConnection.get_proxy_sync.html
+            gdbus = Bus.get_proxy_sync (BusType.SESSION,
+                                        "io.github.kelvinnovais.Gawake",
+                                        "/io/github/kelvinnovais/Gawake"
+                                        );
         }
 
-        public bool add_rule (Rule rule) {
+        public void add_rule_parser () {
+            bool ret = gdbus.add_rule (
+                10,
+                15,
+                true,
+                false,
+                true,
+                false,
+                true,
+                false,
+                true,
+                "Test Flatpak",
+                1,
+                1
+            );
         }
+
     }
 }

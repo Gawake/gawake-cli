@@ -5,7 +5,3 @@ _build
 .flatpak/
 ignore/
 notes.txt
-
-# TODO remove after
-gawake-types.h
-io.github.kelvinnovais.xml

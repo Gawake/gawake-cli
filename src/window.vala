@@ -30,11 +30,13 @@ namespace Gawake {
         [GtkChild]
         private unowned Gtk.ListBox turnoff_listbox;
 
+        private DBusConnection dbc;
         private DatabaseConnection dc;
         private static bool shared_db_status = false;
         private static bool user_db_status = false;
 
         construct {
+            dbc = new DBusConnection ();
             dc = new DatabaseConnection ();
 
             turnon_listbox.row_activated.connect ((rule_row) => {
@@ -104,6 +106,7 @@ namespace Gawake {
         [GtkCallback]
         void add_button_clicked () {
             string current_page = stack.get_visible_child_name ();
+            dbc.add_rule_parser ();
 
             // current_page is equivalent to rule_type
             // the add action is done on Rule Setup Dialog class

@@ -80,51 +80,84 @@ namespace Gawake {
         uint8 table;
     }
 
-    [DBus (name = "io.github.kelvinnovais.Gawake")]
-    public interface GawakeDBus : Object {
-        public abstract bool add_rule (uint8 hour,
-            uint8 minutes,
-            bool day_0,
-            bool day_1,
-            bool day_2,
-            bool day_3,
-            bool day_4,
-            bool day_5,
-            bool day_6,
-            string name,
-            uint8 mode,
-            uint8 table) throws GLib.IOError;
-    }
+    // [DBus (name = "io.github.kelvinnovais.Gawake")]
+    // public interface GawakeDBus : Object {
+    //     public abstract bool add_rule (uint8 hour,
+    //         uint8 minutes,
+    //         bool day_0,
+    //         bool day_1,
+    //         bool day_2,
+    //         bool day_3,
+    //         bool day_4,
+    //         bool day_5,
+    //         bool day_6,
+    //         string name,
+    //         uint8 mode,
+    //         uint8 table) throws GLib.IOError;
+    // }
 
     internal class GDBusConnection : Object {
-        public GawakeDBus gdbus;
+        // private DBusConnection dbc;
 
         construct {
             // https://valadoc.org/gio-2.0/GLib.DBusConnection.get_proxy_sync.html
-            gdbus = Bus.get_proxy_sync (BusType.SESSION,
-                                        "io.github.kelvinnovais.Gawake",
-                                        "/io/github/kelvinnovais/Gawake",
-                                        NONE,
-                                        null
-            );
-        }
-
-        public void add_rule_parser () {
-            bool ret = gdbus.add_rule (
-                                       10,
-                                       15,
-                                       true,
-                                       false,
-                                       true,
-                                       false,
-                                       true,
-                                       false,
-                                       true,
-                                       "Test Flatpak",
-                                       1,
-                                       1
-            );
+            // gdbus = Bus.get_proxy_sync (BusType.SESSION,
+            //                             "io.github.kelvinnovais.Gawake",
+            //                             "/io/github/kelvinnovais/Gawake",
+            //                             NONE,
+            //                             null
+            // );
+            // dbc = Bus.get_sync (BusType.SESSION) throws GLib.IOError;
 
         }
+
+        public void add_rule_call () {
+            // https://valadoc.org/glib-2.0/GLib.Variant.html
+            Variant parameters = new Variant(
+                "y", 10,
+                "y", 15,
+                "b", true,
+                "b", false,
+                "b", true,
+                "b", false,
+                "b", true,
+                "b", false,
+                "b", true,
+                "s", "Test Flatpak",
+                "y", 1,
+                "y", 1
+            );
+
+            // https://valadoc.org/gio-2.0/GLib.Bus.html
+            DBusConnection test = GLib.Bus.get_sync (BusType.SESSION);
+
+            // https://valadoc.org/gio-2.0/GLib.DBusConnection.html
+            test.call(
+                "io.github.kelvinnovais.Gawake", // Bus name
+               "/io/github/kelvinnovais/Gawake", // Object path
+                "io.github.kelvinnovais.Gawake", // Interface name
+                "Database", // Method name
+                parameters, // Parameters
+                null, // Reply type
+                GLib.DBusCallFlags.NONE, // Flags
+                -1, // Timeout
+                null // Cancellable
+            );
+
+            // bool ret = gdbus.add_rule (
+            //                            10,
+            //                            15,
+            //                            true,
+            //                            false,
+            //                            true,
+            //                            false,
+            //                            true,
+            //                            false,
+            //                            true,
+            //                            "Test Flatpak",
+            //                            1,
+            //                            1
+            // );
+        } // add_rule_call
     }
-}
+} // namespace Gawake

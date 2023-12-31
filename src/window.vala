@@ -105,6 +105,9 @@ namespace Gawake {
 
         [GtkCallback]
         void add_button_clicked () {
+            // TODO testing:
+            bus.add_rule_call ();
+
             Table current_page = Table.T_ON;
             // returns "on" or "off"
             switch (stack.get_visible_child_name ()) {

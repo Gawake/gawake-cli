@@ -46,6 +46,11 @@ struct _GawakeDatabaseIface
     guchar arg_mode,
     guchar arg_table);
 
+  gboolean (*handle_add_struct) (
+    GawakeDatabase *object,
+    GDBusMethodInvocation *invocation,
+    GVariant *arg_rule);
+
 };
 
 GType gawake_database_get_type (void) G_GNUC_CONST;
@@ -55,6 +60,11 @@ guint gawake_database_override_properties (GObjectClass *klass, guint property_i
 
 
 /* D-Bus method call completion functions: */
+void gawake_database_complete_add_struct (
+    GawakeDatabase *object,
+    GDBusMethodInvocation *invocation,
+    gboolean success);
+
 void gawake_database_complete_add_rule (
     GawakeDatabase *object,
     GDBusMethodInvocation *invocation,
@@ -63,6 +73,26 @@ void gawake_database_complete_add_rule (
 
 
 /* D-Bus method calls: */
+void gawake_database_call_add_struct (
+    GawakeDatabase *proxy,
+    GVariant *arg_rule,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data);
+
+gboolean gawake_database_call_add_struct_finish (
+    GawakeDatabase *proxy,
+    gboolean *out_success,
+    GAsyncResult *res,
+    GError **error);
+
+gboolean gawake_database_call_add_struct_sync (
+    GawakeDatabase *proxy,
+    GVariant *arg_rule,
+    gboolean *out_success,
+    GCancellable *cancellable,
+    GError **error);
+
 void gawake_database_call_add_rule (
     GawakeDatabase *proxy,
     guchar arg_hour,

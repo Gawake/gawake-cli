@@ -77,12 +77,12 @@ on_name_acquired (GDBusConnection *connection,
                                     "/io/github/kelvinnovais/Gawake",
                                     &error);
 
-  g_dbus_connection_export_action_group (
-    connection,                                   /* GDBusConnection* connection, */
-    "/io/github/kelvinnovais/Gawake",             /* const gchar* object_path, */
-    NULL,                                         /* GActionGroup* action_group, */
-    &error                                        /* GError** error */
-  );
+  /* g_dbus_connection_export_action_group ( */
+  /*   connection,                                    */ /* GDBusConnection* connection, */
+  /*   "/io/github/kelvinnovais/Gawake",              */ /* const gchar* object_path, */
+  /*   NULL,                                          */ /* GActionGroup* action_group, */
+  /*   &error                                         */ /* GError** error */
+  /* ); */
 
   //MyDBusAlarm *alarm_interface;
   //alarm_interface = my_dbus_alarm_skeleton_new();

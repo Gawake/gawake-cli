@@ -1,13 +1,17 @@
 <node>
   <interface name="io.github.kelvinnovais.Database">
 
-    <method name="AddRule">
+    <method name="AddStruct">
       <!-- This is a container type https://dbus.freedesktop.org/doc/dbus-specification.html#container-types -->
       <!-- Data types described on "struct Rules" at gawake_types.h -->
       <!-- For testing on D-Bus Inspector: -->
       <!-- ((1, 0x07, 0x0f, [true, false, true, false, true, false, true], 'Rule name', 0x01, false),) -->
-      <!-- <arg name="rule" direction="in" type="(qyyabsyb)"/> -->
+      <arg name="rule" direction="in" type="(qyyabsyb)"/>
 
+      <arg name="success" direction="out" type="b"/>
+    </method>
+
+    <method name="AddRule">
       <arg name="hour" direction="in" type="y" />
       <arg name="minutes" direction="in" type="y" />
       <arg name="day_0" direction="in" type="b" />

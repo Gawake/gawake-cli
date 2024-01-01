@@ -1,6 +1,6 @@
 /* window.vala
  *
- * Copyright 2023 Kelvin Novais
+ * Copyright 2023-2024 Kelvin Novais
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,6 @@ namespace Gawake {
         [GtkChild]
         private unowned Gtk.ListBox turnoff_listbox;
 
-        private GDBusConnection bus;
         private DatabaseConnection dc; // TODO remove
         private static bool shared_db_status = false;
         private static bool user_db_status = false;
@@ -106,7 +105,7 @@ namespace Gawake {
         [GtkCallback]
         void add_button_clicked () {
             // TODO testing:
-            bus.add_rule_call ();
+            // bus.add_rule_call ();
 
             Table current_page = Table.T_ON;
             // returns "on" or "off"

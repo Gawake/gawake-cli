@@ -1,6 +1,6 @@
 /* dbus-connection.vala
  *
- * Copyright 2023 Kelvin Novais
+ * Copyright 2023-2024 Kelvin Novais
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -134,9 +134,9 @@ namespace Gawake {
             // https://valadoc.org/gio-2.0/GLib.DBusConnection.html
             test.call(
                 "io.github.kelvinnovais.Gawake", // Bus name
-               "/io/github/kelvinnovais/Gawake", // Object path
-                "io.github.kelvinnovais.Gawake", // Interface name
-                "Database", // Method name
+                "/io/github/kelvinnovais/Gawake", // Object path
+                "io.github.kelvinnovais.Database", // Interface name
+                "AddRule", // Method name
                 parameters, // Parameters
                 null, // Reply type
                 GLib.DBusCallFlags.NONE, // Flags

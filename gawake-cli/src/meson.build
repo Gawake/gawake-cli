@@ -46,17 +46,17 @@ executable(
 	c_args: '-DPREPROCESSOR_DEBUG'
 )
 
-executable(
-	'dbus-client',
-	dbus_client_sources,
-	dependencies: dbus_client_dependencies
-)
+# executable(
+# 	'dbus-client',
+# 	dbus_client_sources,
+# 	dependencies: dbus_client_dependencies
+# )
 
-executable(
-	'dbus-client-sync',
-	dbus_client_sync_sources,
-	dependencies: dbus_client_sync_dependencies
-)
+# executable(
+# 	'dbus-client-sync',
+# 	dbus_client_sync_sources,
+# 	dependencies: dbus_client_sync_dependencies
+# )
 
 # executable(
 # 	'gawake-cli',

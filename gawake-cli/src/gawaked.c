@@ -12,7 +12,7 @@ static void on_name_acquired (GDBusConnection *connection,
                               gpointer user_data);
 
 static gboolean
-on_handle_add_rule (GawakeDatabase          *interface,
+on_handle_add_rule (GawakeServerDatabase          *interface,
                     GDBusMethodInvocation   *invocation,
                     const guint8            hour,
                     const guint8            minutes,
@@ -44,7 +44,7 @@ int main (void)
   loop = g_main_loop_new (NULL, FALSE);
 
   g_bus_own_name (G_BUS_TYPE_SESSION,                  // bus type       TODO should it be system wide?
-                  "io.github.kelvinnovais.Gawake",     // name
+                  "io.github.kelvinnovais.GawakeServer",     // name
                   G_BUS_NAME_OWNER_FLAGS_REPLACE,      // flags
                   NULL,                                // bus_acquired_handler
                   on_name_acquired,                    // name_acquired_handler
@@ -65,16 +65,16 @@ on_name_acquired (GDBusConnection *connection,
                   gpointer user_data)
 {
   // Namespace + interface
-  GawakeDatabase *interface;
+  GawakeServerDatabase *interface;
   GError *error;
 
-  interface = gawake_database_skeleton_new ();
+  interface = gawake_server_database_skeleton_new ();
   g_signal_connect (interface, "handle-add-rule", G_CALLBACK(on_handle_add_rule), NULL);
   //g_signal_connect(interface, "handle-sub", G_CALLBACK(on_handle_sub), NULL);
   error = NULL;
   g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (interface),
                                     connection,
-                                    "/io/github/kelvinnovais/Gawake",
+                                    "/io/github/kelvinnovais/GawakeServer",
                                     &error);
 
   /* g_dbus_connection_export_action_group ( */
@@ -92,7 +92,7 @@ on_name_acquired (GDBusConnection *connection,
 }
 
 static gboolean
-on_handle_add_rule (GawakeDatabase          *interface,
+on_handle_add_rule (GawakeServerDatabase          *interface,
                     GDBusMethodInvocation   *invocation,
                     const guint8            hour,
                     const guint8            minutes,
@@ -141,7 +141,7 @@ on_handle_add_rule (GawakeDatabase          *interface,
   else
     success = FALSE;
 
-  gawake_database_complete_add_rule (interface, invocation, success);
+  gawake_server_database_complete_add_rule (interface, invocation, success);
 
   return TRUE;
 }

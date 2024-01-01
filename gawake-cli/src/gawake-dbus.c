@@ -157,8 +157,8 @@ _g_value_equal (const GValue *a, const GValue *b)
  */
 
 /**
- * SECTION:GawakeDatabase
- * @title: GawakeDatabase
+ * SECTION:GawakeServerDatabase
+ * @title: GawakeServerDatabase
  * @short_description: Generated C code for the io.github.kelvinnovais.Database D-Bus interface
  *
  * This section contains code for working with the <link linkend="gdbus-interface-io-github-kelvinnovais-Database.top_of_page">io.github.kelvinnovais.Database</link> D-Bus interface in C.
@@ -166,7 +166,7 @@ _g_value_equal (const GValue *a, const GValue *b)
 
 /* ---- Introspection data for io.github.kelvinnovais.Database ---- */
 
-static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_struct_IN_ARG_rule =
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_add_struct_IN_ARG_rule =
 {
   {
     -1,
@@ -177,13 +177,13 @@ static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_struct_IN_AR
   FALSE
 };
 
-static const GDBusArgInfo * const _gawake_database_method_info_add_struct_IN_ARG_pointers[] =
+static const GDBusArgInfo * const _gawake_server_database_method_info_add_struct_IN_ARG_pointers[] =
 {
-  &_gawake_database_method_info_add_struct_IN_ARG_rule.parent_struct,
+  &_gawake_server_database_method_info_add_struct_IN_ARG_rule.parent_struct,
   NULL
 };
 
-static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_struct_OUT_ARG_success =
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_add_struct_OUT_ARG_success =
 {
   {
     -1,
@@ -194,26 +194,26 @@ static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_struct_OUT_A
   FALSE
 };
 
-static const GDBusArgInfo * const _gawake_database_method_info_add_struct_OUT_ARG_pointers[] =
+static const GDBusArgInfo * const _gawake_server_database_method_info_add_struct_OUT_ARG_pointers[] =
 {
-  &_gawake_database_method_info_add_struct_OUT_ARG_success.parent_struct,
+  &_gawake_server_database_method_info_add_struct_OUT_ARG_success.parent_struct,
   NULL
 };
 
-static const _ExtendedGDBusMethodInfo _gawake_database_method_info_add_struct =
+static const _ExtendedGDBusMethodInfo _gawake_server_database_method_info_add_struct =
 {
   {
     -1,
     (gchar *) "AddStruct",
-    (GDBusArgInfo **) &_gawake_database_method_info_add_struct_IN_ARG_pointers,
-    (GDBusArgInfo **) &_gawake_database_method_info_add_struct_OUT_ARG_pointers,
+    (GDBusArgInfo **) &_gawake_server_database_method_info_add_struct_IN_ARG_pointers,
+    (GDBusArgInfo **) &_gawake_server_database_method_info_add_struct_OUT_ARG_pointers,
     NULL
   },
   "handle-add-struct",
   FALSE
 };
 
-static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_hour =
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_add_rule_IN_ARG_hour =
 {
   {
     -1,
@@ -224,7 +224,7 @@ static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_
   FALSE
 };
 
-static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_minutes =
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_add_rule_IN_ARG_minutes =
 {
   {
     -1,
@@ -235,7 +235,7 @@ static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_
   FALSE
 };
 
-static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_day_0 =
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_add_rule_IN_ARG_day_0 =
 {
   {
     -1,
@@ -246,7 +246,7 @@ static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_
   FALSE
 };
 
-static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_day_1 =
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_add_rule_IN_ARG_day_1 =
 {
   {
     -1,
@@ -257,7 +257,7 @@ static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_
   FALSE
 };
 
-static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_day_2 =
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_add_rule_IN_ARG_day_2 =
 {
   {
     -1,
@@ -268,7 +268,7 @@ static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_
   FALSE
 };
 
-static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_day_3 =
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_add_rule_IN_ARG_day_3 =
 {
   {
     -1,
@@ -279,7 +279,7 @@ static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_
   FALSE
 };
 
-static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_day_4 =
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_add_rule_IN_ARG_day_4 =
 {
   {
     -1,
@@ -290,7 +290,7 @@ static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_
   FALSE
 };
 
-static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_day_5 =
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_add_rule_IN_ARG_day_5 =
 {
   {
     -1,
@@ -301,7 +301,7 @@ static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_
   FALSE
 };
 
-static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_day_6 =
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_add_rule_IN_ARG_day_6 =
 {
   {
     -1,
@@ -312,7 +312,7 @@ static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_
   FALSE
 };
 
-static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_name =
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_add_rule_IN_ARG_name =
 {
   {
     -1,
@@ -323,7 +323,7 @@ static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_
   FALSE
 };
 
-static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_mode =
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_add_rule_IN_ARG_mode =
 {
   {
     -1,
@@ -334,7 +334,7 @@ static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_
   FALSE
 };
 
-static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_table =
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_add_rule_IN_ARG_table =
 {
   {
     -1,
@@ -345,24 +345,24 @@ static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_IN_ARG_
   FALSE
 };
 
-static const GDBusArgInfo * const _gawake_database_method_info_add_rule_IN_ARG_pointers[] =
+static const GDBusArgInfo * const _gawake_server_database_method_info_add_rule_IN_ARG_pointers[] =
 {
-  &_gawake_database_method_info_add_rule_IN_ARG_hour.parent_struct,
-  &_gawake_database_method_info_add_rule_IN_ARG_minutes.parent_struct,
-  &_gawake_database_method_info_add_rule_IN_ARG_day_0.parent_struct,
-  &_gawake_database_method_info_add_rule_IN_ARG_day_1.parent_struct,
-  &_gawake_database_method_info_add_rule_IN_ARG_day_2.parent_struct,
-  &_gawake_database_method_info_add_rule_IN_ARG_day_3.parent_struct,
-  &_gawake_database_method_info_add_rule_IN_ARG_day_4.parent_struct,
-  &_gawake_database_method_info_add_rule_IN_ARG_day_5.parent_struct,
-  &_gawake_database_method_info_add_rule_IN_ARG_day_6.parent_struct,
-  &_gawake_database_method_info_add_rule_IN_ARG_name.parent_struct,
-  &_gawake_database_method_info_add_rule_IN_ARG_mode.parent_struct,
-  &_gawake_database_method_info_add_rule_IN_ARG_table.parent_struct,
+  &_gawake_server_database_method_info_add_rule_IN_ARG_hour.parent_struct,
+  &_gawake_server_database_method_info_add_rule_IN_ARG_minutes.parent_struct,
+  &_gawake_server_database_method_info_add_rule_IN_ARG_day_0.parent_struct,
+  &_gawake_server_database_method_info_add_rule_IN_ARG_day_1.parent_struct,
+  &_gawake_server_database_method_info_add_rule_IN_ARG_day_2.parent_struct,
+  &_gawake_server_database_method_info_add_rule_IN_ARG_day_3.parent_struct,
+  &_gawake_server_database_method_info_add_rule_IN_ARG_day_4.parent_struct,
+  &_gawake_server_database_method_info_add_rule_IN_ARG_day_5.parent_struct,
+  &_gawake_server_database_method_info_add_rule_IN_ARG_day_6.parent_struct,
+  &_gawake_server_database_method_info_add_rule_IN_ARG_name.parent_struct,
+  &_gawake_server_database_method_info_add_rule_IN_ARG_mode.parent_struct,
+  &_gawake_server_database_method_info_add_rule_IN_ARG_table.parent_struct,
   NULL
 };
 
-static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_OUT_ARG_success =
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_add_rule_OUT_ARG_success =
 {
   {
     -1,
@@ -373,38 +373,38 @@ static const _ExtendedGDBusArgInfo _gawake_database_method_info_add_rule_OUT_ARG
   FALSE
 };
 
-static const GDBusArgInfo * const _gawake_database_method_info_add_rule_OUT_ARG_pointers[] =
+static const GDBusArgInfo * const _gawake_server_database_method_info_add_rule_OUT_ARG_pointers[] =
 {
-  &_gawake_database_method_info_add_rule_OUT_ARG_success.parent_struct,
+  &_gawake_server_database_method_info_add_rule_OUT_ARG_success.parent_struct,
   NULL
 };
 
-static const _ExtendedGDBusMethodInfo _gawake_database_method_info_add_rule =
+static const _ExtendedGDBusMethodInfo _gawake_server_database_method_info_add_rule =
 {
   {
     -1,
     (gchar *) "AddRule",
-    (GDBusArgInfo **) &_gawake_database_method_info_add_rule_IN_ARG_pointers,
-    (GDBusArgInfo **) &_gawake_database_method_info_add_rule_OUT_ARG_pointers,
+    (GDBusArgInfo **) &_gawake_server_database_method_info_add_rule_IN_ARG_pointers,
+    (GDBusArgInfo **) &_gawake_server_database_method_info_add_rule_OUT_ARG_pointers,
     NULL
   },
   "handle-add-rule",
   FALSE
 };
 
-static const GDBusMethodInfo * const _gawake_database_method_info_pointers[] =
+static const GDBusMethodInfo * const _gawake_server_database_method_info_pointers[] =
 {
-  &_gawake_database_method_info_add_struct.parent_struct,
-  &_gawake_database_method_info_add_rule.parent_struct,
+  &_gawake_server_database_method_info_add_struct.parent_struct,
+  &_gawake_server_database_method_info_add_rule.parent_struct,
   NULL
 };
 
-static const _ExtendedGDBusInterfaceInfo _gawake_database_interface_info =
+static const _ExtendedGDBusInterfaceInfo _gawake_server_database_interface_info =
 {
   {
     -1,
     (gchar *) "io.github.kelvinnovais.Database",
-    (GDBusMethodInfo **) &_gawake_database_method_info_pointers,
+    (GDBusMethodInfo **) &_gawake_server_database_method_info_pointers,
     NULL,
     NULL,
     NULL
@@ -414,30 +414,30 @@ static const _ExtendedGDBusInterfaceInfo _gawake_database_interface_info =
 
 
 /**
- * gawake_database_interface_info:
+ * gawake_server_database_interface_info:
  *
  * Gets a machine-readable description of the <link linkend="gdbus-interface-io-github-kelvinnovais-Database.top_of_page">io.github.kelvinnovais.Database</link> D-Bus interface.
  *
  * Returns: (transfer none): A #GDBusInterfaceInfo. Do not free.
  */
 GDBusInterfaceInfo *
-gawake_database_interface_info (void)
+gawake_server_database_interface_info (void)
 {
-  return (GDBusInterfaceInfo *) &_gawake_database_interface_info.parent_struct;
+  return (GDBusInterfaceInfo *) &_gawake_server_database_interface_info.parent_struct;
 }
 
 /**
- * gawake_database_override_properties:
+ * gawake_server_database_override_properties:
  * @klass: The class structure for a #GObject derived class.
  * @property_id_begin: The property id to assign to the first overridden property.
  *
- * Overrides all #GObject properties in the #GawakeDatabase interface for a concrete class.
+ * Overrides all #GObject properties in the #GawakeServerDatabase interface for a concrete class.
  * The properties are overridden in the order they are defined.
  *
  * Returns: The last property id.
  */
 guint
-gawake_database_override_properties (GObjectClass *klass G_GNUC_UNUSED, guint property_id_begin)
+gawake_server_database_override_properties (GObjectClass *klass G_GNUC_UNUSED, guint property_id_begin)
 {
   return property_id_begin - 1;
 }
@@ -445,43 +445,43 @@ gawake_database_override_properties (GObjectClass *klass G_GNUC_UNUSED, guint pr
 
 
 /**
- * GawakeDatabase:
+ * GawakeServerDatabase:
  *
  * Abstract interface type for the D-Bus interface <link linkend="gdbus-interface-io-github-kelvinnovais-Database.top_of_page">io.github.kelvinnovais.Database</link>.
  */
 
 /**
- * GawakeDatabaseIface:
+ * GawakeServerDatabaseIface:
  * @parent_iface: The parent interface.
- * @handle_add_rule: Handler for the #GawakeDatabase::handle-add-rule signal.
- * @handle_add_struct: Handler for the #GawakeDatabase::handle-add-struct signal.
+ * @handle_add_rule: Handler for the #GawakeServerDatabase::handle-add-rule signal.
+ * @handle_add_struct: Handler for the #GawakeServerDatabase::handle-add-struct signal.
  *
  * Virtual table for the D-Bus interface <link linkend="gdbus-interface-io-github-kelvinnovais-Database.top_of_page">io.github.kelvinnovais.Database</link>.
  */
 
-typedef GawakeDatabaseIface GawakeDatabaseInterface;
-G_DEFINE_INTERFACE (GawakeDatabase, gawake_database, G_TYPE_OBJECT)
+typedef GawakeServerDatabaseIface GawakeServerDatabaseInterface;
+G_DEFINE_INTERFACE (GawakeServerDatabase, gawake_server_database, G_TYPE_OBJECT)
 
 static void
-gawake_database_default_init (GawakeDatabaseIface *iface)
+gawake_server_database_default_init (GawakeServerDatabaseIface *iface)
 {
   /* GObject signals for incoming D-Bus method calls: */
   /**
-   * GawakeDatabase::handle-add-struct:
-   * @object: A #GawakeDatabase.
+   * GawakeServerDatabase::handle-add-struct:
+   * @object: A #GawakeServerDatabase.
    * @invocation: A #GDBusMethodInvocation.
    * @arg_rule: Argument passed by remote caller.
    *
    * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-io-github-kelvinnovais-Database.AddStruct">AddStruct()</link> D-Bus method.
    *
-   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call gawake_database_complete_add_struct() or e.g. g_dbus_method_invocation_return_error() on it) and no other signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call gawake_server_database_complete_add_struct() or e.g. g_dbus_method_invocation_return_error() on it) and no other signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
    *
    * Returns: %G_DBUS_METHOD_INVOCATION_HANDLED or %TRUE if the invocation was handled, %G_DBUS_METHOD_INVOCATION_UNHANDLED or %FALSE to let other signal handlers run.
    */
   g_signal_new ("handle-add-struct",
     G_TYPE_FROM_INTERFACE (iface),
     G_SIGNAL_RUN_LAST,
-    G_STRUCT_OFFSET (GawakeDatabaseIface, handle_add_struct),
+    G_STRUCT_OFFSET (GawakeServerDatabaseIface, handle_add_struct),
     g_signal_accumulator_true_handled,
     NULL,
     g_cclosure_marshal_generic,
@@ -490,8 +490,8 @@ gawake_database_default_init (GawakeDatabaseIface *iface)
     G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_VARIANT);
 
   /**
-   * GawakeDatabase::handle-add-rule:
-   * @object: A #GawakeDatabase.
+   * GawakeServerDatabase::handle-add-rule:
+   * @object: A #GawakeServerDatabase.
    * @invocation: A #GDBusMethodInvocation.
    * @arg_hour: Argument passed by remote caller.
    * @arg_minutes: Argument passed by remote caller.
@@ -508,14 +508,14 @@ gawake_database_default_init (GawakeDatabaseIface *iface)
    *
    * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-io-github-kelvinnovais-Database.AddRule">AddRule()</link> D-Bus method.
    *
-   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call gawake_database_complete_add_rule() or e.g. g_dbus_method_invocation_return_error() on it) and no other signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call gawake_server_database_complete_add_rule() or e.g. g_dbus_method_invocation_return_error() on it) and no other signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
    *
    * Returns: %G_DBUS_METHOD_INVOCATION_HANDLED or %TRUE if the invocation was handled, %G_DBUS_METHOD_INVOCATION_UNHANDLED or %FALSE to let other signal handlers run.
    */
   g_signal_new ("handle-add-rule",
     G_TYPE_FROM_INTERFACE (iface),
     G_SIGNAL_RUN_LAST,
-    G_STRUCT_OFFSET (GawakeDatabaseIface, handle_add_rule),
+    G_STRUCT_OFFSET (GawakeServerDatabaseIface, handle_add_rule),
     g_signal_accumulator_true_handled,
     NULL,
     g_cclosure_marshal_generic,
@@ -526,8 +526,8 @@ gawake_database_default_init (GawakeDatabaseIface *iface)
 }
 
 /**
- * gawake_database_call_add_struct:
- * @proxy: A #GawakeDatabaseProxy.
+ * gawake_server_database_call_add_struct:
+ * @proxy: A #GawakeServerDatabaseProxy.
  * @arg_rule: Argument to pass with the method invocation.
  * @cancellable: (nullable): A #GCancellable or %NULL.
  * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
@@ -535,13 +535,13 @@ gawake_database_default_init (GawakeDatabaseIface *iface)
  *
  * Asynchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.AddStruct">AddStruct()</link> D-Bus method on @proxy.
  * When the operation is finished, @callback will be invoked in the thread-default main loop of the thread you are calling this method from (see g_main_context_push_thread_default()).
- * You can then call gawake_database_call_add_struct_finish() to get the result of the operation.
+ * You can then call gawake_server_database_call_add_struct_finish() to get the result of the operation.
  *
- * See gawake_database_call_add_struct_sync() for the synchronous, blocking version of this method.
+ * See gawake_server_database_call_add_struct_sync() for the synchronous, blocking version of this method.
  */
 void
-gawake_database_call_add_struct (
-    GawakeDatabase *proxy,
+gawake_server_database_call_add_struct (
+    GawakeServerDatabase *proxy,
     GVariant *arg_rule,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
@@ -559,19 +559,19 @@ gawake_database_call_add_struct (
 }
 
 /**
- * gawake_database_call_add_struct_finish:
- * @proxy: A #GawakeDatabaseProxy.
+ * gawake_server_database_call_add_struct_finish:
+ * @proxy: A #GawakeServerDatabaseProxy.
  * @out_success: (out) (optional): Return location for return parameter or %NULL to ignore.
- * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to gawake_database_call_add_struct().
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to gawake_server_database_call_add_struct().
  * @error: Return location for error or %NULL.
  *
- * Finishes an operation started with gawake_database_call_add_struct().
+ * Finishes an operation started with gawake_server_database_call_add_struct().
  *
  * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
  */
 gboolean
-gawake_database_call_add_struct_finish (
-    GawakeDatabase *proxy,
+gawake_server_database_call_add_struct_finish (
+    GawakeServerDatabase *proxy,
     gboolean *out_success,
     GAsyncResult *res,
     GError **error)
@@ -589,8 +589,8 @@ _out:
 }
 
 /**
- * gawake_database_call_add_struct_sync:
- * @proxy: A #GawakeDatabaseProxy.
+ * gawake_server_database_call_add_struct_sync:
+ * @proxy: A #GawakeServerDatabaseProxy.
  * @arg_rule: Argument to pass with the method invocation.
  * @out_success: (out) (optional): Return location for return parameter or %NULL to ignore.
  * @cancellable: (nullable): A #GCancellable or %NULL.
@@ -598,13 +598,13 @@ _out:
  *
  * Synchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.AddStruct">AddStruct()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
  *
- * See gawake_database_call_add_struct() for the asynchronous version of this method.
+ * See gawake_server_database_call_add_struct() for the asynchronous version of this method.
  *
  * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
  */
 gboolean
-gawake_database_call_add_struct_sync (
-    GawakeDatabase *proxy,
+gawake_server_database_call_add_struct_sync (
+    GawakeServerDatabase *proxy,
     GVariant *arg_rule,
     gboolean *out_success,
     GCancellable *cancellable,
@@ -630,8 +630,8 @@ _out:
 }
 
 /**
- * gawake_database_call_add_rule:
- * @proxy: A #GawakeDatabaseProxy.
+ * gawake_server_database_call_add_rule:
+ * @proxy: A #GawakeServerDatabaseProxy.
  * @arg_hour: Argument to pass with the method invocation.
  * @arg_minutes: Argument to pass with the method invocation.
  * @arg_day_0: Argument to pass with the method invocation.
@@ -650,13 +650,13 @@ _out:
  *
  * Asynchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.AddRule">AddRule()</link> D-Bus method on @proxy.
  * When the operation is finished, @callback will be invoked in the thread-default main loop of the thread you are calling this method from (see g_main_context_push_thread_default()).
- * You can then call gawake_database_call_add_rule_finish() to get the result of the operation.
+ * You can then call gawake_server_database_call_add_rule_finish() to get the result of the operation.
  *
- * See gawake_database_call_add_rule_sync() for the synchronous, blocking version of this method.
+ * See gawake_server_database_call_add_rule_sync() for the synchronous, blocking version of this method.
  */
 void
-gawake_database_call_add_rule (
-    GawakeDatabase *proxy,
+gawake_server_database_call_add_rule (
+    GawakeServerDatabase *proxy,
     guchar arg_hour,
     guchar arg_minutes,
     gboolean arg_day_0,
@@ -696,19 +696,19 @@ gawake_database_call_add_rule (
 }
 
 /**
- * gawake_database_call_add_rule_finish:
- * @proxy: A #GawakeDatabaseProxy.
+ * gawake_server_database_call_add_rule_finish:
+ * @proxy: A #GawakeServerDatabaseProxy.
  * @out_success: (out) (optional): Return location for return parameter or %NULL to ignore.
- * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to gawake_database_call_add_rule().
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to gawake_server_database_call_add_rule().
  * @error: Return location for error or %NULL.
  *
- * Finishes an operation started with gawake_database_call_add_rule().
+ * Finishes an operation started with gawake_server_database_call_add_rule().
  *
  * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
  */
 gboolean
-gawake_database_call_add_rule_finish (
-    GawakeDatabase *proxy,
+gawake_server_database_call_add_rule_finish (
+    GawakeServerDatabase *proxy,
     gboolean *out_success,
     GAsyncResult *res,
     GError **error)
@@ -726,8 +726,8 @@ _out:
 }
 
 /**
- * gawake_database_call_add_rule_sync:
- * @proxy: A #GawakeDatabaseProxy.
+ * gawake_server_database_call_add_rule_sync:
+ * @proxy: A #GawakeServerDatabaseProxy.
  * @arg_hour: Argument to pass with the method invocation.
  * @arg_minutes: Argument to pass with the method invocation.
  * @arg_day_0: Argument to pass with the method invocation.
@@ -746,13 +746,13 @@ _out:
  *
  * Synchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.AddRule">AddRule()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
  *
- * See gawake_database_call_add_rule() for the asynchronous version of this method.
+ * See gawake_server_database_call_add_rule() for the asynchronous version of this method.
  *
  * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
  */
 gboolean
-gawake_database_call_add_rule_sync (
-    GawakeDatabase *proxy,
+gawake_server_database_call_add_rule_sync (
+    GawakeServerDatabase *proxy,
     guchar arg_hour,
     guchar arg_minutes,
     gboolean arg_day_0,
@@ -800,8 +800,8 @@ _out:
 }
 
 /**
- * gawake_database_complete_add_struct:
- * @object: A #GawakeDatabase.
+ * gawake_server_database_complete_add_struct:
+ * @object: A #GawakeServerDatabase.
  * @invocation: (transfer full): A #GDBusMethodInvocation.
  * @success: Parameter to return.
  *
@@ -810,8 +810,8 @@ _out:
  * This method will free @invocation, you cannot use it afterwards.
  */
 void
-gawake_database_complete_add_struct (
-    GawakeDatabase *object G_GNUC_UNUSED,
+gawake_server_database_complete_add_struct (
+    GawakeServerDatabase *object G_GNUC_UNUSED,
     GDBusMethodInvocation *invocation,
     gboolean success)
 {
@@ -821,8 +821,8 @@ gawake_database_complete_add_struct (
 }
 
 /**
- * gawake_database_complete_add_rule:
- * @object: A #GawakeDatabase.
+ * gawake_server_database_complete_add_rule:
+ * @object: A #GawakeServerDatabase.
  * @invocation: (transfer full): A #GDBusMethodInvocation.
  * @success: Parameter to return.
  *
@@ -831,8 +831,8 @@ gawake_database_complete_add_struct (
  * This method will free @invocation, you cannot use it afterwards.
  */
 void
-gawake_database_complete_add_rule (
-    GawakeDatabase *object G_GNUC_UNUSED,
+gawake_server_database_complete_add_rule (
+    GawakeServerDatabase *object G_GNUC_UNUSED,
     GDBusMethodInvocation *invocation,
     gboolean success)
 {
@@ -844,45 +844,45 @@ gawake_database_complete_add_rule (
 /* ------------------------------------------------------------------------ */
 
 /**
- * GawakeDatabaseProxy:
+ * GawakeServerDatabaseProxy:
  *
- * The #GawakeDatabaseProxy structure contains only private data and should only be accessed using the provided API.
+ * The #GawakeServerDatabaseProxy structure contains only private data and should only be accessed using the provided API.
  */
 
 /**
- * GawakeDatabaseProxyClass:
+ * GawakeServerDatabaseProxyClass:
  * @parent_class: The parent class.
  *
- * Class structure for #GawakeDatabaseProxy.
+ * Class structure for #GawakeServerDatabaseProxy.
  */
 
-struct _GawakeDatabaseProxyPrivate
+struct _GawakeServerDatabaseProxyPrivate
 {
   GData *qdata;
 };
 
-static void gawake_database_proxy_iface_init (GawakeDatabaseIface *iface);
+static void gawake_server_database_proxy_iface_init (GawakeServerDatabaseIface *iface);
 
 #if GLIB_VERSION_MAX_ALLOWED >= GLIB_VERSION_2_38
-G_DEFINE_TYPE_WITH_CODE (GawakeDatabaseProxy, gawake_database_proxy, G_TYPE_DBUS_PROXY,
-                         G_ADD_PRIVATE (GawakeDatabaseProxy)
-                         G_IMPLEMENT_INTERFACE (GAWAKE_TYPE_DATABASE, gawake_database_proxy_iface_init))
+G_DEFINE_TYPE_WITH_CODE (GawakeServerDatabaseProxy, gawake_server_database_proxy, G_TYPE_DBUS_PROXY,
+                         G_ADD_PRIVATE (GawakeServerDatabaseProxy)
+                         G_IMPLEMENT_INTERFACE (GAWAKE_SERVER_TYPE_DATABASE, gawake_server_database_proxy_iface_init))
 
 #else
-G_DEFINE_TYPE_WITH_CODE (GawakeDatabaseProxy, gawake_database_proxy, G_TYPE_DBUS_PROXY,
-                         G_IMPLEMENT_INTERFACE (GAWAKE_TYPE_DATABASE, gawake_database_proxy_iface_init))
+G_DEFINE_TYPE_WITH_CODE (GawakeServerDatabaseProxy, gawake_server_database_proxy, G_TYPE_DBUS_PROXY,
+                         G_IMPLEMENT_INTERFACE (GAWAKE_SERVER_TYPE_DATABASE, gawake_server_database_proxy_iface_init))
 
 #endif
 static void
-gawake_database_proxy_finalize (GObject *object)
+gawake_server_database_proxy_finalize (GObject *object)
 {
-  GawakeDatabaseProxy *proxy = GAWAKE_DATABASE_PROXY (object);
+  GawakeServerDatabaseProxy *proxy = GAWAKE_SERVER_DATABASE_PROXY (object);
   g_datalist_clear (&proxy->priv->qdata);
-  G_OBJECT_CLASS (gawake_database_proxy_parent_class)->finalize (object);
+  G_OBJECT_CLASS (gawake_server_database_proxy_parent_class)->finalize (object);
 }
 
 static void
-gawake_database_proxy_get_property (GObject      *object G_GNUC_UNUSED,
+gawake_server_database_proxy_get_property (GObject      *object G_GNUC_UNUSED,
   guint         prop_id G_GNUC_UNUSED,
   GValue       *value G_GNUC_UNUSED,
   GParamSpec   *pspec G_GNUC_UNUSED)
@@ -890,7 +890,7 @@ gawake_database_proxy_get_property (GObject      *object G_GNUC_UNUSED,
 }
 
 static void
-gawake_database_proxy_set_property (GObject      *object G_GNUC_UNUSED,
+gawake_server_database_proxy_set_property (GObject      *object G_GNUC_UNUSED,
   guint         prop_id G_GNUC_UNUSED,
   const GValue *value G_GNUC_UNUSED,
   GParamSpec   *pspec G_GNUC_UNUSED)
@@ -898,7 +898,7 @@ gawake_database_proxy_set_property (GObject      *object G_GNUC_UNUSED,
 }
 
 static void
-gawake_database_proxy_g_signal (GDBusProxy *proxy,
+gawake_server_database_proxy_g_signal (GDBusProxy *proxy,
   const gchar *sender_name G_GNUC_UNUSED,
   const gchar *signal_name,
   GVariant *parameters)
@@ -910,12 +910,12 @@ gawake_database_proxy_g_signal (GDBusProxy *proxy,
   gsize num_params;
   gsize n;
   guint signal_id;
-  info = (_ExtendedGDBusSignalInfo *) g_dbus_interface_info_lookup_signal ((GDBusInterfaceInfo *) &_gawake_database_interface_info.parent_struct, signal_name);
+  info = (_ExtendedGDBusSignalInfo *) g_dbus_interface_info_lookup_signal ((GDBusInterfaceInfo *) &_gawake_server_database_interface_info.parent_struct, signal_name);
   if (info == NULL)
     return;
   num_params = g_variant_n_children (parameters);
   paramv = g_new0 (GValue, num_params + 1);
-  g_value_init (&paramv[0], GAWAKE_TYPE_DATABASE);
+  g_value_init (&paramv[0], GAWAKE_SERVER_TYPE_DATABASE);
   g_value_set_object (&paramv[0], proxy);
   g_variant_iter_init (&iter, parameters);
   n = 1;
@@ -932,7 +932,7 @@ gawake_database_proxy_g_signal (GDBusProxy *proxy,
         g_dbus_gvariant_to_gvalue (child, &paramv[n++]);
       g_variant_unref (child);
     }
-  signal_id = g_signal_lookup (info->signal_name, GAWAKE_TYPE_DATABASE);
+  signal_id = g_signal_lookup (info->signal_name, GAWAKE_SERVER_TYPE_DATABASE);
   g_signal_emitv (paramv, signal_id, 0, NULL);
   for (n = 0; n < num_params + 1; n++)
     g_value_unset (&paramv[n]);
@@ -940,11 +940,11 @@ gawake_database_proxy_g_signal (GDBusProxy *proxy,
 }
 
 static void
-gawake_database_proxy_g_properties_changed (GDBusProxy *_proxy,
+gawake_server_database_proxy_g_properties_changed (GDBusProxy *_proxy,
   GVariant *changed_properties,
   const gchar *const *invalidated_properties)
 {
-  GawakeDatabaseProxy *proxy = GAWAKE_DATABASE_PROXY (_proxy);
+  GawakeServerDatabaseProxy *proxy = GAWAKE_SERVER_DATABASE_PROXY (_proxy);
   guint n;
   const gchar *key;
   GVariantIter *iter;
@@ -952,7 +952,7 @@ gawake_database_proxy_g_properties_changed (GDBusProxy *_proxy,
   g_variant_get (changed_properties, "a{sv}", &iter);
   while (g_variant_iter_next (iter, "{&sv}", &key, NULL))
     {
-      info = (_ExtendedGDBusPropertyInfo *) g_dbus_interface_info_lookup_property ((GDBusInterfaceInfo *) &_gawake_database_interface_info.parent_struct, key);
+      info = (_ExtendedGDBusPropertyInfo *) g_dbus_interface_info_lookup_property ((GDBusInterfaceInfo *) &_gawake_server_database_interface_info.parent_struct, key);
       g_datalist_remove_data (&proxy->priv->qdata, key);
       if (info != NULL)
         g_object_notify (G_OBJECT (proxy), info->hyphen_name);
@@ -960,7 +960,7 @@ gawake_database_proxy_g_properties_changed (GDBusProxy *_proxy,
   g_variant_iter_free (iter);
   for (n = 0; invalidated_properties[n] != NULL; n++)
     {
-      info = (_ExtendedGDBusPropertyInfo *) g_dbus_interface_info_lookup_property ((GDBusInterfaceInfo *) &_gawake_database_interface_info.parent_struct, invalidated_properties[n]);
+      info = (_ExtendedGDBusPropertyInfo *) g_dbus_interface_info_lookup_property ((GDBusInterfaceInfo *) &_gawake_server_database_interface_info.parent_struct, invalidated_properties[n]);
       g_datalist_remove_data (&proxy->priv->qdata, invalidated_properties[n]);
       if (info != NULL)
         g_object_notify (G_OBJECT (proxy), info->hyphen_name);
@@ -968,44 +968,44 @@ gawake_database_proxy_g_properties_changed (GDBusProxy *_proxy,
 }
 
 static void
-gawake_database_proxy_init (GawakeDatabaseProxy *proxy)
+gawake_server_database_proxy_init (GawakeServerDatabaseProxy *proxy)
 {
 #if GLIB_VERSION_MAX_ALLOWED >= GLIB_VERSION_2_38
-  proxy->priv = gawake_database_proxy_get_instance_private (proxy);
+  proxy->priv = gawake_server_database_proxy_get_instance_private (proxy);
 #else
-  proxy->priv = G_TYPE_INSTANCE_GET_PRIVATE (proxy, GAWAKE_TYPE_DATABASE_PROXY, GawakeDatabaseProxyPrivate);
+  proxy->priv = G_TYPE_INSTANCE_GET_PRIVATE (proxy, GAWAKE_SERVER_TYPE_DATABASE_PROXY, GawakeServerDatabaseProxyPrivate);
 #endif
 
-  g_dbus_proxy_set_interface_info (G_DBUS_PROXY (proxy), gawake_database_interface_info ());
+  g_dbus_proxy_set_interface_info (G_DBUS_PROXY (proxy), gawake_server_database_interface_info ());
 }
 
 static void
-gawake_database_proxy_class_init (GawakeDatabaseProxyClass *klass)
+gawake_server_database_proxy_class_init (GawakeServerDatabaseProxyClass *klass)
 {
   GObjectClass *gobject_class;
   GDBusProxyClass *proxy_class;
 
   gobject_class = G_OBJECT_CLASS (klass);
-  gobject_class->finalize     = gawake_database_proxy_finalize;
-  gobject_class->get_property = gawake_database_proxy_get_property;
-  gobject_class->set_property = gawake_database_proxy_set_property;
+  gobject_class->finalize     = gawake_server_database_proxy_finalize;
+  gobject_class->get_property = gawake_server_database_proxy_get_property;
+  gobject_class->set_property = gawake_server_database_proxy_set_property;
 
   proxy_class = G_DBUS_PROXY_CLASS (klass);
-  proxy_class->g_signal = gawake_database_proxy_g_signal;
-  proxy_class->g_properties_changed = gawake_database_proxy_g_properties_changed;
+  proxy_class->g_signal = gawake_server_database_proxy_g_signal;
+  proxy_class->g_properties_changed = gawake_server_database_proxy_g_properties_changed;
 
 #if GLIB_VERSION_MAX_ALLOWED < GLIB_VERSION_2_38
-  g_type_class_add_private (klass, sizeof (GawakeDatabaseProxyPrivate));
+  g_type_class_add_private (klass, sizeof (GawakeServerDatabaseProxyPrivate));
 #endif
 }
 
 static void
-gawake_database_proxy_iface_init (GawakeDatabaseIface *iface G_GNUC_UNUSED)
+gawake_server_database_proxy_iface_init (GawakeServerDatabaseIface *iface G_GNUC_UNUSED)
 {
 }
 
 /**
- * gawake_database_proxy_new:
+ * gawake_server_database_proxy_new:
  * @connection: A #GDBusConnection.
  * @flags: Flags from the #GDBusProxyFlags enumeration.
  * @name: (nullable): A bus name (well-known or unique) or %NULL if @connection is not a message bus connection.
@@ -1017,12 +1017,12 @@ gawake_database_proxy_iface_init (GawakeDatabaseIface *iface G_GNUC_UNUSED)
  * Asynchronously creates a proxy for the D-Bus interface <link linkend="gdbus-interface-io-github-kelvinnovais-Database.top_of_page">io.github.kelvinnovais.Database</link>. See g_dbus_proxy_new() for more details.
  *
  * When the operation is finished, @callback will be invoked in the thread-default main loop of the thread you are calling this method from (see g_main_context_push_thread_default()).
- * You can then call gawake_database_proxy_new_finish() to get the result of the operation.
+ * You can then call gawake_server_database_proxy_new_finish() to get the result of the operation.
  *
- * See gawake_database_proxy_new_sync() for the synchronous, blocking version of this constructor.
+ * See gawake_server_database_proxy_new_sync() for the synchronous, blocking version of this constructor.
  */
 void
-gawake_database_proxy_new (
+gawake_server_database_proxy_new (
     GDBusConnection     *connection,
     GDBusProxyFlags      flags,
     const gchar         *name,
@@ -1031,20 +1031,20 @@ gawake_database_proxy_new (
     GAsyncReadyCallback  callback,
     gpointer             user_data)
 {
-  g_async_initable_new_async (GAWAKE_TYPE_DATABASE_PROXY, G_PRIORITY_DEFAULT, cancellable, callback, user_data, "g-flags", flags, "g-name", name, "g-connection", connection, "g-object-path", object_path, "g-interface-name", "io.github.kelvinnovais.Database", NULL);
+  g_async_initable_new_async (GAWAKE_SERVER_TYPE_DATABASE_PROXY, G_PRIORITY_DEFAULT, cancellable, callback, user_data, "g-flags", flags, "g-name", name, "g-connection", connection, "g-object-path", object_path, "g-interface-name", "io.github.kelvinnovais.Database", NULL);
 }
 
 /**
- * gawake_database_proxy_new_finish:
- * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to gawake_database_proxy_new().
+ * gawake_server_database_proxy_new_finish:
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to gawake_server_database_proxy_new().
  * @error: Return location for error or %NULL
  *
- * Finishes an operation started with gawake_database_proxy_new().
+ * Finishes an operation started with gawake_server_database_proxy_new().
  *
- * Returns: (transfer full) (type GawakeDatabaseProxy): The constructed proxy object or %NULL if @error is set.
+ * Returns: (transfer full) (type GawakeServerDatabaseProxy): The constructed proxy object or %NULL if @error is set.
  */
-GawakeDatabase *
-gawake_database_proxy_new_finish (
+GawakeServerDatabase *
+gawake_server_database_proxy_new_finish (
     GAsyncResult        *res,
     GError             **error)
 {
@@ -1054,13 +1054,13 @@ gawake_database_proxy_new_finish (
   ret = g_async_initable_new_finish (G_ASYNC_INITABLE (source_object), res, error);
   g_object_unref (source_object);
   if (ret != NULL)
-    return GAWAKE_DATABASE (ret);
+    return GAWAKE_SERVER_DATABASE (ret);
   else
     return NULL;
 }
 
 /**
- * gawake_database_proxy_new_sync:
+ * gawake_server_database_proxy_new_sync:
  * @connection: A #GDBusConnection.
  * @flags: Flags from the #GDBusProxyFlags enumeration.
  * @name: (nullable): A bus name (well-known or unique) or %NULL if @connection is not a message bus connection.
@@ -1072,12 +1072,12 @@ gawake_database_proxy_new_finish (
  *
  * The calling thread is blocked until a reply is received.
  *
- * See gawake_database_proxy_new() for the asynchronous version of this constructor.
+ * See gawake_server_database_proxy_new() for the asynchronous version of this constructor.
  *
- * Returns: (transfer full) (type GawakeDatabaseProxy): The constructed proxy object or %NULL if @error is set.
+ * Returns: (transfer full) (type GawakeServerDatabaseProxy): The constructed proxy object or %NULL if @error is set.
  */
-GawakeDatabase *
-gawake_database_proxy_new_sync (
+GawakeServerDatabase *
+gawake_server_database_proxy_new_sync (
     GDBusConnection     *connection,
     GDBusProxyFlags      flags,
     const gchar         *name,
@@ -1086,16 +1086,16 @@ gawake_database_proxy_new_sync (
     GError             **error)
 {
   GInitable *ret;
-  ret = g_initable_new (GAWAKE_TYPE_DATABASE_PROXY, cancellable, error, "g-flags", flags, "g-name", name, "g-connection", connection, "g-object-path", object_path, "g-interface-name", "io.github.kelvinnovais.Database", NULL);
+  ret = g_initable_new (GAWAKE_SERVER_TYPE_DATABASE_PROXY, cancellable, error, "g-flags", flags, "g-name", name, "g-connection", connection, "g-object-path", object_path, "g-interface-name", "io.github.kelvinnovais.Database", NULL);
   if (ret != NULL)
-    return GAWAKE_DATABASE (ret);
+    return GAWAKE_SERVER_DATABASE (ret);
   else
     return NULL;
 }
 
 
 /**
- * gawake_database_proxy_new_for_bus:
+ * gawake_server_database_proxy_new_for_bus:
  * @bus_type: A #GBusType.
  * @flags: Flags from the #GDBusProxyFlags enumeration.
  * @name: A bus name (well-known or unique).
@@ -1104,15 +1104,15 @@ gawake_database_proxy_new_sync (
  * @callback: A #GAsyncReadyCallback to call when the request is satisfied.
  * @user_data: User data to pass to @callback.
  *
- * Like gawake_database_proxy_new() but takes a #GBusType instead of a #GDBusConnection.
+ * Like gawake_server_database_proxy_new() but takes a #GBusType instead of a #GDBusConnection.
  *
  * When the operation is finished, @callback will be invoked in the thread-default main loop of the thread you are calling this method from (see g_main_context_push_thread_default()).
- * You can then call gawake_database_proxy_new_for_bus_finish() to get the result of the operation.
+ * You can then call gawake_server_database_proxy_new_for_bus_finish() to get the result of the operation.
  *
- * See gawake_database_proxy_new_for_bus_sync() for the synchronous, blocking version of this constructor.
+ * See gawake_server_database_proxy_new_for_bus_sync() for the synchronous, blocking version of this constructor.
  */
 void
-gawake_database_proxy_new_for_bus (
+gawake_server_database_proxy_new_for_bus (
     GBusType             bus_type,
     GDBusProxyFlags      flags,
     const gchar         *name,
@@ -1121,20 +1121,20 @@ gawake_database_proxy_new_for_bus (
     GAsyncReadyCallback  callback,
     gpointer             user_data)
 {
-  g_async_initable_new_async (GAWAKE_TYPE_DATABASE_PROXY, G_PRIORITY_DEFAULT, cancellable, callback, user_data, "g-flags", flags, "g-name", name, "g-bus-type", bus_type, "g-object-path", object_path, "g-interface-name", "io.github.kelvinnovais.Database", NULL);
+  g_async_initable_new_async (GAWAKE_SERVER_TYPE_DATABASE_PROXY, G_PRIORITY_DEFAULT, cancellable, callback, user_data, "g-flags", flags, "g-name", name, "g-bus-type", bus_type, "g-object-path", object_path, "g-interface-name", "io.github.kelvinnovais.Database", NULL);
 }
 
 /**
- * gawake_database_proxy_new_for_bus_finish:
- * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to gawake_database_proxy_new_for_bus().
+ * gawake_server_database_proxy_new_for_bus_finish:
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to gawake_server_database_proxy_new_for_bus().
  * @error: Return location for error or %NULL
  *
- * Finishes an operation started with gawake_database_proxy_new_for_bus().
+ * Finishes an operation started with gawake_server_database_proxy_new_for_bus().
  *
- * Returns: (transfer full) (type GawakeDatabaseProxy): The constructed proxy object or %NULL if @error is set.
+ * Returns: (transfer full) (type GawakeServerDatabaseProxy): The constructed proxy object or %NULL if @error is set.
  */
-GawakeDatabase *
-gawake_database_proxy_new_for_bus_finish (
+GawakeServerDatabase *
+gawake_server_database_proxy_new_for_bus_finish (
     GAsyncResult        *res,
     GError             **error)
 {
@@ -1144,13 +1144,13 @@ gawake_database_proxy_new_for_bus_finish (
   ret = g_async_initable_new_finish (G_ASYNC_INITABLE (source_object), res, error);
   g_object_unref (source_object);
   if (ret != NULL)
-    return GAWAKE_DATABASE (ret);
+    return GAWAKE_SERVER_DATABASE (ret);
   else
     return NULL;
 }
 
 /**
- * gawake_database_proxy_new_for_bus_sync:
+ * gawake_server_database_proxy_new_for_bus_sync:
  * @bus_type: A #GBusType.
  * @flags: Flags from the #GDBusProxyFlags enumeration.
  * @name: A bus name (well-known or unique).
@@ -1158,16 +1158,16 @@ gawake_database_proxy_new_for_bus_finish (
  * @cancellable: (nullable): A #GCancellable or %NULL.
  * @error: Return location for error or %NULL
  *
- * Like gawake_database_proxy_new_sync() but takes a #GBusType instead of a #GDBusConnection.
+ * Like gawake_server_database_proxy_new_sync() but takes a #GBusType instead of a #GDBusConnection.
  *
  * The calling thread is blocked until a reply is received.
  *
- * See gawake_database_proxy_new_for_bus() for the asynchronous version of this constructor.
+ * See gawake_server_database_proxy_new_for_bus() for the asynchronous version of this constructor.
  *
- * Returns: (transfer full) (type GawakeDatabaseProxy): The constructed proxy object or %NULL if @error is set.
+ * Returns: (transfer full) (type GawakeServerDatabaseProxy): The constructed proxy object or %NULL if @error is set.
  */
-GawakeDatabase *
-gawake_database_proxy_new_for_bus_sync (
+GawakeServerDatabase *
+gawake_server_database_proxy_new_for_bus_sync (
     GBusType             bus_type,
     GDBusProxyFlags      flags,
     const gchar         *name,
@@ -1176,9 +1176,9 @@ gawake_database_proxy_new_for_bus_sync (
     GError             **error)
 {
   GInitable *ret;
-  ret = g_initable_new (GAWAKE_TYPE_DATABASE_PROXY, cancellable, error, "g-flags", flags, "g-name", name, "g-bus-type", bus_type, "g-object-path", object_path, "g-interface-name", "io.github.kelvinnovais.Database", NULL);
+  ret = g_initable_new (GAWAKE_SERVER_TYPE_DATABASE_PROXY, cancellable, error, "g-flags", flags, "g-name", name, "g-bus-type", bus_type, "g-object-path", object_path, "g-interface-name", "io.github.kelvinnovais.Database", NULL);
   if (ret != NULL)
-    return GAWAKE_DATABASE (ret);
+    return GAWAKE_SERVER_DATABASE (ret);
   else
     return NULL;
 }
@@ -1187,19 +1187,19 @@ gawake_database_proxy_new_for_bus_sync (
 /* ------------------------------------------------------------------------ */
 
 /**
- * GawakeDatabaseSkeleton:
+ * GawakeServerDatabaseSkeleton:
  *
- * The #GawakeDatabaseSkeleton structure contains only private data and should only be accessed using the provided API.
+ * The #GawakeServerDatabaseSkeleton structure contains only private data and should only be accessed using the provided API.
  */
 
 /**
- * GawakeDatabaseSkeletonClass:
+ * GawakeServerDatabaseSkeletonClass:
  * @parent_class: The parent class.
  *
- * Class structure for #GawakeDatabaseSkeleton.
+ * Class structure for #GawakeServerDatabaseSkeleton.
  */
 
-struct _GawakeDatabaseSkeletonPrivate
+struct _GawakeServerDatabaseSkeletonPrivate
 {
   GValue *properties;
   GList *changed_properties;
@@ -1209,7 +1209,7 @@ struct _GawakeDatabaseSkeletonPrivate
 };
 
 static void
-_gawake_database_skeleton_handle_method_call (
+_gawake_server_database_skeleton_handle_method_call (
   GDBusConnection *connection G_GNUC_UNUSED,
   const gchar *sender G_GNUC_UNUSED,
   const gchar *object_path G_GNUC_UNUSED,
@@ -1219,7 +1219,7 @@ _gawake_database_skeleton_handle_method_call (
   GDBusMethodInvocation *invocation,
   gpointer user_data)
 {
-  GawakeDatabaseSkeleton *skeleton = GAWAKE_DATABASE_SKELETON (user_data);
+  GawakeServerDatabaseSkeleton *skeleton = GAWAKE_SERVER_DATABASE_SKELETON (user_data);
   _ExtendedGDBusMethodInfo *info;
   GVariantIter iter;
   GVariant *child;
@@ -1234,7 +1234,7 @@ _gawake_database_skeleton_handle_method_call (
   num_params = g_variant_n_children (parameters);
   num_extra = info->pass_fdlist ? 3 : 2;  paramv = g_new0 (GValue, num_params + num_extra);
   n = 0;
-  g_value_init (&paramv[n], GAWAKE_TYPE_DATABASE);
+  g_value_init (&paramv[n], GAWAKE_SERVER_TYPE_DATABASE);
   g_value_set_object (&paramv[n++], skeleton);
   g_value_init (&paramv[n], G_TYPE_DBUS_METHOD_INVOCATION);
   g_value_set_object (&paramv[n++], invocation);
@@ -1261,7 +1261,7 @@ _gawake_database_skeleton_handle_method_call (
         g_dbus_gvariant_to_gvalue (child, &paramv[n++]);
       g_variant_unref (child);
     }
-  signal_id = g_signal_lookup (info->signal_name, GAWAKE_TYPE_DATABASE);
+  signal_id = g_signal_lookup (info->signal_name, GAWAKE_SERVER_TYPE_DATABASE);
   g_value_init (&return_value, G_TYPE_BOOLEAN);
   g_signal_emitv (paramv, signal_id, 0, &return_value);
   if (!g_value_get_boolean (&return_value))
@@ -1273,7 +1273,7 @@ _gawake_database_skeleton_handle_method_call (
 }
 
 static GVariant *
-_gawake_database_skeleton_handle_get_property (
+_gawake_server_database_skeleton_handle_get_property (
   GDBusConnection *connection G_GNUC_UNUSED,
   const gchar *sender G_GNUC_UNUSED,
   const gchar *object_path G_GNUC_UNUSED,
@@ -1282,13 +1282,13 @@ _gawake_database_skeleton_handle_get_property (
   GError **error,
   gpointer user_data)
 {
-  GawakeDatabaseSkeleton *skeleton = GAWAKE_DATABASE_SKELETON (user_data);
+  GawakeServerDatabaseSkeleton *skeleton = GAWAKE_SERVER_DATABASE_SKELETON (user_data);
   GValue value = G_VALUE_INIT;
   GParamSpec *pspec;
   _ExtendedGDBusPropertyInfo *info;
   GVariant *ret;
   ret = NULL;
-  info = (_ExtendedGDBusPropertyInfo *) g_dbus_interface_info_lookup_property ((GDBusInterfaceInfo *) &_gawake_database_interface_info.parent_struct, property_name);
+  info = (_ExtendedGDBusPropertyInfo *) g_dbus_interface_info_lookup_property ((GDBusInterfaceInfo *) &_gawake_server_database_interface_info.parent_struct, property_name);
   g_assert (info != NULL);
   pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (skeleton), info->hyphen_name);
   if (pspec == NULL)
@@ -1306,7 +1306,7 @@ _gawake_database_skeleton_handle_get_property (
 }
 
 static gboolean
-_gawake_database_skeleton_handle_set_property (
+_gawake_server_database_skeleton_handle_set_property (
   GDBusConnection *connection G_GNUC_UNUSED,
   const gchar *sender G_GNUC_UNUSED,
   const gchar *object_path G_GNUC_UNUSED,
@@ -1316,13 +1316,13 @@ _gawake_database_skeleton_handle_set_property (
   GError **error,
   gpointer user_data)
 {
-  GawakeDatabaseSkeleton *skeleton = GAWAKE_DATABASE_SKELETON (user_data);
+  GawakeServerDatabaseSkeleton *skeleton = GAWAKE_SERVER_DATABASE_SKELETON (user_data);
   GValue value = G_VALUE_INIT;
   GParamSpec *pspec;
   _ExtendedGDBusPropertyInfo *info;
   gboolean ret;
   ret = FALSE;
-  info = (_ExtendedGDBusPropertyInfo *) g_dbus_interface_info_lookup_property ((GDBusInterfaceInfo *) &_gawake_database_interface_info.parent_struct, property_name);
+  info = (_ExtendedGDBusPropertyInfo *) g_dbus_interface_info_lookup_property ((GDBusInterfaceInfo *) &_gawake_server_database_interface_info.parent_struct, property_name);
   g_assert (info != NULL);
   pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (skeleton), info->hyphen_name);
   if (pspec == NULL)
@@ -1342,43 +1342,43 @@ _gawake_database_skeleton_handle_set_property (
   return ret;
 }
 
-static const GDBusInterfaceVTable _gawake_database_skeleton_vtable =
+static const GDBusInterfaceVTable _gawake_server_database_skeleton_vtable =
 {
-  _gawake_database_skeleton_handle_method_call,
-  _gawake_database_skeleton_handle_get_property,
-  _gawake_database_skeleton_handle_set_property,
+  _gawake_server_database_skeleton_handle_method_call,
+  _gawake_server_database_skeleton_handle_get_property,
+  _gawake_server_database_skeleton_handle_set_property,
   {NULL}
 };
 
 static GDBusInterfaceInfo *
-gawake_database_skeleton_dbus_interface_get_info (GDBusInterfaceSkeleton *skeleton G_GNUC_UNUSED)
+gawake_server_database_skeleton_dbus_interface_get_info (GDBusInterfaceSkeleton *skeleton G_GNUC_UNUSED)
 {
-  return gawake_database_interface_info ();
+  return gawake_server_database_interface_info ();
 }
 
 static GDBusInterfaceVTable *
-gawake_database_skeleton_dbus_interface_get_vtable (GDBusInterfaceSkeleton *skeleton G_GNUC_UNUSED)
+gawake_server_database_skeleton_dbus_interface_get_vtable (GDBusInterfaceSkeleton *skeleton G_GNUC_UNUSED)
 {
-  return (GDBusInterfaceVTable *) &_gawake_database_skeleton_vtable;
+  return (GDBusInterfaceVTable *) &_gawake_server_database_skeleton_vtable;
 }
 
 static GVariant *
-gawake_database_skeleton_dbus_interface_get_properties (GDBusInterfaceSkeleton *_skeleton)
+gawake_server_database_skeleton_dbus_interface_get_properties (GDBusInterfaceSkeleton *_skeleton)
 {
-  GawakeDatabaseSkeleton *skeleton = GAWAKE_DATABASE_SKELETON (_skeleton);
+  GawakeServerDatabaseSkeleton *skeleton = GAWAKE_SERVER_DATABASE_SKELETON (_skeleton);
 
   GVariantBuilder builder;
   guint n;
   g_variant_builder_init (&builder, G_VARIANT_TYPE ("a{sv}"));
-  if (_gawake_database_interface_info.parent_struct.properties == NULL)
+  if (_gawake_server_database_interface_info.parent_struct.properties == NULL)
     goto out;
-  for (n = 0; _gawake_database_interface_info.parent_struct.properties[n] != NULL; n++)
+  for (n = 0; _gawake_server_database_interface_info.parent_struct.properties[n] != NULL; n++)
     {
-      GDBusPropertyInfo *info = _gawake_database_interface_info.parent_struct.properties[n];
+      GDBusPropertyInfo *info = _gawake_server_database_interface_info.parent_struct.properties[n];
       if (info->flags & G_DBUS_PROPERTY_INFO_FLAGS_READABLE)
         {
           GVariant *value;
-          value = _gawake_database_skeleton_handle_get_property (g_dbus_interface_skeleton_get_connection (G_DBUS_INTERFACE_SKELETON (skeleton)), NULL, g_dbus_interface_skeleton_get_object_path (G_DBUS_INTERFACE_SKELETON (skeleton)), "io.github.kelvinnovais.Database", info->name, NULL, skeleton);
+          value = _gawake_server_database_skeleton_handle_get_property (g_dbus_interface_skeleton_get_connection (G_DBUS_INTERFACE_SKELETON (skeleton)), NULL, g_dbus_interface_skeleton_get_object_path (G_DBUS_INTERFACE_SKELETON (skeleton)), "io.github.kelvinnovais.Database", info->name, NULL, skeleton);
           if (value != NULL)
             {
               g_variant_take_ref (value);
@@ -1392,40 +1392,40 @@ out:
 }
 
 static void
-gawake_database_skeleton_dbus_interface_flush (GDBusInterfaceSkeleton *_skeleton G_GNUC_UNUSED)
+gawake_server_database_skeleton_dbus_interface_flush (GDBusInterfaceSkeleton *_skeleton G_GNUC_UNUSED)
 {
 }
 
-static void gawake_database_skeleton_iface_init (GawakeDatabaseIface *iface);
+static void gawake_server_database_skeleton_iface_init (GawakeServerDatabaseIface *iface);
 #if GLIB_VERSION_MAX_ALLOWED >= GLIB_VERSION_2_38
-G_DEFINE_TYPE_WITH_CODE (GawakeDatabaseSkeleton, gawake_database_skeleton, G_TYPE_DBUS_INTERFACE_SKELETON,
-                         G_ADD_PRIVATE (GawakeDatabaseSkeleton)
-                         G_IMPLEMENT_INTERFACE (GAWAKE_TYPE_DATABASE, gawake_database_skeleton_iface_init))
+G_DEFINE_TYPE_WITH_CODE (GawakeServerDatabaseSkeleton, gawake_server_database_skeleton, G_TYPE_DBUS_INTERFACE_SKELETON,
+                         G_ADD_PRIVATE (GawakeServerDatabaseSkeleton)
+                         G_IMPLEMENT_INTERFACE (GAWAKE_SERVER_TYPE_DATABASE, gawake_server_database_skeleton_iface_init))
 
 #else
-G_DEFINE_TYPE_WITH_CODE (GawakeDatabaseSkeleton, gawake_database_skeleton, G_TYPE_DBUS_INTERFACE_SKELETON,
-                         G_IMPLEMENT_INTERFACE (GAWAKE_TYPE_DATABASE, gawake_database_skeleton_iface_init))
+G_DEFINE_TYPE_WITH_CODE (GawakeServerDatabaseSkeleton, gawake_server_database_skeleton, G_TYPE_DBUS_INTERFACE_SKELETON,
+                         G_IMPLEMENT_INTERFACE (GAWAKE_SERVER_TYPE_DATABASE, gawake_server_database_skeleton_iface_init))
 
 #endif
 static void
-gawake_database_skeleton_finalize (GObject *object)
+gawake_server_database_skeleton_finalize (GObject *object)
 {
-  GawakeDatabaseSkeleton *skeleton = GAWAKE_DATABASE_SKELETON (object);
+  GawakeServerDatabaseSkeleton *skeleton = GAWAKE_SERVER_DATABASE_SKELETON (object);
   g_list_free_full (skeleton->priv->changed_properties, (GDestroyNotify) _changed_property_free);
   if (skeleton->priv->changed_properties_idle_source != NULL)
     g_source_destroy (skeleton->priv->changed_properties_idle_source);
   g_main_context_unref (skeleton->priv->context);
   g_mutex_clear (&skeleton->priv->lock);
-  G_OBJECT_CLASS (gawake_database_skeleton_parent_class)->finalize (object);
+  G_OBJECT_CLASS (gawake_server_database_skeleton_parent_class)->finalize (object);
 }
 
 static void
-gawake_database_skeleton_init (GawakeDatabaseSkeleton *skeleton)
+gawake_server_database_skeleton_init (GawakeServerDatabaseSkeleton *skeleton)
 {
 #if GLIB_VERSION_MAX_ALLOWED >= GLIB_VERSION_2_38
-  skeleton->priv = gawake_database_skeleton_get_instance_private (skeleton);
+  skeleton->priv = gawake_server_database_skeleton_get_instance_private (skeleton);
 #else
-  skeleton->priv = G_TYPE_INSTANCE_GET_PRIVATE (skeleton, GAWAKE_TYPE_DATABASE_SKELETON, GawakeDatabaseSkeletonPrivate);
+  skeleton->priv = G_TYPE_INSTANCE_GET_PRIVATE (skeleton, GAWAKE_SERVER_TYPE_DATABASE_SKELETON, GawakeServerDatabaseSkeletonPrivate);
 #endif
 
   g_mutex_init (&skeleton->priv->lock);
@@ -1433,40 +1433,40 @@ gawake_database_skeleton_init (GawakeDatabaseSkeleton *skeleton)
 }
 
 static void
-gawake_database_skeleton_class_init (GawakeDatabaseSkeletonClass *klass)
+gawake_server_database_skeleton_class_init (GawakeServerDatabaseSkeletonClass *klass)
 {
   GObjectClass *gobject_class;
   GDBusInterfaceSkeletonClass *skeleton_class;
 
   gobject_class = G_OBJECT_CLASS (klass);
-  gobject_class->finalize = gawake_database_skeleton_finalize;
+  gobject_class->finalize = gawake_server_database_skeleton_finalize;
 
   skeleton_class = G_DBUS_INTERFACE_SKELETON_CLASS (klass);
-  skeleton_class->get_info = gawake_database_skeleton_dbus_interface_get_info;
-  skeleton_class->get_properties = gawake_database_skeleton_dbus_interface_get_properties;
-  skeleton_class->flush = gawake_database_skeleton_dbus_interface_flush;
-  skeleton_class->get_vtable = gawake_database_skeleton_dbus_interface_get_vtable;
+  skeleton_class->get_info = gawake_server_database_skeleton_dbus_interface_get_info;
+  skeleton_class->get_properties = gawake_server_database_skeleton_dbus_interface_get_properties;
+  skeleton_class->flush = gawake_server_database_skeleton_dbus_interface_flush;
+  skeleton_class->get_vtable = gawake_server_database_skeleton_dbus_interface_get_vtable;
 
 #if GLIB_VERSION_MAX_ALLOWED < GLIB_VERSION_2_38
-  g_type_class_add_private (klass, sizeof (GawakeDatabaseSkeletonPrivate));
+  g_type_class_add_private (klass, sizeof (GawakeServerDatabaseSkeletonPrivate));
 #endif
 }
 
 static void
-gawake_database_skeleton_iface_init (GawakeDatabaseIface *iface G_GNUC_UNUSED)
+gawake_server_database_skeleton_iface_init (GawakeServerDatabaseIface *iface G_GNUC_UNUSED)
 {
 }
 
 /**
- * gawake_database_skeleton_new:
+ * gawake_server_database_skeleton_new:
  *
  * Creates a skeleton object for the D-Bus interface <link linkend="gdbus-interface-io-github-kelvinnovais-Database.top_of_page">io.github.kelvinnovais.Database</link>.
  *
- * Returns: (transfer full) (type GawakeDatabaseSkeleton): The skeleton object.
+ * Returns: (transfer full) (type GawakeServerDatabaseSkeleton): The skeleton object.
  */
-GawakeDatabase *
-gawake_database_skeleton_new (void)
+GawakeServerDatabase *
+gawake_server_database_skeleton_new (void)
 {
-  return GAWAKE_DATABASE (g_object_new (GAWAKE_TYPE_DATABASE_SKELETON, NULL));
+  return GAWAKE_SERVER_DATABASE (g_object_new (GAWAKE_SERVER_TYPE_DATABASE_SKELETON, NULL));
 }
 

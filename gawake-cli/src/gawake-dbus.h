@@ -17,21 +17,21 @@ G_BEGIN_DECLS
 /* ------------------------------------------------------------------------ */
 /* Declarations for io.github.kelvinnovais.Database */
 
-#define GAWAKE_TYPE_DATABASE (gawake_database_get_type ())
-#define GAWAKE_DATABASE(o) (G_TYPE_CHECK_INSTANCE_CAST ((o), GAWAKE_TYPE_DATABASE, GawakeDatabase))
-#define GAWAKE_IS_DATABASE(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), GAWAKE_TYPE_DATABASE))
-#define GAWAKE_DATABASE_GET_IFACE(o) (G_TYPE_INSTANCE_GET_INTERFACE ((o), GAWAKE_TYPE_DATABASE, GawakeDatabaseIface))
+#define GAWAKE_SERVER_TYPE_DATABASE (gawake_server_database_get_type ())
+#define GAWAKE_SERVER_DATABASE(o) (G_TYPE_CHECK_INSTANCE_CAST ((o), GAWAKE_SERVER_TYPE_DATABASE, GawakeServerDatabase))
+#define GAWAKE_SERVER_IS_DATABASE(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), GAWAKE_SERVER_TYPE_DATABASE))
+#define GAWAKE_SERVER_DATABASE_GET_IFACE(o) (G_TYPE_INSTANCE_GET_INTERFACE ((o), GAWAKE_SERVER_TYPE_DATABASE, GawakeServerDatabaseIface))
 
-struct _GawakeDatabase;
-typedef struct _GawakeDatabase GawakeDatabase;
-typedef struct _GawakeDatabaseIface GawakeDatabaseIface;
+struct _GawakeServerDatabase;
+typedef struct _GawakeServerDatabase GawakeServerDatabase;
+typedef struct _GawakeServerDatabaseIface GawakeServerDatabaseIface;
 
-struct _GawakeDatabaseIface
+struct _GawakeServerDatabaseIface
 {
   GTypeInterface parent_iface;
 
   gboolean (*handle_add_rule) (
-    GawakeDatabase *object,
+    GawakeServerDatabase *object,
     GDBusMethodInvocation *invocation,
     guchar arg_hour,
     guchar arg_minutes,
@@ -47,54 +47,54 @@ struct _GawakeDatabaseIface
     guchar arg_table);
 
   gboolean (*handle_add_struct) (
-    GawakeDatabase *object,
+    GawakeServerDatabase *object,
     GDBusMethodInvocation *invocation,
     GVariant *arg_rule);
 
 };
 
-GType gawake_database_get_type (void) G_GNUC_CONST;
+GType gawake_server_database_get_type (void) G_GNUC_CONST;
 
-GDBusInterfaceInfo *gawake_database_interface_info (void);
-guint gawake_database_override_properties (GObjectClass *klass, guint property_id_begin);
+GDBusInterfaceInfo *gawake_server_database_interface_info (void);
+guint gawake_server_database_override_properties (GObjectClass *klass, guint property_id_begin);
 
 
 /* D-Bus method call completion functions: */
-void gawake_database_complete_add_struct (
-    GawakeDatabase *object,
+void gawake_server_database_complete_add_struct (
+    GawakeServerDatabase *object,
     GDBusMethodInvocation *invocation,
     gboolean success);
 
-void gawake_database_complete_add_rule (
-    GawakeDatabase *object,
+void gawake_server_database_complete_add_rule (
+    GawakeServerDatabase *object,
     GDBusMethodInvocation *invocation,
     gboolean success);
 
 
 
 /* D-Bus method calls: */
-void gawake_database_call_add_struct (
-    GawakeDatabase *proxy,
+void gawake_server_database_call_add_struct (
+    GawakeServerDatabase *proxy,
     GVariant *arg_rule,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
 
-gboolean gawake_database_call_add_struct_finish (
-    GawakeDatabase *proxy,
+gboolean gawake_server_database_call_add_struct_finish (
+    GawakeServerDatabase *proxy,
     gboolean *out_success,
     GAsyncResult *res,
     GError **error);
 
-gboolean gawake_database_call_add_struct_sync (
-    GawakeDatabase *proxy,
+gboolean gawake_server_database_call_add_struct_sync (
+    GawakeServerDatabase *proxy,
     GVariant *arg_rule,
     gboolean *out_success,
     GCancellable *cancellable,
     GError **error);
 
-void gawake_database_call_add_rule (
-    GawakeDatabase *proxy,
+void gawake_server_database_call_add_rule (
+    GawakeServerDatabase *proxy,
     guchar arg_hour,
     guchar arg_minutes,
     gboolean arg_day_0,
@@ -111,14 +111,14 @@ void gawake_database_call_add_rule (
     GAsyncReadyCallback callback,
     gpointer user_data);
 
-gboolean gawake_database_call_add_rule_finish (
-    GawakeDatabase *proxy,
+gboolean gawake_server_database_call_add_rule_finish (
+    GawakeServerDatabase *proxy,
     gboolean *out_success,
     GAsyncResult *res,
     GError **error);
 
-gboolean gawake_database_call_add_rule_sync (
-    GawakeDatabase *proxy,
+gboolean gawake_server_database_call_add_rule_sync (
+    GawakeServerDatabase *proxy,
     guchar arg_hour,
     guchar arg_minutes,
     gboolean arg_day_0,
@@ -139,36 +139,36 @@ gboolean gawake_database_call_add_rule_sync (
 
 /* ---- */
 
-#define GAWAKE_TYPE_DATABASE_PROXY (gawake_database_proxy_get_type ())
-#define GAWAKE_DATABASE_PROXY(o) (G_TYPE_CHECK_INSTANCE_CAST ((o), GAWAKE_TYPE_DATABASE_PROXY, GawakeDatabaseProxy))
-#define GAWAKE_DATABASE_PROXY_CLASS(k) (G_TYPE_CHECK_CLASS_CAST ((k), GAWAKE_TYPE_DATABASE_PROXY, GawakeDatabaseProxyClass))
-#define GAWAKE_DATABASE_PROXY_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), GAWAKE_TYPE_DATABASE_PROXY, GawakeDatabaseProxyClass))
-#define GAWAKE_IS_DATABASE_PROXY(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), GAWAKE_TYPE_DATABASE_PROXY))
-#define GAWAKE_IS_DATABASE_PROXY_CLASS(k) (G_TYPE_CHECK_CLASS_TYPE ((k), GAWAKE_TYPE_DATABASE_PROXY))
+#define GAWAKE_SERVER_TYPE_DATABASE_PROXY (gawake_server_database_proxy_get_type ())
+#define GAWAKE_SERVER_DATABASE_PROXY(o) (G_TYPE_CHECK_INSTANCE_CAST ((o), GAWAKE_SERVER_TYPE_DATABASE_PROXY, GawakeServerDatabaseProxy))
+#define GAWAKE_SERVER_DATABASE_PROXY_CLASS(k) (G_TYPE_CHECK_CLASS_CAST ((k), GAWAKE_SERVER_TYPE_DATABASE_PROXY, GawakeServerDatabaseProxyClass))
+#define GAWAKE_SERVER_DATABASE_PROXY_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), GAWAKE_SERVER_TYPE_DATABASE_PROXY, GawakeServerDatabaseProxyClass))
+#define GAWAKE_SERVER_IS_DATABASE_PROXY(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), GAWAKE_SERVER_TYPE_DATABASE_PROXY))
+#define GAWAKE_SERVER_IS_DATABASE_PROXY_CLASS(k) (G_TYPE_CHECK_CLASS_TYPE ((k), GAWAKE_SERVER_TYPE_DATABASE_PROXY))
 
-typedef struct _GawakeDatabaseProxy GawakeDatabaseProxy;
-typedef struct _GawakeDatabaseProxyClass GawakeDatabaseProxyClass;
-typedef struct _GawakeDatabaseProxyPrivate GawakeDatabaseProxyPrivate;
+typedef struct _GawakeServerDatabaseProxy GawakeServerDatabaseProxy;
+typedef struct _GawakeServerDatabaseProxyClass GawakeServerDatabaseProxyClass;
+typedef struct _GawakeServerDatabaseProxyPrivate GawakeServerDatabaseProxyPrivate;
 
-struct _GawakeDatabaseProxy
+struct _GawakeServerDatabaseProxy
 {
   /*< private >*/
   GDBusProxy parent_instance;
-  GawakeDatabaseProxyPrivate *priv;
+  GawakeServerDatabaseProxyPrivate *priv;
 };
 
-struct _GawakeDatabaseProxyClass
+struct _GawakeServerDatabaseProxyClass
 {
   GDBusProxyClass parent_class;
 };
 
-GType gawake_database_proxy_get_type (void) G_GNUC_CONST;
+GType gawake_server_database_proxy_get_type (void) G_GNUC_CONST;
 
 #if GLIB_CHECK_VERSION(2, 44, 0)
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (GawakeDatabaseProxy, g_object_unref)
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GawakeServerDatabaseProxy, g_object_unref)
 #endif
 
-void gawake_database_proxy_new (
+void gawake_server_database_proxy_new (
     GDBusConnection     *connection,
     GDBusProxyFlags      flags,
     const gchar         *name,
@@ -176,10 +176,10 @@ void gawake_database_proxy_new (
     GCancellable        *cancellable,
     GAsyncReadyCallback  callback,
     gpointer             user_data);
-GawakeDatabase *gawake_database_proxy_new_finish (
+GawakeServerDatabase *gawake_server_database_proxy_new_finish (
     GAsyncResult        *res,
     GError             **error);
-GawakeDatabase *gawake_database_proxy_new_sync (
+GawakeServerDatabase *gawake_server_database_proxy_new_sync (
     GDBusConnection     *connection,
     GDBusProxyFlags      flags,
     const gchar         *name,
@@ -187,7 +187,7 @@ GawakeDatabase *gawake_database_proxy_new_sync (
     GCancellable        *cancellable,
     GError             **error);
 
-void gawake_database_proxy_new_for_bus (
+void gawake_server_database_proxy_new_for_bus (
     GBusType             bus_type,
     GDBusProxyFlags      flags,
     const gchar         *name,
@@ -195,10 +195,10 @@ void gawake_database_proxy_new_for_bus (
     GCancellable        *cancellable,
     GAsyncReadyCallback  callback,
     gpointer             user_data);
-GawakeDatabase *gawake_database_proxy_new_for_bus_finish (
+GawakeServerDatabase *gawake_server_database_proxy_new_for_bus_finish (
     GAsyncResult        *res,
     GError             **error);
-GawakeDatabase *gawake_database_proxy_new_for_bus_sync (
+GawakeServerDatabase *gawake_server_database_proxy_new_for_bus_sync (
     GBusType             bus_type,
     GDBusProxyFlags      flags,
     const gchar         *name,
@@ -209,36 +209,36 @@ GawakeDatabase *gawake_database_proxy_new_for_bus_sync (
 
 /* ---- */
 
-#define GAWAKE_TYPE_DATABASE_SKELETON (gawake_database_skeleton_get_type ())
-#define GAWAKE_DATABASE_SKELETON(o) (G_TYPE_CHECK_INSTANCE_CAST ((o), GAWAKE_TYPE_DATABASE_SKELETON, GawakeDatabaseSkeleton))
-#define GAWAKE_DATABASE_SKELETON_CLASS(k) (G_TYPE_CHECK_CLASS_CAST ((k), GAWAKE_TYPE_DATABASE_SKELETON, GawakeDatabaseSkeletonClass))
-#define GAWAKE_DATABASE_SKELETON_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), GAWAKE_TYPE_DATABASE_SKELETON, GawakeDatabaseSkeletonClass))
-#define GAWAKE_IS_DATABASE_SKELETON(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), GAWAKE_TYPE_DATABASE_SKELETON))
-#define GAWAKE_IS_DATABASE_SKELETON_CLASS(k) (G_TYPE_CHECK_CLASS_TYPE ((k), GAWAKE_TYPE_DATABASE_SKELETON))
+#define GAWAKE_SERVER_TYPE_DATABASE_SKELETON (gawake_server_database_skeleton_get_type ())
+#define GAWAKE_SERVER_DATABASE_SKELETON(o) (G_TYPE_CHECK_INSTANCE_CAST ((o), GAWAKE_SERVER_TYPE_DATABASE_SKELETON, GawakeServerDatabaseSkeleton))
+#define GAWAKE_SERVER_DATABASE_SKELETON_CLASS(k) (G_TYPE_CHECK_CLASS_CAST ((k), GAWAKE_SERVER_TYPE_DATABASE_SKELETON, GawakeServerDatabaseSkeletonClass))
+#define GAWAKE_SERVER_DATABASE_SKELETON_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), GAWAKE_SERVER_TYPE_DATABASE_SKELETON, GawakeServerDatabaseSkeletonClass))
+#define GAWAKE_SERVER_IS_DATABASE_SKELETON(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), GAWAKE_SERVER_TYPE_DATABASE_SKELETON))
+#define GAWAKE_SERVER_IS_DATABASE_SKELETON_CLASS(k) (G_TYPE_CHECK_CLASS_TYPE ((k), GAWAKE_SERVER_TYPE_DATABASE_SKELETON))
 
-typedef struct _GawakeDatabaseSkeleton GawakeDatabaseSkeleton;
-typedef struct _GawakeDatabaseSkeletonClass GawakeDatabaseSkeletonClass;
-typedef struct _GawakeDatabaseSkeletonPrivate GawakeDatabaseSkeletonPrivate;
+typedef struct _GawakeServerDatabaseSkeleton GawakeServerDatabaseSkeleton;
+typedef struct _GawakeServerDatabaseSkeletonClass GawakeServerDatabaseSkeletonClass;
+typedef struct _GawakeServerDatabaseSkeletonPrivate GawakeServerDatabaseSkeletonPrivate;
 
-struct _GawakeDatabaseSkeleton
+struct _GawakeServerDatabaseSkeleton
 {
   /*< private >*/
   GDBusInterfaceSkeleton parent_instance;
-  GawakeDatabaseSkeletonPrivate *priv;
+  GawakeServerDatabaseSkeletonPrivate *priv;
 };
 
-struct _GawakeDatabaseSkeletonClass
+struct _GawakeServerDatabaseSkeletonClass
 {
   GDBusInterfaceSkeletonClass parent_class;
 };
 
-GType gawake_database_skeleton_get_type (void) G_GNUC_CONST;
+GType gawake_server_database_skeleton_get_type (void) G_GNUC_CONST;
 
 #if GLIB_CHECK_VERSION(2, 44, 0)
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (GawakeDatabaseSkeleton, g_object_unref)
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GawakeServerDatabaseSkeleton, g_object_unref)
 #endif
 
-GawakeDatabase *gawake_database_skeleton_new (void);
+GawakeServerDatabase *gawake_server_database_skeleton_new (void);
 
 
 G_END_DECLS

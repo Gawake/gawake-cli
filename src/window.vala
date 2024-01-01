@@ -31,11 +31,13 @@ namespace Gawake {
         private unowned Gtk.ListBox turnoff_listbox;
 
         private DatabaseConnection dc; // TODO remove
+        private DBusClient dbc;
         private static bool shared_db_status = false;
         private static bool user_db_status = false;
 
         construct {
-            // bus = new GDBusConnection ();
+            dbc = new DBusClient ();
+
             dc = new DatabaseConnection (); // TODO remove
 
             turnon_listbox.row_activated.connect ((rule_row) => {
@@ -105,7 +107,7 @@ namespace Gawake {
         [GtkCallback]
         void add_button_clicked () {
             // TODO testing:
-            // bus.add_rule_call ();
+            dbc.add_rule_call ();
 
             Table current_page = Table.T_ON;
             // returns "on" or "off"

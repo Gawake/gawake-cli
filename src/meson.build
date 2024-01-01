@@ -3,8 +3,10 @@ gawake_sources = [
   'application.vala',
   'window.vala',
   'utils.vala',
+
   'database-connection.vala', # TODO remove
-  'dbus-connection.vala',
+  'dbus-client.vala',
+
   'rule-setup-dialog.vala',
   'rule-row.vala',
 ]

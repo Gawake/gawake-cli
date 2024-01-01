@@ -1,6 +1,6 @@
 /* rule-setup-dialog.vala
  *
- * Copyright 2023 Kelvin Novais
+ * Copyright 2023-2024 Kelvin Novais
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@ namespace Gawake {
 
         construct {
             dc = new DatabaseConnection ();
-            rule.days = new bool[7];
+            // rule.days = new bool[7];
         }
 
         public RuleSetupDialog.add (Table table) {

@@ -1,19 +1,19 @@
 gawaked_sources = files(
 	'gawaked.c',
-	'gawake-dbus.c',
+	'dbus-server.c',
 	'privileges.c',
 	'database-connection.c',
 )
 
-dbus_client_sources = files(
-	'dbus-client.c',
-	'gawake-dbus.c'
-)
+# dbus_client_sources = files(
+# 	'dbus-client.c',
+# 	'gawake-dbus.c'
+# )
 
-dbus_client_sync_sources = files(
-	'dbus-client-sync.c',
-	'gawake-dbus.c'
-)
+# dbus_client_sync_sources = files(
+# 	'dbus-client-sync.c',
+# 	'gawake-dbus.c'
+# )
 
 sqlite = dependency('sqlite3')
 glib = dependency('glib-2.0')

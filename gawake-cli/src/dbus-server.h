@@ -6,8 +6,8 @@
  * LGPL linking clauses.
  */
 
-#ifndef __GAWAKE_DBUS_H__
-#define __GAWAKE_DBUS_H__
+#ifndef __DBUS_SERVER_H__
+#define __DBUS_SERVER_H__
 
 #include <gio/gio.h>
 
@@ -46,11 +46,6 @@ struct _GawakeServerDatabaseIface
     guchar arg_mode,
     guchar arg_table);
 
-  gboolean (*handle_add_struct) (
-    GawakeServerDatabase *object,
-    GDBusMethodInvocation *invocation,
-    GVariant *arg_rule);
-
 };
 
 GType gawake_server_database_get_type (void) G_GNUC_CONST;
@@ -60,11 +55,6 @@ guint gawake_server_database_override_properties (GObjectClass *klass, guint pro
 
 
 /* D-Bus method call completion functions: */
-void gawake_server_database_complete_add_struct (
-    GawakeServerDatabase *object,
-    GDBusMethodInvocation *invocation,
-    gboolean success);
-
 void gawake_server_database_complete_add_rule (
     GawakeServerDatabase *object,
     GDBusMethodInvocation *invocation,
@@ -73,26 +63,6 @@ void gawake_server_database_complete_add_rule (
 
 
 /* D-Bus method calls: */
-void gawake_server_database_call_add_struct (
-    GawakeServerDatabase *proxy,
-    GVariant *arg_rule,
-    GCancellable *cancellable,
-    GAsyncReadyCallback callback,
-    gpointer user_data);
-
-gboolean gawake_server_database_call_add_struct_finish (
-    GawakeServerDatabase *proxy,
-    gboolean *out_success,
-    GAsyncResult *res,
-    GError **error);
-
-gboolean gawake_server_database_call_add_struct_sync (
-    GawakeServerDatabase *proxy,
-    GVariant *arg_rule,
-    gboolean *out_success,
-    GCancellable *cancellable,
-    GError **error);
-
 void gawake_server_database_call_add_rule (
     GawakeServerDatabase *proxy,
     guchar arg_hour,
@@ -243,4 +213,4 @@ GawakeServerDatabase *gawake_server_database_skeleton_new (void);
 
 G_END_DECLS
 
-#endif /* __GAWAKE_DBUS_H__ */
+#endif /* __DBUS_SERVER_H__ */

@@ -11,18 +11,28 @@
 #include "gawake.h"
 #include "gawake-types.h"
 
-#define DIR	"/var/lib/gawake/"
-#define PATH DIR "gawake.db"
-#define LOGS DIR "logs/"
+#define DIR	    "/var/lib/gawake/"
+#define PATH        DIR "gawake.db"
+#define LOGS        DIR "logs/"           // TODO implement logs?
 
 #define ALLOC 256
 
-gint connect_database(sqlite3 **db);
+// TODO apply GLib Object
+
 gint set_connection (void);
 sqlite3 *get_connection (void);
-gboolean rule_validated (gRule *rule); // TODO
+
+gint connect_database(sqlite3 **db);
+void close_database (void);
+
+static gboolean rule_validated (gRule *rule);
+static gboolean run_sql (const gchar *sql);
+
 gboolean add_rule (const gRule *rule);
-gboolean edit_rule (const Rule *rule); // TODO
-gboolean delete_rule (int id, int table); // TODO
+gboolean edit_rule (const gRule *rule);
+gboolean delete_rule (guint16 id, guint8 table);
+gboolean enable_disable_rule (guint16 id, guint8 table);
+// TODO query_rule
+// TODO query_rules ***
 
 #endif /* DATABASE_CONNECTION_H_ */

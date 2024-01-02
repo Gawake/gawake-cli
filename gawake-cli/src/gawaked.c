@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <glib.h>
 
-#include "gawake-dbus.h"
+#include "dbus-server.h"
 #include "gawake-types.h"
 #include "database-connection.h"
 #include "privileges.h"
@@ -12,7 +12,7 @@ static void on_name_acquired (GDBusConnection *connection,
                               gpointer user_data);
 
 static gboolean
-on_handle_add_rule (GawakeServerDatabase          *interface,
+on_handle_add_rule (GawakeServerDatabase    *interface,
                     GDBusMethodInvocation   *invocation,
                     const guint8            hour,
                     const guint8            minutes,
@@ -43,18 +43,18 @@ int main (void)
   GMainLoop *loop;
   loop = g_main_loop_new (NULL, FALSE);
 
-  g_bus_own_name (G_BUS_TYPE_SESSION,                  // bus type       TODO should it be system wide?
-                  "io.github.kelvinnovais.GawakeServer",     // name
-                  G_BUS_NAME_OWNER_FLAGS_REPLACE,      // flags
-                  NULL,                                // bus_acquired_handler
-                  on_name_acquired,                    // name_acquired_handler
-                  NULL,                                // name_lost_handler
-                  NULL,                                // user_data
-                  NULL);                               // user_data_free_func
-
-
+  g_bus_own_name (G_BUS_TYPE_SESSION,                         // bus type       TODO should it be system wide?
+                  "io.github.kelvinnovais.GawakeServer",      // name
+                  G_BUS_NAME_OWNER_FLAGS_REPLACE,             // flags
+                  NULL,                                       // bus_acquired_handler
+                  on_name_acquired,                           // name_acquired_handler
+                  NULL,                                       // name_lost_handler
+                  NULL,                                       // user_data
+                  NULL);                                      // user_data_free_func
 
   g_main_loop_run (loop);
+
+  close_database ();
 
   return EXIT_SUCCESS;
 }
@@ -77,13 +77,6 @@ on_name_acquired (GDBusConnection *connection,
                                     "/io/github/kelvinnovais/GawakeServer",
                                     &error);
 
-  /* g_dbus_connection_export_action_group ( */
-  /*   connection,                                    */ /* GDBusConnection* connection, */
-  /*   "/io/github/kelvinnovais/Gawake",              */ /* const gchar* object_path, */
-  /*   NULL,                                          */ /* GActionGroup* action_group, */
-  /*   &error                                         */ /* GError** error */
-  /* ); */
-
   //MyDBusAlarm *alarm_interface;
   //alarm_interface = my_dbus_alarm_skeleton_new();
   //g_signal_connect(alarm_interface, "handle-configure-alarm", G_CALLBACK(on_handle_configure_alarm), NULL);
@@ -92,7 +85,7 @@ on_name_acquired (GDBusConnection *connection,
 }
 
 static gboolean
-on_handle_add_rule (GawakeServerDatabase          *interface,
+on_handle_add_rule (GawakeServerDatabase    *interface,
                     GDBusMethodInvocation   *invocation,
                     const guint8            hour,
                     const guint8            minutes,
@@ -123,23 +116,21 @@ on_handle_add_rule (GawakeServerDatabase          *interface,
 
   g_print ("Name: %s\n", name);
   g_print ("Mode: %d\n", mode);
-  g_print ("Table: %d\n\n\n", table);
+  g_print ("Table: %d\n\n", table);
 #endif
 
   gRule rule = {
-    0,        // not used
+    0,        // id not used, it's autoincremented
     hour,
     minutes,
     {day_0, day_1, day_2, day_3, day_4, day_5, day_6},
     name,
     mode,
-    TRUE      // when adding a rule, this value is always true
+    TRUE,      // when adding a rule, "active" state is always true
+    table
   };
 
-  if (rule_validated (&rule))
-    success = add_rule (&rule);
-  else
-    success = FALSE;
+  success = add_rule (&rule);
 
   gawake_server_database_complete_add_rule (interface, invocation, success);
 

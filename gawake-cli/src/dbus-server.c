@@ -10,7 +10,7 @@
 #  include "config.h"
 #endif
 
-#include "gawake-dbus.h"
+#include "dbus-server.h"
 
 #include <string.h>
 #ifdef G_OS_UNIX
@@ -165,53 +165,6 @@ _g_value_equal (const GValue *a, const GValue *b)
  */
 
 /* ---- Introspection data for io.github.kelvinnovais.Database ---- */
-
-static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_add_struct_IN_ARG_rule =
-{
-  {
-    -1,
-    (gchar *) "rule",
-    (gchar *) "(qyyabsyb)",
-    NULL
-  },
-  FALSE
-};
-
-static const GDBusArgInfo * const _gawake_server_database_method_info_add_struct_IN_ARG_pointers[] =
-{
-  &_gawake_server_database_method_info_add_struct_IN_ARG_rule.parent_struct,
-  NULL
-};
-
-static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_add_struct_OUT_ARG_success =
-{
-  {
-    -1,
-    (gchar *) "success",
-    (gchar *) "b",
-    NULL
-  },
-  FALSE
-};
-
-static const GDBusArgInfo * const _gawake_server_database_method_info_add_struct_OUT_ARG_pointers[] =
-{
-  &_gawake_server_database_method_info_add_struct_OUT_ARG_success.parent_struct,
-  NULL
-};
-
-static const _ExtendedGDBusMethodInfo _gawake_server_database_method_info_add_struct =
-{
-  {
-    -1,
-    (gchar *) "AddStruct",
-    (GDBusArgInfo **) &_gawake_server_database_method_info_add_struct_IN_ARG_pointers,
-    (GDBusArgInfo **) &_gawake_server_database_method_info_add_struct_OUT_ARG_pointers,
-    NULL
-  },
-  "handle-add-struct",
-  FALSE
-};
 
 static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_add_rule_IN_ARG_hour =
 {
@@ -394,7 +347,6 @@ static const _ExtendedGDBusMethodInfo _gawake_server_database_method_info_add_ru
 
 static const GDBusMethodInfo * const _gawake_server_database_method_info_pointers[] =
 {
-  &_gawake_server_database_method_info_add_struct.parent_struct,
   &_gawake_server_database_method_info_add_rule.parent_struct,
   NULL
 };
@@ -454,7 +406,6 @@ gawake_server_database_override_properties (GObjectClass *klass G_GNUC_UNUSED, g
  * GawakeServerDatabaseIface:
  * @parent_iface: The parent interface.
  * @handle_add_rule: Handler for the #GawakeServerDatabase::handle-add-rule signal.
- * @handle_add_struct: Handler for the #GawakeServerDatabase::handle-add-struct signal.
  *
  * Virtual table for the D-Bus interface <link linkend="gdbus-interface-io-github-kelvinnovais-Database.top_of_page">io.github.kelvinnovais.Database</link>.
  */
@@ -466,29 +417,6 @@ static void
 gawake_server_database_default_init (GawakeServerDatabaseIface *iface)
 {
   /* GObject signals for incoming D-Bus method calls: */
-  /**
-   * GawakeServerDatabase::handle-add-struct:
-   * @object: A #GawakeServerDatabase.
-   * @invocation: A #GDBusMethodInvocation.
-   * @arg_rule: Argument passed by remote caller.
-   *
-   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-io-github-kelvinnovais-Database.AddStruct">AddStruct()</link> D-Bus method.
-   *
-   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call gawake_server_database_complete_add_struct() or e.g. g_dbus_method_invocation_return_error() on it) and no other signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
-   *
-   * Returns: %G_DBUS_METHOD_INVOCATION_HANDLED or %TRUE if the invocation was handled, %G_DBUS_METHOD_INVOCATION_UNHANDLED or %FALSE to let other signal handlers run.
-   */
-  g_signal_new ("handle-add-struct",
-    G_TYPE_FROM_INTERFACE (iface),
-    G_SIGNAL_RUN_LAST,
-    G_STRUCT_OFFSET (GawakeServerDatabaseIface, handle_add_struct),
-    g_signal_accumulator_true_handled,
-    NULL,
-    g_cclosure_marshal_generic,
-    G_TYPE_BOOLEAN,
-    2,
-    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_VARIANT);
-
   /**
    * GawakeServerDatabase::handle-add-rule:
    * @object: A #GawakeServerDatabase.
@@ -523,110 +451,6 @@ gawake_server_database_default_init (GawakeServerDatabaseIface *iface)
     13,
     G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_UCHAR, G_TYPE_UCHAR, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_UCHAR, G_TYPE_UCHAR);
 
-}
-
-/**
- * gawake_server_database_call_add_struct:
- * @proxy: A #GawakeServerDatabaseProxy.
- * @arg_rule: Argument to pass with the method invocation.
- * @cancellable: (nullable): A #GCancellable or %NULL.
- * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
- * @user_data: User data to pass to @callback.
- *
- * Asynchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.AddStruct">AddStruct()</link> D-Bus method on @proxy.
- * When the operation is finished, @callback will be invoked in the thread-default main loop of the thread you are calling this method from (see g_main_context_push_thread_default()).
- * You can then call gawake_server_database_call_add_struct_finish() to get the result of the operation.
- *
- * See gawake_server_database_call_add_struct_sync() for the synchronous, blocking version of this method.
- */
-void
-gawake_server_database_call_add_struct (
-    GawakeServerDatabase *proxy,
-    GVariant *arg_rule,
-    GCancellable *cancellable,
-    GAsyncReadyCallback callback,
-    gpointer user_data)
-{
-  g_dbus_proxy_call (G_DBUS_PROXY (proxy),
-    "AddStruct",
-    g_variant_new ("(@(qyyabsyb))",
-                   arg_rule),
-    G_DBUS_CALL_FLAGS_NONE,
-    -1,
-    cancellable,
-    callback,
-    user_data);
-}
-
-/**
- * gawake_server_database_call_add_struct_finish:
- * @proxy: A #GawakeServerDatabaseProxy.
- * @out_success: (out) (optional): Return location for return parameter or %NULL to ignore.
- * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to gawake_server_database_call_add_struct().
- * @error: Return location for error or %NULL.
- *
- * Finishes an operation started with gawake_server_database_call_add_struct().
- *
- * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
- */
-gboolean
-gawake_server_database_call_add_struct_finish (
-    GawakeServerDatabase *proxy,
-    gboolean *out_success,
-    GAsyncResult *res,
-    GError **error)
-{
-  GVariant *_ret;
-  _ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (proxy), res, error);
-  if (_ret == NULL)
-    goto _out;
-  g_variant_get (_ret,
-                 "(b)",
-                 out_success);
-  g_variant_unref (_ret);
-_out:
-  return _ret != NULL;
-}
-
-/**
- * gawake_server_database_call_add_struct_sync:
- * @proxy: A #GawakeServerDatabaseProxy.
- * @arg_rule: Argument to pass with the method invocation.
- * @out_success: (out) (optional): Return location for return parameter or %NULL to ignore.
- * @cancellable: (nullable): A #GCancellable or %NULL.
- * @error: Return location for error or %NULL.
- *
- * Synchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.AddStruct">AddStruct()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
- *
- * See gawake_server_database_call_add_struct() for the asynchronous version of this method.
- *
- * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
- */
-gboolean
-gawake_server_database_call_add_struct_sync (
-    GawakeServerDatabase *proxy,
-    GVariant *arg_rule,
-    gboolean *out_success,
-    GCancellable *cancellable,
-    GError **error)
-{
-  GVariant *_ret;
-  _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
-    "AddStruct",
-    g_variant_new ("(@(qyyabsyb))",
-                   arg_rule),
-    G_DBUS_CALL_FLAGS_NONE,
-    -1,
-    cancellable,
-    error);
-  if (_ret == NULL)
-    goto _out;
-  g_variant_get (_ret,
-                 "(b)",
-                 out_success);
-  g_variant_unref (_ret);
-_out:
-  return _ret != NULL;
 }
 
 /**
@@ -797,27 +621,6 @@ gawake_server_database_call_add_rule_sync (
   g_variant_unref (_ret);
 _out:
   return _ret != NULL;
-}
-
-/**
- * gawake_server_database_complete_add_struct:
- * @object: A #GawakeServerDatabase.
- * @invocation: (transfer full): A #GDBusMethodInvocation.
- * @success: Parameter to return.
- *
- * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-io-github-kelvinnovais-Database.AddStruct">AddStruct()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
- *
- * This method will free @invocation, you cannot use it afterwards.
- */
-void
-gawake_server_database_complete_add_struct (
-    GawakeServerDatabase *object G_GNUC_UNUSED,
-    GDBusMethodInvocation *invocation,
-    gboolean success)
-{
-  g_dbus_method_invocation_return_value (invocation,
-    g_variant_new ("(b)",
-                   success));
 }
 
 /**

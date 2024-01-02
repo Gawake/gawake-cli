@@ -6,27 +6,7 @@
 #include "gawake-types.h"
 #include "database-connection.h"
 #include "privileges.h"
-
-static void on_name_acquired (GDBusConnection *connection,
-                              const gchar *name,
-                              gpointer user_data);
-
-static gboolean
-on_handle_add_rule (GawakeServerDatabase    *interface,
-                    GDBusMethodInvocation   *invocation,
-                    const guint8            hour,
-                    const guint8            minutes,
-                    const gboolean          day_0,
-                    const gboolean          day_1,
-                    const gboolean          day_2,
-                    const gboolean          day_3,
-                    const gboolean          day_4,
-                    const gboolean          day_5,
-                    const gboolean          day_6,
-                    const gchar             *name,
-                    const guint8            mode,
-                    const guint8            table,
-                    gpointer                user_data);
+#include "gawaked.h"
 
 int main (void)
 {
@@ -69,8 +49,11 @@ on_name_acquired (GDBusConnection *connection,
   GError *error;
 
   interface = gawake_server_database_skeleton_new ();
+
   g_signal_connect (interface, "handle-add-rule", G_CALLBACK(on_handle_add_rule), NULL);
-  //g_signal_connect(interface, "handle-sub", G_CALLBACK(on_handle_sub), NULL);
+  g_signal_connect (interface, "handle-edit-rule", G_CALLBACK(on_handle_edit_rule), NULL);
+  g_signal_connect (interface, "handle-delete-rule", G_CALLBACK(on_handle_delete_rule), NULL);
+
   error = NULL;
   g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (interface),
                                     connection,
@@ -133,6 +116,109 @@ on_handle_add_rule (GawakeServerDatabase    *interface,
   success = add_rule (&rule);
 
   gawake_server_database_complete_add_rule (interface, invocation, success);
+
+  return TRUE;
+}
+
+static gboolean
+on_handle_edit_rule (GawakeServerDatabase    *interface,
+                     GDBusMethodInvocation   *invocation,
+                     const guint16           id,
+                     const guint8            hour,
+                     const guint8            minutes,
+                     const gboolean          day_0,
+                     const gboolean          day_1,
+                     const gboolean          day_2,
+                     const gboolean          day_3,
+                     const gboolean          day_4,
+                     const gboolean          day_5,
+                     const gboolean          day_6,
+                     const gchar             *name,
+                     const guint8            mode,
+                     const guint8            table,
+                     const gboolean          active,
+                     gpointer                user_data)
+{
+  gboolean success;
+
+#if PREPROCESSOR_DEBUG
+  g_print ("RECEIVED:\n");
+  g_print ("ID: %d\n", id);
+  g_print ("Hour: %d\n", hour);
+  g_print ("Minutes: %d\n", minutes);
+
+  const char DAYS[7] = {'S', 'M', 'T', 'W', 'T', 'F', 'S'};
+  gboolean days[7] = {day_0, day_1, day_2, day_3, day_4, day_5, day_6};
+  g_print ("Days: \n");
+  for (gint i = 0; i < 7; i++)
+    g_print ("\t%c: %d\n", DAYS[i], days[i]);
+
+  g_print ("Name: %s\n", name);
+  g_print ("Mode: %d\n", mode);
+  g_print ("Table: %d\n", table);
+  g_print ("Active: %d\n\n", active);
+#endif
+
+  gRule rule = {
+    id,
+    hour,
+    minutes,
+    {day_0, day_1, day_2, day_3, day_4, day_5, day_6},
+    name,
+    mode,
+    active,
+    table
+  };
+
+  success = edit_rule (&rule);
+
+  gawake_server_database_complete_edit_rule (interface, invocation, success);
+
+  return TRUE;
+}
+
+static gboolean
+on_handle_delete_rule (GawakeServerDatabase    *interface,
+                      GDBusMethodInvocation   *invocation,
+                      const guint16           id,
+                      const guint8            table,
+                      gpointer                user_data)
+{
+  gboolean success;
+
+#if PREPROCESSOR_DEBUG
+  g_print ("RECEIVED:\n");
+  g_print ("ID: %d\n", id);
+  g_print ("Table: %d\n\n", table);
+#endif
+
+  success = delete_rule (id, table);
+
+  gawake_server_database_complete_delete_rule (interface, invocation, success);
+
+  return TRUE;
+}
+
+static gboolean
+on_handle_enable_disable_rule (GawakeServerDatabase    *interface,
+                               GDBusMethodInvocation   *invocation,
+                               const guint16           id,
+                               const guint8            table,
+                               const gboolean          active,
+                               gpointer                user_data)
+{
+  gboolean success;
+
+#if PREPROCESSOR_DEBUG
+  g_print ("RECEIVED:\n");
+  g_print ("ID: %d\n", id);
+  g_print ("Table: %d\n", table);
+  g_print ("Active: %d\n\n", active);
+#endif
+
+  success = enable_disable_rule (id, table, active);
+
+  gawake_server_database_complete_enable_disable_rule (interface, invocation, success);
 
   return TRUE;
 }

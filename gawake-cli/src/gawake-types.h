@@ -3,7 +3,6 @@
 #ifndef GAWAKE_TYPES_H_
 #define GAWAKE_TYPES_H_
 
-#include <inttypes.h>
 #include <stdbool.h>
 #include <glib.h>
 
@@ -53,18 +52,6 @@ typedef enum
   M_30 = 30,
   M_45 = 45
 } Minutes;
-
-typedef struct
-{
-  uint16_t id;                    // q
-  uint8_t hour;                   // y
-  Minutes minutes;                // y
-  bool days[7];                   // ab
-  char *name;                     // s
-  Mode mode;                      // y
-  bool active;                    // b
-  uint8_t table;                  // y
-} Rule;
 
 typedef struct
 {

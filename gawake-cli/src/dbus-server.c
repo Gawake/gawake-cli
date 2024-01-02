@@ -345,9 +345,345 @@ static const _ExtendedGDBusMethodInfo _gawake_server_database_method_info_add_ru
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_edit_rule_IN_ARG_id =
+{
+  {
+    -1,
+    (gchar *) "id",
+    (gchar *) "q",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_edit_rule_IN_ARG_hour =
+{
+  {
+    -1,
+    (gchar *) "hour",
+    (gchar *) "y",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_edit_rule_IN_ARG_minutes =
+{
+  {
+    -1,
+    (gchar *) "minutes",
+    (gchar *) "y",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_edit_rule_IN_ARG_day_0 =
+{
+  {
+    -1,
+    (gchar *) "day_0",
+    (gchar *) "b",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_edit_rule_IN_ARG_day_1 =
+{
+  {
+    -1,
+    (gchar *) "day_1",
+    (gchar *) "b",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_edit_rule_IN_ARG_day_2 =
+{
+  {
+    -1,
+    (gchar *) "day_2",
+    (gchar *) "b",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_edit_rule_IN_ARG_day_3 =
+{
+  {
+    -1,
+    (gchar *) "day_3",
+    (gchar *) "b",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_edit_rule_IN_ARG_day_4 =
+{
+  {
+    -1,
+    (gchar *) "day_4",
+    (gchar *) "b",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_edit_rule_IN_ARG_day_5 =
+{
+  {
+    -1,
+    (gchar *) "day_5",
+    (gchar *) "b",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_edit_rule_IN_ARG_day_6 =
+{
+  {
+    -1,
+    (gchar *) "day_6",
+    (gchar *) "b",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_edit_rule_IN_ARG_name =
+{
+  {
+    -1,
+    (gchar *) "name",
+    (gchar *) "s",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_edit_rule_IN_ARG_mode =
+{
+  {
+    -1,
+    (gchar *) "mode",
+    (gchar *) "y",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_edit_rule_IN_ARG_table =
+{
+  {
+    -1,
+    (gchar *) "table",
+    (gchar *) "y",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_edit_rule_IN_ARG_active =
+{
+  {
+    -1,
+    (gchar *) "active",
+    (gchar *) "b",
+    NULL
+  },
+  FALSE
+};
+
+static const GDBusArgInfo * const _gawake_server_database_method_info_edit_rule_IN_ARG_pointers[] =
+{
+  &_gawake_server_database_method_info_edit_rule_IN_ARG_id.parent_struct,
+  &_gawake_server_database_method_info_edit_rule_IN_ARG_hour.parent_struct,
+  &_gawake_server_database_method_info_edit_rule_IN_ARG_minutes.parent_struct,
+  &_gawake_server_database_method_info_edit_rule_IN_ARG_day_0.parent_struct,
+  &_gawake_server_database_method_info_edit_rule_IN_ARG_day_1.parent_struct,
+  &_gawake_server_database_method_info_edit_rule_IN_ARG_day_2.parent_struct,
+  &_gawake_server_database_method_info_edit_rule_IN_ARG_day_3.parent_struct,
+  &_gawake_server_database_method_info_edit_rule_IN_ARG_day_4.parent_struct,
+  &_gawake_server_database_method_info_edit_rule_IN_ARG_day_5.parent_struct,
+  &_gawake_server_database_method_info_edit_rule_IN_ARG_day_6.parent_struct,
+  &_gawake_server_database_method_info_edit_rule_IN_ARG_name.parent_struct,
+  &_gawake_server_database_method_info_edit_rule_IN_ARG_mode.parent_struct,
+  &_gawake_server_database_method_info_edit_rule_IN_ARG_table.parent_struct,
+  &_gawake_server_database_method_info_edit_rule_IN_ARG_active.parent_struct,
+  NULL
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_edit_rule_OUT_ARG_success =
+{
+  {
+    -1,
+    (gchar *) "success",
+    (gchar *) "b",
+    NULL
+  },
+  FALSE
+};
+
+static const GDBusArgInfo * const _gawake_server_database_method_info_edit_rule_OUT_ARG_pointers[] =
+{
+  &_gawake_server_database_method_info_edit_rule_OUT_ARG_success.parent_struct,
+  NULL
+};
+
+static const _ExtendedGDBusMethodInfo _gawake_server_database_method_info_edit_rule =
+{
+  {
+    -1,
+    (gchar *) "EditRule",
+    (GDBusArgInfo **) &_gawake_server_database_method_info_edit_rule_IN_ARG_pointers,
+    (GDBusArgInfo **) &_gawake_server_database_method_info_edit_rule_OUT_ARG_pointers,
+    NULL
+  },
+  "handle-edit-rule",
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_delete_rule_IN_ARG_id =
+{
+  {
+    -1,
+    (gchar *) "id",
+    (gchar *) "q",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_delete_rule_IN_ARG_table =
+{
+  {
+    -1,
+    (gchar *) "table",
+    (gchar *) "y",
+    NULL
+  },
+  FALSE
+};
+
+static const GDBusArgInfo * const _gawake_server_database_method_info_delete_rule_IN_ARG_pointers[] =
+{
+  &_gawake_server_database_method_info_delete_rule_IN_ARG_id.parent_struct,
+  &_gawake_server_database_method_info_delete_rule_IN_ARG_table.parent_struct,
+  NULL
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_delete_rule_OUT_ARG_success =
+{
+  {
+    -1,
+    (gchar *) "success",
+    (gchar *) "b",
+    NULL
+  },
+  FALSE
+};
+
+static const GDBusArgInfo * const _gawake_server_database_method_info_delete_rule_OUT_ARG_pointers[] =
+{
+  &_gawake_server_database_method_info_delete_rule_OUT_ARG_success.parent_struct,
+  NULL
+};
+
+static const _ExtendedGDBusMethodInfo _gawake_server_database_method_info_delete_rule =
+{
+  {
+    -1,
+    (gchar *) "DeleteRule",
+    (GDBusArgInfo **) &_gawake_server_database_method_info_delete_rule_IN_ARG_pointers,
+    (GDBusArgInfo **) &_gawake_server_database_method_info_delete_rule_OUT_ARG_pointers,
+    NULL
+  },
+  "handle-delete-rule",
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_enable_disable_rule_IN_ARG_id =
+{
+  {
+    -1,
+    (gchar *) "id",
+    (gchar *) "q",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_enable_disable_rule_IN_ARG_table =
+{
+  {
+    -1,
+    (gchar *) "table",
+    (gchar *) "y",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_enable_disable_rule_IN_ARG_active =
+{
+  {
+    -1,
+    (gchar *) "active",
+    (gchar *) "b",
+    NULL
+  },
+  FALSE
+};
+
+static const GDBusArgInfo * const _gawake_server_database_method_info_enable_disable_rule_IN_ARG_pointers[] =
+{
+  &_gawake_server_database_method_info_enable_disable_rule_IN_ARG_id.parent_struct,
+  &_gawake_server_database_method_info_enable_disable_rule_IN_ARG_table.parent_struct,
+  &_gawake_server_database_method_info_enable_disable_rule_IN_ARG_active.parent_struct,
+  NULL
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_enable_disable_rule_OUT_ARG_success =
+{
+  {
+    -1,
+    (gchar *) "success",
+    (gchar *) "b",
+    NULL
+  },
+  FALSE
+};
+
+static const GDBusArgInfo * const _gawake_server_database_method_info_enable_disable_rule_OUT_ARG_pointers[] =
+{
+  &_gawake_server_database_method_info_enable_disable_rule_OUT_ARG_success.parent_struct,
+  NULL
+};
+
+static const _ExtendedGDBusMethodInfo _gawake_server_database_method_info_enable_disable_rule =
+{
+  {
+    -1,
+    (gchar *) "EnableDisableRule",
+    (GDBusArgInfo **) &_gawake_server_database_method_info_enable_disable_rule_IN_ARG_pointers,
+    (GDBusArgInfo **) &_gawake_server_database_method_info_enable_disable_rule_OUT_ARG_pointers,
+    NULL
+  },
+  "handle-enable-disable-rule",
+  FALSE
+};
+
 static const GDBusMethodInfo * const _gawake_server_database_method_info_pointers[] =
 {
   &_gawake_server_database_method_info_add_rule.parent_struct,
+  &_gawake_server_database_method_info_edit_rule.parent_struct,
+  &_gawake_server_database_method_info_delete_rule.parent_struct,
+  &_gawake_server_database_method_info_enable_disable_rule.parent_struct,
   NULL
 };
 
@@ -406,6 +742,9 @@ gawake_server_database_override_properties (GObjectClass *klass G_GNUC_UNUSED, g
  * GawakeServerDatabaseIface:
  * @parent_iface: The parent interface.
  * @handle_add_rule: Handler for the #GawakeServerDatabase::handle-add-rule signal.
+ * @handle_delete_rule: Handler for the #GawakeServerDatabase::handle-delete-rule signal.
+ * @handle_edit_rule: Handler for the #GawakeServerDatabase::handle-edit-rule signal.
+ * @handle_enable_disable_rule: Handler for the #GawakeServerDatabase::handle-enable-disable-rule signal.
  *
  * Virtual table for the D-Bus interface <link linkend="gdbus-interface-io-github-kelvinnovais-Database.top_of_page">io.github.kelvinnovais.Database</link>.
  */
@@ -450,6 +789,91 @@ gawake_server_database_default_init (GawakeServerDatabaseIface *iface)
     G_TYPE_BOOLEAN,
     13,
     G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_UCHAR, G_TYPE_UCHAR, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_UCHAR, G_TYPE_UCHAR);
+
+  /**
+   * GawakeServerDatabase::handle-edit-rule:
+   * @object: A #GawakeServerDatabase.
+   * @invocation: A #GDBusMethodInvocation.
+   * @arg_id: Argument passed by remote caller.
+   * @arg_hour: Argument passed by remote caller.
+   * @arg_minutes: Argument passed by remote caller.
+   * @arg_day_0: Argument passed by remote caller.
+   * @arg_day_1: Argument passed by remote caller.
+   * @arg_day_2: Argument passed by remote caller.
+   * @arg_day_3: Argument passed by remote caller.
+   * @arg_day_4: Argument passed by remote caller.
+   * @arg_day_5: Argument passed by remote caller.
+   * @arg_day_6: Argument passed by remote caller.
+   * @arg_name: Argument passed by remote caller.
+   * @arg_mode: Argument passed by remote caller.
+   * @arg_table: Argument passed by remote caller.
+   * @arg_active: Argument passed by remote caller.
+   *
+   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-io-github-kelvinnovais-Database.EditRule">EditRule()</link> D-Bus method.
+   *
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call gawake_server_database_complete_edit_rule() or e.g. g_dbus_method_invocation_return_error() on it) and no other signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   *
+   * Returns: %G_DBUS_METHOD_INVOCATION_HANDLED or %TRUE if the invocation was handled, %G_DBUS_METHOD_INVOCATION_UNHANDLED or %FALSE to let other signal handlers run.
+   */
+  g_signal_new ("handle-edit-rule",
+    G_TYPE_FROM_INTERFACE (iface),
+    G_SIGNAL_RUN_LAST,
+    G_STRUCT_OFFSET (GawakeServerDatabaseIface, handle_edit_rule),
+    g_signal_accumulator_true_handled,
+    NULL,
+    g_cclosure_marshal_generic,
+    G_TYPE_BOOLEAN,
+    15,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_UINT, G_TYPE_UCHAR, G_TYPE_UCHAR, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_UCHAR, G_TYPE_UCHAR, G_TYPE_BOOLEAN);
+
+  /**
+   * GawakeServerDatabase::handle-delete-rule:
+   * @object: A #GawakeServerDatabase.
+   * @invocation: A #GDBusMethodInvocation.
+   * @arg_id: Argument passed by remote caller.
+   * @arg_table: Argument passed by remote caller.
+   *
+   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-io-github-kelvinnovais-Database.DeleteRule">DeleteRule()</link> D-Bus method.
+   *
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call gawake_server_database_complete_delete_rule() or e.g. g_dbus_method_invocation_return_error() on it) and no other signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   *
+   * Returns: %G_DBUS_METHOD_INVOCATION_HANDLED or %TRUE if the invocation was handled, %G_DBUS_METHOD_INVOCATION_UNHANDLED or %FALSE to let other signal handlers run.
+   */
+  g_signal_new ("handle-delete-rule",
+    G_TYPE_FROM_INTERFACE (iface),
+    G_SIGNAL_RUN_LAST,
+    G_STRUCT_OFFSET (GawakeServerDatabaseIface, handle_delete_rule),
+    g_signal_accumulator_true_handled,
+    NULL,
+    g_cclosure_marshal_generic,
+    G_TYPE_BOOLEAN,
+    3,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_UINT, G_TYPE_UCHAR);
+
+  /**
+   * GawakeServerDatabase::handle-enable-disable-rule:
+   * @object: A #GawakeServerDatabase.
+   * @invocation: A #GDBusMethodInvocation.
+   * @arg_id: Argument passed by remote caller.
+   * @arg_table: Argument passed by remote caller.
+   * @arg_active: Argument passed by remote caller.
+   *
+   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-io-github-kelvinnovais-Database.EnableDisableRule">EnableDisableRule()</link> D-Bus method.
+   *
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call gawake_server_database_complete_enable_disable_rule() or e.g. g_dbus_method_invocation_return_error() on it) and no other signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   *
+   * Returns: %G_DBUS_METHOD_INVOCATION_HANDLED or %TRUE if the invocation was handled, %G_DBUS_METHOD_INVOCATION_UNHANDLED or %FALSE to let other signal handlers run.
+   */
+  g_signal_new ("handle-enable-disable-rule",
+    G_TYPE_FROM_INTERFACE (iface),
+    G_SIGNAL_RUN_LAST,
+    G_STRUCT_OFFSET (GawakeServerDatabaseIface, handle_enable_disable_rule),
+    g_signal_accumulator_true_handled,
+    NULL,
+    g_cclosure_marshal_generic,
+    G_TYPE_BOOLEAN,
+    4,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_UINT, G_TYPE_UCHAR, G_TYPE_BOOLEAN);
 
 }
 
@@ -624,6 +1048,414 @@ _out:
 }
 
 /**
+ * gawake_server_database_call_edit_rule:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @arg_id: Argument to pass with the method invocation.
+ * @arg_hour: Argument to pass with the method invocation.
+ * @arg_minutes: Argument to pass with the method invocation.
+ * @arg_day_0: Argument to pass with the method invocation.
+ * @arg_day_1: Argument to pass with the method invocation.
+ * @arg_day_2: Argument to pass with the method invocation.
+ * @arg_day_3: Argument to pass with the method invocation.
+ * @arg_day_4: Argument to pass with the method invocation.
+ * @arg_day_5: Argument to pass with the method invocation.
+ * @arg_day_6: Argument to pass with the method invocation.
+ * @arg_name: Argument to pass with the method invocation.
+ * @arg_mode: Argument to pass with the method invocation.
+ * @arg_table: Argument to pass with the method invocation.
+ * @arg_active: Argument to pass with the method invocation.
+ * @cancellable: (nullable): A #GCancellable or %NULL.
+ * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
+ * @user_data: User data to pass to @callback.
+ *
+ * Asynchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.EditRule">EditRule()</link> D-Bus method on @proxy.
+ * When the operation is finished, @callback will be invoked in the thread-default main loop of the thread you are calling this method from (see g_main_context_push_thread_default()).
+ * You can then call gawake_server_database_call_edit_rule_finish() to get the result of the operation.
+ *
+ * See gawake_server_database_call_edit_rule_sync() for the synchronous, blocking version of this method.
+ */
+void
+gawake_server_database_call_edit_rule (
+    GawakeServerDatabase *proxy,
+    guint16 arg_id,
+    guchar arg_hour,
+    guchar arg_minutes,
+    gboolean arg_day_0,
+    gboolean arg_day_1,
+    gboolean arg_day_2,
+    gboolean arg_day_3,
+    gboolean arg_day_4,
+    gboolean arg_day_5,
+    gboolean arg_day_6,
+    const gchar *arg_name,
+    guchar arg_mode,
+    guchar arg_table,
+    gboolean arg_active,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data)
+{
+  g_dbus_proxy_call (G_DBUS_PROXY (proxy),
+    "EditRule",
+    g_variant_new ("(qyybbbbbbbsyyb)",
+                   arg_id,
+                   arg_hour,
+                   arg_minutes,
+                   arg_day_0,
+                   arg_day_1,
+                   arg_day_2,
+                   arg_day_3,
+                   arg_day_4,
+                   arg_day_5,
+                   arg_day_6,
+                   arg_name,
+                   arg_mode,
+                   arg_table,
+                   arg_active),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    callback,
+    user_data);
+}
+
+/**
+ * gawake_server_database_call_edit_rule_finish:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @out_success: (out) (optional): Return location for return parameter or %NULL to ignore.
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to gawake_server_database_call_edit_rule().
+ * @error: Return location for error or %NULL.
+ *
+ * Finishes an operation started with gawake_server_database_call_edit_rule().
+ *
+ * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
+ */
+gboolean
+gawake_server_database_call_edit_rule_finish (
+    GawakeServerDatabase *proxy,
+    gboolean *out_success,
+    GAsyncResult *res,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (proxy), res, error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(b)",
+                 out_success);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * gawake_server_database_call_edit_rule_sync:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @arg_id: Argument to pass with the method invocation.
+ * @arg_hour: Argument to pass with the method invocation.
+ * @arg_minutes: Argument to pass with the method invocation.
+ * @arg_day_0: Argument to pass with the method invocation.
+ * @arg_day_1: Argument to pass with the method invocation.
+ * @arg_day_2: Argument to pass with the method invocation.
+ * @arg_day_3: Argument to pass with the method invocation.
+ * @arg_day_4: Argument to pass with the method invocation.
+ * @arg_day_5: Argument to pass with the method invocation.
+ * @arg_day_6: Argument to pass with the method invocation.
+ * @arg_name: Argument to pass with the method invocation.
+ * @arg_mode: Argument to pass with the method invocation.
+ * @arg_table: Argument to pass with the method invocation.
+ * @arg_active: Argument to pass with the method invocation.
+ * @out_success: (out) (optional): Return location for return parameter or %NULL to ignore.
+ * @cancellable: (nullable): A #GCancellable or %NULL.
+ * @error: Return location for error or %NULL.
+ *
+ * Synchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.EditRule">EditRule()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
+ *
+ * See gawake_server_database_call_edit_rule() for the asynchronous version of this method.
+ *
+ * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
+ */
+gboolean
+gawake_server_database_call_edit_rule_sync (
+    GawakeServerDatabase *proxy,
+    guint16 arg_id,
+    guchar arg_hour,
+    guchar arg_minutes,
+    gboolean arg_day_0,
+    gboolean arg_day_1,
+    gboolean arg_day_2,
+    gboolean arg_day_3,
+    gboolean arg_day_4,
+    gboolean arg_day_5,
+    gboolean arg_day_6,
+    const gchar *arg_name,
+    guchar arg_mode,
+    guchar arg_table,
+    gboolean arg_active,
+    gboolean *out_success,
+    GCancellable *cancellable,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
+    "EditRule",
+    g_variant_new ("(qyybbbbbbbsyyb)",
+                   arg_id,
+                   arg_hour,
+                   arg_minutes,
+                   arg_day_0,
+                   arg_day_1,
+                   arg_day_2,
+                   arg_day_3,
+                   arg_day_4,
+                   arg_day_5,
+                   arg_day_6,
+                   arg_name,
+                   arg_mode,
+                   arg_table,
+                   arg_active),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(b)",
+                 out_success);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * gawake_server_database_call_delete_rule:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @arg_id: Argument to pass with the method invocation.
+ * @arg_table: Argument to pass with the method invocation.
+ * @cancellable: (nullable): A #GCancellable or %NULL.
+ * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
+ * @user_data: User data to pass to @callback.
+ *
+ * Asynchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.DeleteRule">DeleteRule()</link> D-Bus method on @proxy.
+ * When the operation is finished, @callback will be invoked in the thread-default main loop of the thread you are calling this method from (see g_main_context_push_thread_default()).
+ * You can then call gawake_server_database_call_delete_rule_finish() to get the result of the operation.
+ *
+ * See gawake_server_database_call_delete_rule_sync() for the synchronous, blocking version of this method.
+ */
+void
+gawake_server_database_call_delete_rule (
+    GawakeServerDatabase *proxy,
+    guint16 arg_id,
+    guchar arg_table,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data)
+{
+  g_dbus_proxy_call (G_DBUS_PROXY (proxy),
+    "DeleteRule",
+    g_variant_new ("(qy)",
+                   arg_id,
+                   arg_table),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    callback,
+    user_data);
+}
+
+/**
+ * gawake_server_database_call_delete_rule_finish:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @out_success: (out) (optional): Return location for return parameter or %NULL to ignore.
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to gawake_server_database_call_delete_rule().
+ * @error: Return location for error or %NULL.
+ *
+ * Finishes an operation started with gawake_server_database_call_delete_rule().
+ *
+ * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
+ */
+gboolean
+gawake_server_database_call_delete_rule_finish (
+    GawakeServerDatabase *proxy,
+    gboolean *out_success,
+    GAsyncResult *res,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (proxy), res, error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(b)",
+                 out_success);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * gawake_server_database_call_delete_rule_sync:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @arg_id: Argument to pass with the method invocation.
+ * @arg_table: Argument to pass with the method invocation.
+ * @out_success: (out) (optional): Return location for return parameter or %NULL to ignore.
+ * @cancellable: (nullable): A #GCancellable or %NULL.
+ * @error: Return location for error or %NULL.
+ *
+ * Synchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.DeleteRule">DeleteRule()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
+ *
+ * See gawake_server_database_call_delete_rule() for the asynchronous version of this method.
+ *
+ * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
+ */
+gboolean
+gawake_server_database_call_delete_rule_sync (
+    GawakeServerDatabase *proxy,
+    guint16 arg_id,
+    guchar arg_table,
+    gboolean *out_success,
+    GCancellable *cancellable,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
+    "DeleteRule",
+    g_variant_new ("(qy)",
+                   arg_id,
+                   arg_table),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(b)",
+                 out_success);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * gawake_server_database_call_enable_disable_rule:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @arg_id: Argument to pass with the method invocation.
+ * @arg_table: Argument to pass with the method invocation.
+ * @arg_active: Argument to pass with the method invocation.
+ * @cancellable: (nullable): A #GCancellable or %NULL.
+ * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
+ * @user_data: User data to pass to @callback.
+ *
+ * Asynchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.EnableDisableRule">EnableDisableRule()</link> D-Bus method on @proxy.
+ * When the operation is finished, @callback will be invoked in the thread-default main loop of the thread you are calling this method from (see g_main_context_push_thread_default()).
+ * You can then call gawake_server_database_call_enable_disable_rule_finish() to get the result of the operation.
+ *
+ * See gawake_server_database_call_enable_disable_rule_sync() for the synchronous, blocking version of this method.
+ */
+void
+gawake_server_database_call_enable_disable_rule (
+    GawakeServerDatabase *proxy,
+    guint16 arg_id,
+    guchar arg_table,
+    gboolean arg_active,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data)
+{
+  g_dbus_proxy_call (G_DBUS_PROXY (proxy),
+    "EnableDisableRule",
+    g_variant_new ("(qyb)",
+                   arg_id,
+                   arg_table,
+                   arg_active),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    callback,
+    user_data);
+}
+
+/**
+ * gawake_server_database_call_enable_disable_rule_finish:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @out_success: (out) (optional): Return location for return parameter or %NULL to ignore.
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to gawake_server_database_call_enable_disable_rule().
+ * @error: Return location for error or %NULL.
+ *
+ * Finishes an operation started with gawake_server_database_call_enable_disable_rule().
+ *
+ * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
+ */
+gboolean
+gawake_server_database_call_enable_disable_rule_finish (
+    GawakeServerDatabase *proxy,
+    gboolean *out_success,
+    GAsyncResult *res,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (proxy), res, error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(b)",
+                 out_success);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * gawake_server_database_call_enable_disable_rule_sync:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @arg_id: Argument to pass with the method invocation.
+ * @arg_table: Argument to pass with the method invocation.
+ * @arg_active: Argument to pass with the method invocation.
+ * @out_success: (out) (optional): Return location for return parameter or %NULL to ignore.
+ * @cancellable: (nullable): A #GCancellable or %NULL.
+ * @error: Return location for error or %NULL.
+ *
+ * Synchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.EnableDisableRule">EnableDisableRule()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
+ *
+ * See gawake_server_database_call_enable_disable_rule() for the asynchronous version of this method.
+ *
+ * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
+ */
+gboolean
+gawake_server_database_call_enable_disable_rule_sync (
+    GawakeServerDatabase *proxy,
+    guint16 arg_id,
+    guchar arg_table,
+    gboolean arg_active,
+    gboolean *out_success,
+    GCancellable *cancellable,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
+    "EnableDisableRule",
+    g_variant_new ("(qyb)",
+                   arg_id,
+                   arg_table,
+                   arg_active),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(b)",
+                 out_success);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
  * gawake_server_database_complete_add_rule:
  * @object: A #GawakeServerDatabase.
  * @invocation: (transfer full): A #GDBusMethodInvocation.
@@ -635,6 +1467,69 @@ _out:
  */
 void
 gawake_server_database_complete_add_rule (
+    GawakeServerDatabase *object G_GNUC_UNUSED,
+    GDBusMethodInvocation *invocation,
+    gboolean success)
+{
+  g_dbus_method_invocation_return_value (invocation,
+    g_variant_new ("(b)",
+                   success));
+}
+
+/**
+ * gawake_server_database_complete_edit_rule:
+ * @object: A #GawakeServerDatabase.
+ * @invocation: (transfer full): A #GDBusMethodInvocation.
+ * @success: Parameter to return.
+ *
+ * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-io-github-kelvinnovais-Database.EditRule">EditRule()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
+ *
+ * This method will free @invocation, you cannot use it afterwards.
+ */
+void
+gawake_server_database_complete_edit_rule (
+    GawakeServerDatabase *object G_GNUC_UNUSED,
+    GDBusMethodInvocation *invocation,
+    gboolean success)
+{
+  g_dbus_method_invocation_return_value (invocation,
+    g_variant_new ("(b)",
+                   success));
+}
+
+/**
+ * gawake_server_database_complete_delete_rule:
+ * @object: A #GawakeServerDatabase.
+ * @invocation: (transfer full): A #GDBusMethodInvocation.
+ * @success: Parameter to return.
+ *
+ * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-io-github-kelvinnovais-Database.DeleteRule">DeleteRule()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
+ *
+ * This method will free @invocation, you cannot use it afterwards.
+ */
+void
+gawake_server_database_complete_delete_rule (
+    GawakeServerDatabase *object G_GNUC_UNUSED,
+    GDBusMethodInvocation *invocation,
+    gboolean success)
+{
+  g_dbus_method_invocation_return_value (invocation,
+    g_variant_new ("(b)",
+                   success));
+}
+
+/**
+ * gawake_server_database_complete_enable_disable_rule:
+ * @object: A #GawakeServerDatabase.
+ * @invocation: (transfer full): A #GDBusMethodInvocation.
+ * @success: Parameter to return.
+ *
+ * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-io-github-kelvinnovais-Database.EnableDisableRule">EnableDisableRule()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
+ *
+ * This method will free @invocation, you cannot use it afterwards.
+ */
+void
+gawake_server_database_complete_enable_disable_rule (
     GawakeServerDatabase *object G_GNUC_UNUSED,
     GDBusMethodInvocation *invocation,
     gboolean success)

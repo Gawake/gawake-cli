@@ -29,6 +29,41 @@
       <arg name="success" direction="out" type="b"/>
     </method>
 
+    <method name="EditRule">
+      <arg name="id" direction="in" type="q" />
+      <arg name="hour" direction="in" type="y" />
+      <arg name="minutes" direction="in" type="y" />
+      <arg name="day_0" direction="in" type="b" />
+      <arg name="day_1" direction="in" type="b" />
+      <arg name="day_2" direction="in" type="b" />
+      <arg name="day_3" direction="in" type="b" />
+      <arg name="day_4" direction="in" type="b" />
+      <arg name="day_5" direction="in" type="b" />
+      <arg name="day_6" direction="in" type="b" />
+      <arg name="name" direction="in" type="s" />
+      <arg name="mode" direction="in" type="y" />
+      <arg name="table" direction="in" type="y" />
+      <arg name="active" direction="in" type="b" />
+
+      <arg name="success" direction="out" type="b"/>
+    </method>
+
+    <method name="DeleteRule">
+      <arg name="id" direction="in" type="q" />
+      <arg name="table" direction="in" type="y" />
+
+      <arg name="success" direction="out" type="b"/>
+    </method>
+
+    <method name="EnableDisableRule">
+      <arg name="id" direction="in" type="q" />
+      <arg name="table" direction="in" type="y" />
+      <arg name="active" direction="in" type="b" />
+
+      <arg name="success" direction="out" type="b"/>
+    </method>
+
+
     <!-- <signal name="Notification"> -->
     <!--   <arg name="icon_blob" type="ay"/> -->
     <!--   <arg name="height" type="i"/> -->

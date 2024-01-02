@@ -221,7 +221,7 @@ gboolean delete_rule (guint16 id, guint8 table)
   return ret;
 }
 
-gboolean enable_disable_rule (guint16 id, guint8 table)
+gboolean enable_disable_rule (guint16 id, guint8 table, gboolean active)
 {
   gchar *sql = 0;
   sql = (gchar *) g_malloc (ALLOC);
@@ -231,10 +231,10 @@ gboolean enable_disable_rule (guint16 id, guint8 table)
   switch (table)
   {
   case T_ON:
-    g_snprintf (sql, ALLOC, "UPDATE rules_turnon SET active = %d WHERE id = %d;", id);
+    g_snprintf (sql, ALLOC, "UPDATE rules_turnon SET active = %d WHERE id = %d;", active, id);
     break;
   case T_OFF:
-    g_snprintf (sql, ALLOC, "UPDATE rules_turnoff SET active = %d WHERE id = %d;", id);
+    g_snprintf (sql, ALLOC, "UPDATE rules_turnoff SET active = %d WHERE id = %d;", active, id);
     break;
   default:
     return FALSE;

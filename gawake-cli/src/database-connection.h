@@ -18,6 +18,7 @@
 #define ALLOC 256
 
 // TODO apply GLib Object
+// TODO database schema
 
 gint set_connection (void);
 sqlite3 *get_connection (void);
@@ -31,8 +32,14 @@ static gboolean run_sql (const gchar *sql);
 gboolean add_rule (const gRule *rule);
 gboolean edit_rule (const gRule *rule);
 gboolean delete_rule (guint16 id, guint8 table);
-gboolean enable_disable_rule (guint16 id, guint8 table);
+gboolean enable_disable_rule (guint16 id, guint8 table, gboolean active);
 // TODO query_rule
 // TODO query_rules ***
+
+/* TODO config database
+ * set/get boot delay
+ * set/get status
+ * set/get dea
+ */
 
 #endif /* DATABASE_CONNECTION_H_ */

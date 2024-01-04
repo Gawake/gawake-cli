@@ -766,6 +766,17 @@ static const GDBusArgInfo * const _gawake_server_database_method_info_query_rule
   NULL
 };
 
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_query_rules_OUT_ARG_rules =
+{
+  {
+    -1,
+    (gchar *) "rules",
+    (gchar *) "a(qsyybbbbbbbbyy)",
+    NULL
+  },
+  FALSE
+};
+
 static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_query_rules_OUT_ARG_success =
 {
   {
@@ -779,6 +790,7 @@ static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_query_rul
 
 static const GDBusArgInfo * const _gawake_server_database_method_info_query_rules_OUT_ARG_pointers[] =
 {
+  &_gawake_server_database_method_info_query_rules_OUT_ARG_rules.parent_struct,
   &_gawake_server_database_method_info_query_rules_OUT_ARG_success.parent_struct,
   NULL
 };
@@ -1776,6 +1788,7 @@ gawake_server_database_call_query_rules (
 /**
  * gawake_server_database_call_query_rules_finish:
  * @proxy: A #GawakeServerDatabaseProxy.
+ * @out_rules: (out) (optional): Return location for return parameter or %NULL to ignore.
  * @out_success: (out) (optional): Return location for return parameter or %NULL to ignore.
  * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to gawake_server_database_call_query_rules().
  * @error: Return location for error or %NULL.
@@ -1787,6 +1800,7 @@ gawake_server_database_call_query_rules (
 gboolean
 gawake_server_database_call_query_rules_finish (
     GawakeServerDatabase *proxy,
+    GVariant **out_rules,
     gboolean *out_success,
     GAsyncResult *res,
     GError **error)
@@ -1796,7 +1810,8 @@ gawake_server_database_call_query_rules_finish (
   if (_ret == NULL)
     goto _out;
   g_variant_get (_ret,
-                 "(b)",
+                 "(@a(qsyybbbbbbbbyy)b)",
+                 out_rules,
                  out_success);
   g_variant_unref (_ret);
 _out:
@@ -1807,6 +1822,7 @@ _out:
  * gawake_server_database_call_query_rules_sync:
  * @proxy: A #GawakeServerDatabaseProxy.
  * @arg_table: Argument to pass with the method invocation.
+ * @out_rules: (out) (optional): Return location for return parameter or %NULL to ignore.
  * @out_success: (out) (optional): Return location for return parameter or %NULL to ignore.
  * @cancellable: (nullable): A #GCancellable or %NULL.
  * @error: Return location for error or %NULL.
@@ -1821,6 +1837,7 @@ gboolean
 gawake_server_database_call_query_rules_sync (
     GawakeServerDatabase *proxy,
     guchar arg_table,
+    GVariant **out_rules,
     gboolean *out_success,
     GCancellable *cancellable,
     GError **error)
@@ -1837,7 +1854,8 @@ gawake_server_database_call_query_rules_sync (
   if (_ret == NULL)
     goto _out;
   g_variant_get (_ret,
-                 "(b)",
+                 "(@a(qsyybbbbbbbbyy)b)",
+                 out_rules,
                  out_success);
   g_variant_unref (_ret);
 _out:
@@ -1956,6 +1974,7 @@ gawake_server_database_complete_query_rule (
  * gawake_server_database_complete_query_rules:
  * @object: A #GawakeServerDatabase.
  * @invocation: (transfer full): A #GDBusMethodInvocation.
+ * @rules: Parameter to return.
  * @success: Parameter to return.
  *
  * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-io-github-kelvinnovais-Database.QueryRules">QueryRules()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
@@ -1966,10 +1985,12 @@ void
 gawake_server_database_complete_query_rules (
     GawakeServerDatabase *object G_GNUC_UNUSED,
     GDBusMethodInvocation *invocation,
+    GVariant *rules,
     gboolean success)
 {
   g_dbus_method_invocation_return_value (invocation,
-    g_variant_new ("(b)",
+    g_variant_new ("(@a(qsyybbbbbbbbyy)b)",
+                   rules,
                    success));
 }
 

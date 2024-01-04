@@ -31,7 +31,6 @@ gint connect_database (void)
 void close_database (void)
 {
   g_fprintf (stdout, "Closing database\n");
-  /* sqlite3 *db = get_connection (); */
 
   sqlite3_close (db);
 }
@@ -39,7 +38,7 @@ void close_database (void)
 static gint validate_rule (const gRule *rule)
 {
   // name can't be bigger than the max value
-  gboolean name = !(strlen (rule->name) > RULE_NAME_LENGTH);
+  gboolean name = !(strlen (rule->name) >= RULE_NAME_LENGTH);     // (>=) do not include null terminator
 
   // hour [00,23]
   gboolean hour = (rule->hour <= 23);     // Due to the data type, houver is always >= 0
@@ -91,8 +90,6 @@ static gboolean run_sql (const gchar *sql)
 #if PREPROCESSOR_DEBUG
   g_print ("Generated SQL:\n\t%s\n\n", sql);
 #endif
-
-  /* sqlite3 *db = get_connection (); */
 
   rc = sqlite3_exec(db, sql, NULL, 0, &err_msg);
   if (rc != SQLITE_OK)
@@ -264,8 +261,6 @@ gboolean query_rule (guint16 id, Table table, gRule *rule)
   g_print ("Generated SQL:\n\t%s\n\n", sql);
 #endif
 
-  /* sqlite3 *db = get_connection (); */
-
   // Verify ID (also prepare statement)
   if (sqlite3_prepare_v2 (db, sql, -1, &stmt, NULL) == SQLITE_OK
       && sqlite3_step (stmt) != SQLITE_ROW)
@@ -282,7 +277,7 @@ gboolean query_rule (guint16 id, Table table, gRule *rule)
    *    id    rule_name     time    sun     (...)       sat     active      mode
    *                                                                        ^~~~
    *                                                                        |
-   *                                                                        only for turn off rules
+   *                                                  only for turn off rules
    */
   while ((rc = sqlite3_step (stmt)) == SQLITE_ROW)
     {
@@ -343,8 +338,6 @@ gboolean query_rules (Table table, gRule **rules, guint16 *rowcount)
       return FALSE;
     }
 
-  /* sqlite3 *db = get_connection (); */
-
   // Count the number of rows
   g_snprintf (sql, ALLOC, "SELECT COUNT(*) FROM %s;", TABLE[table]);
   if (sqlite3_prepare_v2 (db, sql, -1, &stmt, NULL) == SQLITE_OK
@@ -394,7 +387,7 @@ gboolean query_rules (Table table, gRule **rules, guint16 *rowcount)
    *    rule_name length      id    rule_name     time    sun     (...)       sat     active    mode
    *                                                                                            ^~~~
    *                                                                                            |
-   *                                                                                            only for turn off rules
+   *                                                                      only for turn off rules
    */
   while ((rc = sqlite3_step (stmt)) == SQLITE_ROW)
     {
@@ -404,12 +397,23 @@ gboolean query_rules (Table table, gRule **rules, guint16 *rowcount)
 
       // ID
       (*rules)[counter].id = (guint16) sqlite3_column_int (stmt, 1);
+
       // NAME
-      printf ("%s\nsize: %d\n", sqlite3_column_text (stmt, 2), sqlite3_column_int (stmt, 0));
       // Allocate memory
-      (*rules)[counter].name = (gchar *) g_malloc (sqlite3_column_int (stmt, 0));
+      gint size = sqlite3_column_int (stmt, 0);
+      (*rules)[counter].name = (gchar *) g_malloc (size + 1);
+      if ((*rules)[counter].name == NULL)
+        {
+          g_fprintf(stderr, "ERROR: Failed to allocate memory\n");
+          return FALSE;
+        }
+
       // Assign name
-      g_snprintf ((*rules)[counter].name, RULE_NAME_LENGTH, "%s", sqlite3_column_text (stmt, 2));
+      g_snprintf ((*rules)[counter].name,         // string pointer
+                  size + 1,                       // size
+                  "%s",                           // format
+                  sqlite3_column_text (stmt, 2)   // arguments
+                  );
 
       // MINUTES AND HOUR
       // TODO sqlite3_column_text16 has correct data type for sscanf, but returned data is wrong

@@ -126,6 +126,7 @@ void gawake_server_database_complete_query_rule (
 void gawake_server_database_complete_query_rules (
     GawakeServerDatabase *object,
     GDBusMethodInvocation *invocation,
+    GVariant *rules,
     gboolean success);
 
 
@@ -298,6 +299,7 @@ void gawake_server_database_call_query_rules (
 
 gboolean gawake_server_database_call_query_rules_finish (
     GawakeServerDatabase *proxy,
+    GVariant **out_rules,
     gboolean *out_success,
     GAsyncResult *res,
     GError **error);
@@ -305,6 +307,7 @@ gboolean gawake_server_database_call_query_rules_finish (
 gboolean gawake_server_database_call_query_rules_sync (
     GawakeServerDatabase *proxy,
     guchar arg_table,
+    GVariant **out_rules,
     gboolean *out_success,
     GCancellable *cancellable,
     GError **error);

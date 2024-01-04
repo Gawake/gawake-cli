@@ -276,6 +276,9 @@ on_handle_query_rule (GawakeServerDatabase    *interface,
 
   gawake_server_database_complete_query_rule (interface, invocation, rule, success);
 
+  rule = g_variant_ref_sink (rule);
+  g_variant_unref (rule);
+
   return TRUE;
 }
 
@@ -320,24 +323,34 @@ on_handle_query_rules (GawakeServerDatabase    *interface,
     }
     g_print ("===========================================\n");
 #endif
-  /* GVariant *rule = g_variant_new ("(qsyybbbbbbbbyy)", */
-  /*                                 data[i].id, */
-  /*                                 data[i].name, */
-  /*                                 data[i].hour, */
-  /*                                 (guint8) data[i].minutes, */
-  /*                                 data[i].days[0], */
-  /*                                 data[i].days[1], */
-  /*                                 data[i].days[2], */
-  /*                                 data[i].days[3], */
-  /*                                 data[i].days[4], */
-  /*                                 data[i].days[5], */
-  /*                                 data[i].days[6], */
-  /*                                 data[i].active, */
-  /*                                 (guint8) data[i].mode, */
-  /*                                 (guint8) data[i].table */
-  /*                                 ); */
 
-  gawake_server_database_complete_query_rules (interface, invocation, success);
+  // Create GVariant
+  // Maybe helful: https://stackoverflow.com/questions/61996790/gvariantbuilder-build-aii-or-avv
+  GVariantBuilder builder;
+  g_variant_builder_init (&builder, G_VARIANT_TYPE ("a(qsyybbbbbbbbyy)"));
+  for (gint d = 0; d < rowcount; d++)
+    {
+      g_variant_builder_add (&builder,
+                             "(qsyybbbbbbbbyy)",
+                             data[d].id,
+                             data[d].name,
+                             data[d].hour,
+                             data[d].minutes,
+                             data[d].days[0],
+                             data[d].days[1],
+                             data[d].days[2],
+                             data[d].days[3],
+                             data[d].days[4],
+                             data[d].days[5],
+                             data[d].days[6],
+                             data[d].active,
+                             data[d].mode,
+                             data[d].table
+                             );
+    }
+  GVariant *rules = g_variant_builder_end (&builder);
+
+  gawake_server_database_complete_query_rules (interface, invocation, rules, success);
 
   // Free allocated data
   for (gint f = 0; f < rowcount; f++)
@@ -346,12 +359,17 @@ on_handle_query_rules (GawakeServerDatabase    *interface,
     }
   g_free (data);
 
+  rules = g_variant_ref_sink (rules);
+  g_variant_unref (rules);
+
   return TRUE;
 }
 
 // TODO tmp
-void exit_handler (int sig) {
-  g_main_loop_quit ();
+void exit_handler (int sig)
+{
+  /* g_main_loop_quit (); */
+  /* g_bus_unown_name() */
   close_database ();
   exit (0);
 }

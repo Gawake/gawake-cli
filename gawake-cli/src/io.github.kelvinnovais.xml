@@ -68,7 +68,7 @@
     <method name="QueryRules">
       <arg name="table" direction="in" type="y" />
 
-      <!-- <arg name="rules" direction="out" type="a(qsyybbbbbbbbyy)" /> -->
+      <arg name="rules" direction="out" type="a(qsyybbbbbbbbyy)" />
       <arg name="success" direction="out" type="b"/>
     </method>
 

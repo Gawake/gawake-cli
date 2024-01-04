@@ -44,7 +44,7 @@ executable(
 	'gawaked',
 	gawaked_sources,
 	dependencies: gawaked_dependencies,
-	c_args: '-DPREPROCESSOR_DEBUG=1'
+	c_args: '-DPREPROCESSOR_DEBUG=0'
 )
 
 # executable(

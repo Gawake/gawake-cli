@@ -1,37 +1,17 @@
 #include "database-connection.h"
 
-/* static gint validate_rule (gRule *rule); */
-/* static gint validate_table (gint table); */
-/* static gboolean run_sql (const gchar *sql); */
-
-// Getter and setter for the database connection object
-static sqlite3 *_db = NULL;
-
-// Setter
-// This function should be called once
-gint set_connection (void)
-{
-  gint ret = connect_database (&_db);
-  return ret;
-}
-
-// Getter
-sqlite3 *get_connection (void)
-{
-  // TODO does these copies of memory address causes memory leaking?
-  return _db;
-}
+static sqlite3 *db = NULL;
 
 // Connection to the database
-gint connect_database (sqlite3 **db)
+gint connect_database (void)
 {
   // Open the SQLite database
-  gint rc = sqlite3_open_v2 (PATH, db, SQLITE_OPEN_READWRITE, NULL);
+  gint rc = sqlite3_open_v2 (PATH, &db, SQLITE_OPEN_READWRITE, NULL);
 
   if (rc != SQLITE_OK)
     {
-      g_fprintf (stderr, "Can't open database: %s\n", sqlite3_errmsg (*db));
-      sqlite3_close (*db);
+      g_fprintf (stderr, "Can't open database: %s\n", sqlite3_errmsg (db));
+      sqlite3_close (db);
       return EXIT_FAILURE;
     }
   else
@@ -39,7 +19,7 @@ gint connect_database (sqlite3 **db)
       gchar *err_msg = 0;
 
       const gchar UPTDATE_VERSION[] = "UPDATE config SET version = '" VERSION "';";
-      rc = sqlite3_exec (*db, UPTDATE_VERSION, NULL, 0, &err_msg);
+      rc = sqlite3_exec (db, UPTDATE_VERSION, NULL, 0, &err_msg);
       g_fprintf (stdout, "Database opened successfully\n");
 
       sqlite3_free (err_msg);
@@ -51,7 +31,7 @@ gint connect_database (sqlite3 **db)
 void close_database (void)
 {
   g_fprintf (stdout, "Closing database\n");
-  sqlite3 *db = get_connection ();
+  /* sqlite3 *db = get_connection (); */
 
   sqlite3_close (db);
 }
@@ -94,9 +74,8 @@ static gint validate_rule (const gRule *rule)
     }
 }
 
-static gint validate_table (gint table)
+static gint validate_table (Table table)
 {
-  // Validate table
   if (table == T_ON || table == T_OFF)
     return EXIT_SUCCESS;
 
@@ -113,7 +92,7 @@ static gboolean run_sql (const gchar *sql)
   g_print ("Generated SQL:\n\t%s\n\n", sql);
 #endif
 
-  sqlite3 *db = get_connection ();
+  /* sqlite3 *db = get_connection (); */
 
   rc = sqlite3_exec(db, sql, NULL, 0, &err_msg);
   if (rc != SQLITE_OK)
@@ -285,7 +264,7 @@ gboolean query_rule (guint16 id, Table table, gRule *rule)
   g_print ("Generated SQL:\n\t%s\n\n", sql);
 #endif
 
-  sqlite3 *db = get_connection ();
+  /* sqlite3 *db = get_connection (); */
 
   // Verify ID (also prepare statement)
   if (sqlite3_prepare_v2 (db, sql, -1, &stmt, NULL) == SQLITE_OK
@@ -364,7 +343,7 @@ gboolean query_rules (Table table, gRule **rules, guint16 *rowcount)
       return FALSE;
     }
 
-  sqlite3 *db = get_connection ();
+  /* sqlite3 *db = get_connection (); */
 
   // Count the number of rows
   g_snprintf (sql, ALLOC, "SELECT COUNT(*) FROM %s;", TABLE[table]);

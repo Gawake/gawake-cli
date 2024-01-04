@@ -21,10 +21,10 @@
 // TODO apply GLib Object
 // TODO database schema
 
-gint set_connection (void);
-sqlite3 *get_connection (void);
+// gint set_connection (void);
+// sqlite3 *get_connection (void);
 
-gint connect_database(sqlite3 **db);
+gint connect_database(void);
 void close_database (void);
 
 gboolean add_rule (const gRule *rule);

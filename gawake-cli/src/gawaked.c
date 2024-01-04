@@ -8,8 +8,15 @@
 #include "privileges.h"
 #include "gawaked.h"
 
+// TODO tmp
+#include <signal.h>
+void exit_handler (int sig);
+
 int main (void)
 {
+  // TODO tmp
+  signal (SIGINT, exit_handler);
+
   /* TODO */
   /* if (query_gawake_uid ()) */
   /*   return EXIT_FAILURE; */
@@ -17,7 +24,7 @@ int main (void)
   /* if (drop_privileges ()) */
   /*   return EXIT_FAILURE; */
 
-  if (set_connection ())
+  if (connect_database ())
     return EXIT_FAILURE;
 
   GMainLoop *loop;
@@ -313,7 +320,6 @@ on_handle_query_rules (GawakeServerDatabase    *interface,
     }
     g_print ("===========================================\n");
 #endif
-
   /* GVariant *rule = g_variant_new ("(qsyybbbbbbbbyy)", */
   /*                                 data[i].id, */
   /*                                 data[i].name, */
@@ -341,4 +347,11 @@ on_handle_query_rules (GawakeServerDatabase    *interface,
   g_free (data);
 
   return TRUE;
+}
+
+// TODO tmp
+void exit_handler (int sig) {
+  g_main_loop_quit ();
+  close_database ();
+  exit (0);
 }

@@ -3,9 +3,17 @@
 #ifndef GAWAKED_H_
 #define GAWAKED_H_
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <glib.h>
+
 static void on_name_acquired (GDBusConnection *connection,
                               const gchar *name,
                               gpointer user_data);
+
+static void on_name_lost (GDBusConnection *connection,
+                          const gchar *name,
+                          gpointer user_data);
 
 static gboolean
 on_handle_add_rule (GawakeServerDatabase    *interface,

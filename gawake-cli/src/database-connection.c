@@ -1,8 +1,29 @@
+/* database-connection.c
+ *
+ * Copyright 2023-2024 Kelvin Novais
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 #include "database-connection.h"
 
 static sqlite3 *db = NULL;
 
-// Connection to the database
+// This function connect to the database
+// Should be called once
 gint connect_database (void)
 {
   // Open the SQLite database
@@ -353,7 +374,7 @@ gboolean query_rules (Table table, gRule **rules, guint16 *rowcount)
   g_print ("Row count: %d\n\n", *rowcount);
 #endif
 
-  // Alloc structure
+  // Allocate structure array
   *rules = malloc (*rowcount * sizeof (**rules));
   if (*rules == NULL)
     {
@@ -399,7 +420,7 @@ gboolean query_rules (Table table, gRule **rules, guint16 *rowcount)
       (*rules)[counter].id = (guint16) sqlite3_column_int (stmt, 1);
 
       // NAME
-      // Allocate memory
+      // Allocate memory for the name
       gint size = sqlite3_column_int (stmt, 0);
       (*rules)[counter].name = (gchar *) g_malloc (size + 1);
       if ((*rules)[counter].name == NULL)

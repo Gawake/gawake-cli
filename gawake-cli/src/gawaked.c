@@ -1,22 +1,33 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <glib.h>
+// Main file for gawaked
+
+/* gawaked.c
+ *
+ * Copyright 2023-2024 Kelvin Novais
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 
 #include "dbus-server.h"
 #include "gawake-types.h"
 #include "database-connection.h"
-#include "privileges.h"
+/* #include "privileges.h" */
 #include "gawaked.h"
-
-// TODO tmp
-#include <signal.h>
-void exit_handler (int sig);
 
 int main (void)
 {
-  // TODO tmp
-  signal (SIGINT, exit_handler);
-
   /* TODO */
   /* if (query_gawake_uid ()) */
   /*   return EXIT_FAILURE; */
@@ -35,7 +46,7 @@ int main (void)
                   G_BUS_NAME_OWNER_FLAGS_REPLACE,             // flags
                   NULL,                                       // bus_acquired_handler
                   on_name_acquired,                           // name_acquired_handler
-                  NULL,                                       // name_lost_handler
+                  on_name_lost,                               // name_lost_handler
                   NULL,                                       // user_data
                   NULL);                                      // user_data_free_func
 
@@ -77,6 +88,16 @@ on_name_acquired (GDBusConnection *connection,
   //g_dbus_interface_skeleton_export(G_DBUS_INTERFACE_SKELETON(alarm_interface), connection, "/", &error);
 }
 
+// If a connection to the bus can’t be made
+static void on_name_lost (GDBusConnection *connection,
+                          const gchar *name,
+                          gpointer user_data)
+{
+  g_fprintf (stderr, "Connection to the bus couldn’t be made\n");
+  close_database ();
+  exit (EXIT_FAILURE);
+}
+
 static gboolean
 on_handle_add_rule (GawakeServerDatabase    *interface,
                     GDBusMethodInvocation   *invocation,
@@ -112,6 +133,7 @@ on_handle_add_rule (GawakeServerDatabase    *interface,
   g_print ("Table: %d\n\n", table);
 #endif
 
+  // Assign "empty" values to the struct
   gRule rule = {
     0,        // id not used, it's autoincremented
     (gchar *) name,
@@ -123,6 +145,7 @@ on_handle_add_rule (GawakeServerDatabase    *interface,
     table
   };
 
+  // Call the function to add rule, passing the struct pointer
   success = add_rule (&rule);
 
   gawake_server_database_complete_add_rule (interface, invocation, success);
@@ -169,6 +192,7 @@ on_handle_edit_rule (GawakeServerDatabase    *interface,
   g_print ("Table: %d\n", table);
 #endif
 
+  // Fill struct with received parameters
   gRule rule = {
     id,
     (gchar *) name,
@@ -180,6 +204,7 @@ on_handle_edit_rule (GawakeServerDatabase    *interface,
     table
   };
 
+  // Call the edit function, passing the struct pointer
   success = edit_rule (&rule);
 
   gawake_server_database_complete_edit_rule (interface, invocation, success);
@@ -209,6 +234,7 @@ on_handle_delete_rule (GawakeServerDatabase    *interface,
   return TRUE;
 }
 
+// This functions sets the state of the rule: enabled or disabled
 static gboolean
 on_handle_enable_disable_rule (GawakeServerDatabase    *interface,
                                GDBusMethodInvocation   *invocation,
@@ -233,6 +259,7 @@ on_handle_enable_disable_rule (GawakeServerDatabase    *interface,
   return TRUE;
 }
 
+// This function query a single rule
 static gboolean
 on_handle_query_rule (GawakeServerDatabase    *interface,
                       GDBusMethodInvocation   *invocation,
@@ -251,12 +278,14 @@ on_handle_query_rule (GawakeServerDatabase    *interface,
 
   // This must be allocated to receive the string
   data.name = (gchar *) g_malloc (RULE_NAME_LENGTH);
-  //  Assigning a value for the case the ID isn't valid, but need to return a response
-  // (avoids Gtk error for NULL)
-  g_snprintf (data.name, ALLOC, "Nothing");
+  //  Assigning a value for the case the ID is invalid, but need to return a response;
+  // (avoids Gtk error for NULL string)
+  g_snprintf (data.name, ALLOC, "__nothing__");
 
+  // get the data passing the struct pointer
   success = query_rule (id, table, &data);
 
+  // Create a GVariant for the response
   GVariant *rule = g_variant_new ("(qsyybbbbbbbbyy)",
                                   data.id,
                                   data.name,
@@ -282,6 +311,7 @@ on_handle_query_rule (GawakeServerDatabase    *interface,
   return TRUE;
 }
 
+// This function queries all rule from the given table
 static gboolean
 on_handle_query_rules (GawakeServerDatabase    *interface,
                        GDBusMethodInvocation   *invocation,
@@ -291,7 +321,7 @@ on_handle_query_rules (GawakeServerDatabase    *interface,
   gboolean success;
   guint16 rowcount;
 
-  /* Array of structures to receive the data; passed as a pointer to the function query_rule
+  /* Array of structures to receive the data; passed as a pointer to the function query_rules
    * Maybe useful:  https://stackoverflow.com/questions/19948733/dynamically-allocate-memory-for-array-of-structs
    *                https://www.youtube.com/watch?v=lq8tJS3g6tY
    */
@@ -365,11 +395,18 @@ on_handle_query_rules (GawakeServerDatabase    *interface,
   return TRUE;
 }
 
-// TODO tmp
-void exit_handler (int sig)
-{
-  /* g_main_loop_quit (); */
-  /* g_bus_unown_name() */
-  close_database ();
-  exit (0);
-}
+// TODO should implement SIGKILL or SIGINT?
+/* #include <signal.h> */
+
+/* void exit_handler (int sig); */
+
+/* signal (SIGKILL, exit_handler); */
+
+/* void exit_handler (int sig) */
+/* { */
+/*   g_print ("\nProcess interrupted\n"); */
+/*   g_main_loop_quit (); */
+/*   g_bus_unown_name() */
+/*   close_database (); */
+/*   exit (0); */
+/* } */

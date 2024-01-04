@@ -3,6 +3,7 @@ gawaked_sources = files(
 	'dbus-server.c',
 	'privileges.c',
 	'database-connection.c',
+	'gawake-types.c',
 )
 
 # dbus_client_sources = files(
@@ -43,20 +44,8 @@ executable(
 	'gawaked',
 	gawaked_sources,
 	dependencies: gawaked_dependencies,
-	c_args: '-DPREPROCESSOR_DEBUG'
+	c_args: '-DPREPROCESSOR_DEBUG=1'
 )
-
-# executable(
-# 	'dbus-client',
-# 	dbus_client_sources,
-# 	dependencies: dbus_client_dependencies
-# )
-
-# executable(
-# 	'dbus-client-sync',
-# 	dbus_client_sync_sources,
-# 	dependencies: dbus_client_sync_dependencies
-# )
 
 # executable(
 # 	'gawake-cli',

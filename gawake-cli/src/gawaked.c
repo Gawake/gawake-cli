@@ -50,9 +50,12 @@ on_name_acquired (GDBusConnection *connection,
 
   interface = gawake_server_database_skeleton_new ();
 
-  g_signal_connect (interface, "handle-add-rule", G_CALLBACK(on_handle_add_rule), NULL);
-  g_signal_connect (interface, "handle-edit-rule", G_CALLBACK(on_handle_edit_rule), NULL);
-  g_signal_connect (interface, "handle-delete-rule", G_CALLBACK(on_handle_delete_rule), NULL);
+  g_signal_connect (interface, "handle-add-rule", G_CALLBACK (on_handle_add_rule), NULL);
+  g_signal_connect (interface, "handle-edit-rule", G_CALLBACK (on_handle_edit_rule), NULL);
+  g_signal_connect (interface, "handle-delete-rule", G_CALLBACK (on_handle_delete_rule), NULL);
+  g_signal_connect (interface, "handle-enable-disable-rule", G_CALLBACK (on_handle_enable_disable_rule), NULL);
+  g_signal_connect (interface, "handle-query-rule", G_CALLBACK (on_handle_query_rule), NULL);
+  g_signal_connect (interface, "handle-query-rules", G_CALLBACK (on_handle_query_rules), NULL);
 
   error = NULL;
   g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (interface),
@@ -70,6 +73,7 @@ on_name_acquired (GDBusConnection *connection,
 static gboolean
 on_handle_add_rule (GawakeServerDatabase    *interface,
                     GDBusMethodInvocation   *invocation,
+                    const gchar             *name,
                     const guint8            hour,
                     const guint8            minutes,
                     const gboolean          day_0,
@@ -79,7 +83,6 @@ on_handle_add_rule (GawakeServerDatabase    *interface,
                     const gboolean          day_4,
                     const gboolean          day_5,
                     const gboolean          day_6,
-                    const gchar             *name,
                     const guint8            mode,
                     const guint8            table,
                     gpointer                user_data)
@@ -88,28 +91,28 @@ on_handle_add_rule (GawakeServerDatabase    *interface,
 
 #if PREPROCESSOR_DEBUG
   g_print ("RECEIVED:\n");
+  g_print ("Name: %s\n", name);
   g_print ("Hour: %d\n", hour);
   g_print ("Minutes: %d\n", minutes);
 
-  const char DAYS[7] = {'S', 'M', 'T', 'W', 'T', 'F', 'S'};
+  const char P_DAYS[7] = {'S', 'M', 'T', 'W', 'T', 'F', 'S'};
   gboolean days[7] = {day_0, day_1, day_2, day_3, day_4, day_5, day_6};
   g_print ("Days: \n");
   for (gint i = 0; i < 7; i++)
-    g_print ("\t%c: %d\n", DAYS[i], days[i]);
+    g_print ("\t%c: %d\n", P_DAYS[i], days[i]);
 
-  g_print ("Name: %s\n", name);
   g_print ("Mode: %d\n", mode);
   g_print ("Table: %d\n\n", table);
 #endif
 
   gRule rule = {
     0,        // id not used, it's autoincremented
+    (gchar *) name,
     hour,
     minutes,
     {day_0, day_1, day_2, day_3, day_4, day_5, day_6},
-    name,
-    mode,
     TRUE,      // when adding a rule, "active" state is always true
+    mode,
     table
   };
 
@@ -124,6 +127,7 @@ static gboolean
 on_handle_edit_rule (GawakeServerDatabase    *interface,
                      GDBusMethodInvocation   *invocation,
                      const guint16           id,
+                     const gchar             *name,
                      const guint8            hour,
                      const guint8            minutes,
                      const gboolean          day_0,
@@ -133,10 +137,9 @@ on_handle_edit_rule (GawakeServerDatabase    *interface,
                      const gboolean          day_4,
                      const gboolean          day_5,
                      const gboolean          day_6,
-                     const gchar             *name,
+                     const gboolean          active,
                      const guint8            mode,
                      const guint8            table,
-                     const gboolean          active,
                      gpointer                user_data)
 {
   gboolean success;
@@ -144,29 +147,29 @@ on_handle_edit_rule (GawakeServerDatabase    *interface,
 #if PREPROCESSOR_DEBUG
   g_print ("RECEIVED:\n");
   g_print ("ID: %d\n", id);
+  g_print ("Name: %s\n", name);
   g_print ("Hour: %d\n", hour);
   g_print ("Minutes: %d\n", minutes);
 
-  const char DAYS[7] = {'S', 'M', 'T', 'W', 'T', 'F', 'S'};
+  const char P_DAYS[7] = {'S', 'M', 'T', 'W', 'T', 'F', 'S'};
   gboolean days[7] = {day_0, day_1, day_2, day_3, day_4, day_5, day_6};
   g_print ("Days: \n");
   for (gint i = 0; i < 7; i++)
-    g_print ("\t%c: %d\n", DAYS[i], days[i]);
+    g_print ("\t%c: %d\n", P_DAYS[i], days[i]);
 
-  g_print ("Name: %s\n", name);
+  g_print ("Active: %d\n\n", active);
   g_print ("Mode: %d\n", mode);
   g_print ("Table: %d\n", table);
-  g_print ("Active: %d\n\n", active);
 #endif
 
   gRule rule = {
     id,
+    (gchar *) name,
     hour,
     minutes,
     {day_0, day_1, day_2, day_3, day_4, day_5, day_6},
-    name,
-    mode,
     active,
+    mode,
     table
   };
 
@@ -219,6 +222,123 @@ on_handle_enable_disable_rule (GawakeServerDatabase    *interface,
   success = enable_disable_rule (id, table, active);
 
   gawake_server_database_complete_enable_disable_rule (interface, invocation, success);
+
+  return TRUE;
+}
+
+static gboolean
+on_handle_query_rule (GawakeServerDatabase    *interface,
+                      GDBusMethodInvocation   *invocation,
+                      const guint16           id,
+                      const guint8            table,
+                      gpointer                user_data)
+{
+#if PREPROCESSOR_DEBUG
+  g_print ("RECEIVED:\n");
+  g_print ("ID: %d\n", id);
+  g_print ("Table: %d\n\n", table);
+#endif
+  gboolean success;
+  // Structure to receive the data; passed as a pointer to the function query_rule
+  gRule data = {0, NULL, 0, M_00, {FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE}, FALSE, MEM, T_ON};
+
+  // This must be allocated to receive the string
+  data.name = (gchar *) g_malloc (RULE_NAME_LENGTH);
+  //  Assigning a value for the case the ID isn't valid, but need to return a response
+  // (avoids Gtk error for NULL)
+  g_snprintf (data.name, ALLOC, "Nothing");
+
+  success = query_rule (id, table, &data);
+
+  GVariant *rule = g_variant_new ("(qsyybbbbbbbbyy)",
+                                  data.id,
+                                  data.name,
+                                  data.hour,
+                                  (guint8) data.minutes,
+                                  data.days[0],
+                                  data.days[1],
+                                  data.days[2],
+                                  data.days[3],
+                                  data.days[4],
+                                  data.days[5],
+                                  data.days[6],
+                                  data.active,
+                                  (guint8) data.mode,
+                                  (guint8) data.table
+                                  );
+
+  gawake_server_database_complete_query_rule (interface, invocation, rule, success);
+
+  return TRUE;
+}
+
+static gboolean
+on_handle_query_rules (GawakeServerDatabase    *interface,
+                       GDBusMethodInvocation   *invocation,
+                       const guint8            table,
+                       gpointer                user_data)
+{
+  gboolean success;
+  guint16 rowcount;
+
+  /* Array of structures to receive the data; passed as a pointer to the function query_rule
+   * Maybe useful:  https://stackoverflow.com/questions/19948733/dynamically-allocate-memory-for-array-of-structs
+   *                https://www.youtube.com/watch?v=lq8tJS3g6tY
+   */
+  gRule *data = NULL;
+
+  success = query_rules (table, &data, &rowcount);
+
+#if PREPROCESSOR_DEBUG
+  g_print ("VALUES:\n");
+  g_print ("Row count: %d\n\n", rowcount);
+  for (int i = 0; i < rowcount; i++)
+    {
+      g_print ("===========================================\n");
+      g_print ("\nStruct ID: %d\nRule ID: %d\n", i, data[i].id);
+      g_print ("Name: %s\n", data[i].name);
+      g_print ("Hour: %d\n", data[i].hour);
+      g_print ("Minutes: %d\n", data[i].minutes);
+
+      const char P_DAYS[7] = {'S', 'M', 'T', 'W', 'T', 'F', 'S'};
+      g_print ("Days: \n");
+      for (gint j = 0; j < 7; j++)
+        {
+          g_print ("\t%c: %d\n", P_DAYS[j], (int) data[i].days[j]);
+        }
+
+      g_print ("Active: %d\n", data[i].active);
+      g_print ("Mode: %d\n", data[i].mode);
+      g_print ("Table: %d\n\n", data[i].table);
+    }
+    g_print ("===========================================\n");
+#endif
+
+  /* GVariant *rule = g_variant_new ("(qsyybbbbbbbbyy)", */
+  /*                                 data[i].id, */
+  /*                                 data[i].name, */
+  /*                                 data[i].hour, */
+  /*                                 (guint8) data[i].minutes, */
+  /*                                 data[i].days[0], */
+  /*                                 data[i].days[1], */
+  /*                                 data[i].days[2], */
+  /*                                 data[i].days[3], */
+  /*                                 data[i].days[4], */
+  /*                                 data[i].days[5], */
+  /*                                 data[i].days[6], */
+  /*                                 data[i].active, */
+  /*                                 (guint8) data[i].mode, */
+  /*                                 (guint8) data[i].table */
+  /*                                 ); */
+
+  gawake_server_database_complete_query_rules (interface, invocation, success);
+
+  // Free allocated data
+  for (gint f = 0; f < rowcount; f++)
+    {
+      g_free (data[f].name);
+    }
+  g_free (data);
 
   return TRUE;
 }

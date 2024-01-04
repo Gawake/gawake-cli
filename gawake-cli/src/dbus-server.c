@@ -166,6 +166,17 @@ _g_value_equal (const GValue *a, const GValue *b)
 
 /* ---- Introspection data for io.github.kelvinnovais.Database ---- */
 
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_add_rule_IN_ARG_name =
+{
+  {
+    -1,
+    (gchar *) "name",
+    (gchar *) "s",
+    NULL
+  },
+  FALSE
+};
+
 static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_add_rule_IN_ARG_hour =
 {
   {
@@ -265,17 +276,6 @@ static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_add_rule_
   FALSE
 };
 
-static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_add_rule_IN_ARG_name =
-{
-  {
-    -1,
-    (gchar *) "name",
-    (gchar *) "s",
-    NULL
-  },
-  FALSE
-};
-
 static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_add_rule_IN_ARG_mode =
 {
   {
@@ -300,6 +300,7 @@ static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_add_rule_
 
 static const GDBusArgInfo * const _gawake_server_database_method_info_add_rule_IN_ARG_pointers[] =
 {
+  &_gawake_server_database_method_info_add_rule_IN_ARG_name.parent_struct,
   &_gawake_server_database_method_info_add_rule_IN_ARG_hour.parent_struct,
   &_gawake_server_database_method_info_add_rule_IN_ARG_minutes.parent_struct,
   &_gawake_server_database_method_info_add_rule_IN_ARG_day_0.parent_struct,
@@ -309,7 +310,6 @@ static const GDBusArgInfo * const _gawake_server_database_method_info_add_rule_I
   &_gawake_server_database_method_info_add_rule_IN_ARG_day_4.parent_struct,
   &_gawake_server_database_method_info_add_rule_IN_ARG_day_5.parent_struct,
   &_gawake_server_database_method_info_add_rule_IN_ARG_day_6.parent_struct,
-  &_gawake_server_database_method_info_add_rule_IN_ARG_name.parent_struct,
   &_gawake_server_database_method_info_add_rule_IN_ARG_mode.parent_struct,
   &_gawake_server_database_method_info_add_rule_IN_ARG_table.parent_struct,
   NULL
@@ -351,6 +351,17 @@ static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_edit_rule
     -1,
     (gchar *) "id",
     (gchar *) "q",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_edit_rule_IN_ARG_name =
+{
+  {
+    -1,
+    (gchar *) "name",
+    (gchar *) "s",
     NULL
   },
   FALSE
@@ -455,12 +466,12 @@ static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_edit_rule
   FALSE
 };
 
-static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_edit_rule_IN_ARG_name =
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_edit_rule_IN_ARG_active =
 {
   {
     -1,
-    (gchar *) "name",
-    (gchar *) "s",
+    (gchar *) "active",
+    (gchar *) "b",
     NULL
   },
   FALSE
@@ -488,20 +499,10 @@ static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_edit_rule
   FALSE
 };
 
-static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_edit_rule_IN_ARG_active =
-{
-  {
-    -1,
-    (gchar *) "active",
-    (gchar *) "b",
-    NULL
-  },
-  FALSE
-};
-
 static const GDBusArgInfo * const _gawake_server_database_method_info_edit_rule_IN_ARG_pointers[] =
 {
   &_gawake_server_database_method_info_edit_rule_IN_ARG_id.parent_struct,
+  &_gawake_server_database_method_info_edit_rule_IN_ARG_name.parent_struct,
   &_gawake_server_database_method_info_edit_rule_IN_ARG_hour.parent_struct,
   &_gawake_server_database_method_info_edit_rule_IN_ARG_minutes.parent_struct,
   &_gawake_server_database_method_info_edit_rule_IN_ARG_day_0.parent_struct,
@@ -511,10 +512,9 @@ static const GDBusArgInfo * const _gawake_server_database_method_info_edit_rule_
   &_gawake_server_database_method_info_edit_rule_IN_ARG_day_4.parent_struct,
   &_gawake_server_database_method_info_edit_rule_IN_ARG_day_5.parent_struct,
   &_gawake_server_database_method_info_edit_rule_IN_ARG_day_6.parent_struct,
-  &_gawake_server_database_method_info_edit_rule_IN_ARG_name.parent_struct,
+  &_gawake_server_database_method_info_edit_rule_IN_ARG_active.parent_struct,
   &_gawake_server_database_method_info_edit_rule_IN_ARG_mode.parent_struct,
   &_gawake_server_database_method_info_edit_rule_IN_ARG_table.parent_struct,
-  &_gawake_server_database_method_info_edit_rule_IN_ARG_active.parent_struct,
   NULL
 };
 
@@ -678,12 +678,132 @@ static const _ExtendedGDBusMethodInfo _gawake_server_database_method_info_enable
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_query_rule_IN_ARG_id =
+{
+  {
+    -1,
+    (gchar *) "id",
+    (gchar *) "q",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_query_rule_IN_ARG_table =
+{
+  {
+    -1,
+    (gchar *) "table",
+    (gchar *) "y",
+    NULL
+  },
+  FALSE
+};
+
+static const GDBusArgInfo * const _gawake_server_database_method_info_query_rule_IN_ARG_pointers[] =
+{
+  &_gawake_server_database_method_info_query_rule_IN_ARG_id.parent_struct,
+  &_gawake_server_database_method_info_query_rule_IN_ARG_table.parent_struct,
+  NULL
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_query_rule_OUT_ARG_rule =
+{
+  {
+    -1,
+    (gchar *) "rule",
+    (gchar *) "(qsyybbbbbbbbyy)",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_query_rule_OUT_ARG_success =
+{
+  {
+    -1,
+    (gchar *) "success",
+    (gchar *) "b",
+    NULL
+  },
+  FALSE
+};
+
+static const GDBusArgInfo * const _gawake_server_database_method_info_query_rule_OUT_ARG_pointers[] =
+{
+  &_gawake_server_database_method_info_query_rule_OUT_ARG_rule.parent_struct,
+  &_gawake_server_database_method_info_query_rule_OUT_ARG_success.parent_struct,
+  NULL
+};
+
+static const _ExtendedGDBusMethodInfo _gawake_server_database_method_info_query_rule =
+{
+  {
+    -1,
+    (gchar *) "QueryRule",
+    (GDBusArgInfo **) &_gawake_server_database_method_info_query_rule_IN_ARG_pointers,
+    (GDBusArgInfo **) &_gawake_server_database_method_info_query_rule_OUT_ARG_pointers,
+    NULL
+  },
+  "handle-query-rule",
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_query_rules_IN_ARG_table =
+{
+  {
+    -1,
+    (gchar *) "table",
+    (gchar *) "y",
+    NULL
+  },
+  FALSE
+};
+
+static const GDBusArgInfo * const _gawake_server_database_method_info_query_rules_IN_ARG_pointers[] =
+{
+  &_gawake_server_database_method_info_query_rules_IN_ARG_table.parent_struct,
+  NULL
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_query_rules_OUT_ARG_success =
+{
+  {
+    -1,
+    (gchar *) "success",
+    (gchar *) "b",
+    NULL
+  },
+  FALSE
+};
+
+static const GDBusArgInfo * const _gawake_server_database_method_info_query_rules_OUT_ARG_pointers[] =
+{
+  &_gawake_server_database_method_info_query_rules_OUT_ARG_success.parent_struct,
+  NULL
+};
+
+static const _ExtendedGDBusMethodInfo _gawake_server_database_method_info_query_rules =
+{
+  {
+    -1,
+    (gchar *) "QueryRules",
+    (GDBusArgInfo **) &_gawake_server_database_method_info_query_rules_IN_ARG_pointers,
+    (GDBusArgInfo **) &_gawake_server_database_method_info_query_rules_OUT_ARG_pointers,
+    NULL
+  },
+  "handle-query-rules",
+  FALSE
+};
+
 static const GDBusMethodInfo * const _gawake_server_database_method_info_pointers[] =
 {
   &_gawake_server_database_method_info_add_rule.parent_struct,
   &_gawake_server_database_method_info_edit_rule.parent_struct,
   &_gawake_server_database_method_info_delete_rule.parent_struct,
   &_gawake_server_database_method_info_enable_disable_rule.parent_struct,
+  &_gawake_server_database_method_info_query_rule.parent_struct,
+  &_gawake_server_database_method_info_query_rules.parent_struct,
   NULL
 };
 
@@ -745,6 +865,8 @@ gawake_server_database_override_properties (GObjectClass *klass G_GNUC_UNUSED, g
  * @handle_delete_rule: Handler for the #GawakeServerDatabase::handle-delete-rule signal.
  * @handle_edit_rule: Handler for the #GawakeServerDatabase::handle-edit-rule signal.
  * @handle_enable_disable_rule: Handler for the #GawakeServerDatabase::handle-enable-disable-rule signal.
+ * @handle_query_rule: Handler for the #GawakeServerDatabase::handle-query-rule signal.
+ * @handle_query_rules: Handler for the #GawakeServerDatabase::handle-query-rules signal.
  *
  * Virtual table for the D-Bus interface <link linkend="gdbus-interface-io-github-kelvinnovais-Database.top_of_page">io.github.kelvinnovais.Database</link>.
  */
@@ -760,6 +882,7 @@ gawake_server_database_default_init (GawakeServerDatabaseIface *iface)
    * GawakeServerDatabase::handle-add-rule:
    * @object: A #GawakeServerDatabase.
    * @invocation: A #GDBusMethodInvocation.
+   * @arg_name: Argument passed by remote caller.
    * @arg_hour: Argument passed by remote caller.
    * @arg_minutes: Argument passed by remote caller.
    * @arg_day_0: Argument passed by remote caller.
@@ -769,7 +892,6 @@ gawake_server_database_default_init (GawakeServerDatabaseIface *iface)
    * @arg_day_4: Argument passed by remote caller.
    * @arg_day_5: Argument passed by remote caller.
    * @arg_day_6: Argument passed by remote caller.
-   * @arg_name: Argument passed by remote caller.
    * @arg_mode: Argument passed by remote caller.
    * @arg_table: Argument passed by remote caller.
    *
@@ -788,13 +910,14 @@ gawake_server_database_default_init (GawakeServerDatabaseIface *iface)
     g_cclosure_marshal_generic,
     G_TYPE_BOOLEAN,
     13,
-    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_UCHAR, G_TYPE_UCHAR, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_UCHAR, G_TYPE_UCHAR);
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING, G_TYPE_UCHAR, G_TYPE_UCHAR, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_UCHAR, G_TYPE_UCHAR);
 
   /**
    * GawakeServerDatabase::handle-edit-rule:
    * @object: A #GawakeServerDatabase.
    * @invocation: A #GDBusMethodInvocation.
    * @arg_id: Argument passed by remote caller.
+   * @arg_name: Argument passed by remote caller.
    * @arg_hour: Argument passed by remote caller.
    * @arg_minutes: Argument passed by remote caller.
    * @arg_day_0: Argument passed by remote caller.
@@ -804,10 +927,9 @@ gawake_server_database_default_init (GawakeServerDatabaseIface *iface)
    * @arg_day_4: Argument passed by remote caller.
    * @arg_day_5: Argument passed by remote caller.
    * @arg_day_6: Argument passed by remote caller.
-   * @arg_name: Argument passed by remote caller.
+   * @arg_active: Argument passed by remote caller.
    * @arg_mode: Argument passed by remote caller.
    * @arg_table: Argument passed by remote caller.
-   * @arg_active: Argument passed by remote caller.
    *
    * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-io-github-kelvinnovais-Database.EditRule">EditRule()</link> D-Bus method.
    *
@@ -824,7 +946,7 @@ gawake_server_database_default_init (GawakeServerDatabaseIface *iface)
     g_cclosure_marshal_generic,
     G_TYPE_BOOLEAN,
     15,
-    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_UINT, G_TYPE_UCHAR, G_TYPE_UCHAR, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_UCHAR, G_TYPE_UCHAR, G_TYPE_BOOLEAN);
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_UINT, G_TYPE_STRING, G_TYPE_UCHAR, G_TYPE_UCHAR, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_UCHAR, G_TYPE_UCHAR);
 
   /**
    * GawakeServerDatabase::handle-delete-rule:
@@ -875,11 +997,59 @@ gawake_server_database_default_init (GawakeServerDatabaseIface *iface)
     4,
     G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_UINT, G_TYPE_UCHAR, G_TYPE_BOOLEAN);
 
+  /**
+   * GawakeServerDatabase::handle-query-rule:
+   * @object: A #GawakeServerDatabase.
+   * @invocation: A #GDBusMethodInvocation.
+   * @arg_id: Argument passed by remote caller.
+   * @arg_table: Argument passed by remote caller.
+   *
+   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-io-github-kelvinnovais-Database.QueryRule">QueryRule()</link> D-Bus method.
+   *
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call gawake_server_database_complete_query_rule() or e.g. g_dbus_method_invocation_return_error() on it) and no other signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   *
+   * Returns: %G_DBUS_METHOD_INVOCATION_HANDLED or %TRUE if the invocation was handled, %G_DBUS_METHOD_INVOCATION_UNHANDLED or %FALSE to let other signal handlers run.
+   */
+  g_signal_new ("handle-query-rule",
+    G_TYPE_FROM_INTERFACE (iface),
+    G_SIGNAL_RUN_LAST,
+    G_STRUCT_OFFSET (GawakeServerDatabaseIface, handle_query_rule),
+    g_signal_accumulator_true_handled,
+    NULL,
+    g_cclosure_marshal_generic,
+    G_TYPE_BOOLEAN,
+    3,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_UINT, G_TYPE_UCHAR);
+
+  /**
+   * GawakeServerDatabase::handle-query-rules:
+   * @object: A #GawakeServerDatabase.
+   * @invocation: A #GDBusMethodInvocation.
+   * @arg_table: Argument passed by remote caller.
+   *
+   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-io-github-kelvinnovais-Database.QueryRules">QueryRules()</link> D-Bus method.
+   *
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call gawake_server_database_complete_query_rules() or e.g. g_dbus_method_invocation_return_error() on it) and no other signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   *
+   * Returns: %G_DBUS_METHOD_INVOCATION_HANDLED or %TRUE if the invocation was handled, %G_DBUS_METHOD_INVOCATION_UNHANDLED or %FALSE to let other signal handlers run.
+   */
+  g_signal_new ("handle-query-rules",
+    G_TYPE_FROM_INTERFACE (iface),
+    G_SIGNAL_RUN_LAST,
+    G_STRUCT_OFFSET (GawakeServerDatabaseIface, handle_query_rules),
+    g_signal_accumulator_true_handled,
+    NULL,
+    g_cclosure_marshal_generic,
+    G_TYPE_BOOLEAN,
+    2,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_UCHAR);
+
 }
 
 /**
  * gawake_server_database_call_add_rule:
  * @proxy: A #GawakeServerDatabaseProxy.
+ * @arg_name: Argument to pass with the method invocation.
  * @arg_hour: Argument to pass with the method invocation.
  * @arg_minutes: Argument to pass with the method invocation.
  * @arg_day_0: Argument to pass with the method invocation.
@@ -889,7 +1059,6 @@ gawake_server_database_default_init (GawakeServerDatabaseIface *iface)
  * @arg_day_4: Argument to pass with the method invocation.
  * @arg_day_5: Argument to pass with the method invocation.
  * @arg_day_6: Argument to pass with the method invocation.
- * @arg_name: Argument to pass with the method invocation.
  * @arg_mode: Argument to pass with the method invocation.
  * @arg_table: Argument to pass with the method invocation.
  * @cancellable: (nullable): A #GCancellable or %NULL.
@@ -905,6 +1074,7 @@ gawake_server_database_default_init (GawakeServerDatabaseIface *iface)
 void
 gawake_server_database_call_add_rule (
     GawakeServerDatabase *proxy,
+    const gchar *arg_name,
     guchar arg_hour,
     guchar arg_minutes,
     gboolean arg_day_0,
@@ -914,7 +1084,6 @@ gawake_server_database_call_add_rule (
     gboolean arg_day_4,
     gboolean arg_day_5,
     gboolean arg_day_6,
-    const gchar *arg_name,
     guchar arg_mode,
     guchar arg_table,
     GCancellable *cancellable,
@@ -923,7 +1092,8 @@ gawake_server_database_call_add_rule (
 {
   g_dbus_proxy_call (G_DBUS_PROXY (proxy),
     "AddRule",
-    g_variant_new ("(yybbbbbbbsyy)",
+    g_variant_new ("(syybbbbbbbyy)",
+                   arg_name,
                    arg_hour,
                    arg_minutes,
                    arg_day_0,
@@ -933,7 +1103,6 @@ gawake_server_database_call_add_rule (
                    arg_day_4,
                    arg_day_5,
                    arg_day_6,
-                   arg_name,
                    arg_mode,
                    arg_table),
     G_DBUS_CALL_FLAGS_NONE,
@@ -976,6 +1145,7 @@ _out:
 /**
  * gawake_server_database_call_add_rule_sync:
  * @proxy: A #GawakeServerDatabaseProxy.
+ * @arg_name: Argument to pass with the method invocation.
  * @arg_hour: Argument to pass with the method invocation.
  * @arg_minutes: Argument to pass with the method invocation.
  * @arg_day_0: Argument to pass with the method invocation.
@@ -985,7 +1155,6 @@ _out:
  * @arg_day_4: Argument to pass with the method invocation.
  * @arg_day_5: Argument to pass with the method invocation.
  * @arg_day_6: Argument to pass with the method invocation.
- * @arg_name: Argument to pass with the method invocation.
  * @arg_mode: Argument to pass with the method invocation.
  * @arg_table: Argument to pass with the method invocation.
  * @out_success: (out) (optional): Return location for return parameter or %NULL to ignore.
@@ -1001,6 +1170,7 @@ _out:
 gboolean
 gawake_server_database_call_add_rule_sync (
     GawakeServerDatabase *proxy,
+    const gchar *arg_name,
     guchar arg_hour,
     guchar arg_minutes,
     gboolean arg_day_0,
@@ -1010,7 +1180,6 @@ gawake_server_database_call_add_rule_sync (
     gboolean arg_day_4,
     gboolean arg_day_5,
     gboolean arg_day_6,
-    const gchar *arg_name,
     guchar arg_mode,
     guchar arg_table,
     gboolean *out_success,
@@ -1020,7 +1189,8 @@ gawake_server_database_call_add_rule_sync (
   GVariant *_ret;
   _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
     "AddRule",
-    g_variant_new ("(yybbbbbbbsyy)",
+    g_variant_new ("(syybbbbbbbyy)",
+                   arg_name,
                    arg_hour,
                    arg_minutes,
                    arg_day_0,
@@ -1030,7 +1200,6 @@ gawake_server_database_call_add_rule_sync (
                    arg_day_4,
                    arg_day_5,
                    arg_day_6,
-                   arg_name,
                    arg_mode,
                    arg_table),
     G_DBUS_CALL_FLAGS_NONE,
@@ -1051,6 +1220,7 @@ _out:
  * gawake_server_database_call_edit_rule:
  * @proxy: A #GawakeServerDatabaseProxy.
  * @arg_id: Argument to pass with the method invocation.
+ * @arg_name: Argument to pass with the method invocation.
  * @arg_hour: Argument to pass with the method invocation.
  * @arg_minutes: Argument to pass with the method invocation.
  * @arg_day_0: Argument to pass with the method invocation.
@@ -1060,10 +1230,9 @@ _out:
  * @arg_day_4: Argument to pass with the method invocation.
  * @arg_day_5: Argument to pass with the method invocation.
  * @arg_day_6: Argument to pass with the method invocation.
- * @arg_name: Argument to pass with the method invocation.
+ * @arg_active: Argument to pass with the method invocation.
  * @arg_mode: Argument to pass with the method invocation.
  * @arg_table: Argument to pass with the method invocation.
- * @arg_active: Argument to pass with the method invocation.
  * @cancellable: (nullable): A #GCancellable or %NULL.
  * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
  * @user_data: User data to pass to @callback.
@@ -1078,6 +1247,7 @@ void
 gawake_server_database_call_edit_rule (
     GawakeServerDatabase *proxy,
     guint16 arg_id,
+    const gchar *arg_name,
     guchar arg_hour,
     guchar arg_minutes,
     gboolean arg_day_0,
@@ -1087,18 +1257,18 @@ gawake_server_database_call_edit_rule (
     gboolean arg_day_4,
     gboolean arg_day_5,
     gboolean arg_day_6,
-    const gchar *arg_name,
+    gboolean arg_active,
     guchar arg_mode,
     guchar arg_table,
-    gboolean arg_active,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data)
 {
   g_dbus_proxy_call (G_DBUS_PROXY (proxy),
     "EditRule",
-    g_variant_new ("(qyybbbbbbbsyyb)",
+    g_variant_new ("(qsyybbbbbbbbyy)",
                    arg_id,
+                   arg_name,
                    arg_hour,
                    arg_minutes,
                    arg_day_0,
@@ -1108,10 +1278,9 @@ gawake_server_database_call_edit_rule (
                    arg_day_4,
                    arg_day_5,
                    arg_day_6,
-                   arg_name,
+                   arg_active,
                    arg_mode,
-                   arg_table,
-                   arg_active),
+                   arg_table),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -1153,6 +1322,7 @@ _out:
  * gawake_server_database_call_edit_rule_sync:
  * @proxy: A #GawakeServerDatabaseProxy.
  * @arg_id: Argument to pass with the method invocation.
+ * @arg_name: Argument to pass with the method invocation.
  * @arg_hour: Argument to pass with the method invocation.
  * @arg_minutes: Argument to pass with the method invocation.
  * @arg_day_0: Argument to pass with the method invocation.
@@ -1162,10 +1332,9 @@ _out:
  * @arg_day_4: Argument to pass with the method invocation.
  * @arg_day_5: Argument to pass with the method invocation.
  * @arg_day_6: Argument to pass with the method invocation.
- * @arg_name: Argument to pass with the method invocation.
+ * @arg_active: Argument to pass with the method invocation.
  * @arg_mode: Argument to pass with the method invocation.
  * @arg_table: Argument to pass with the method invocation.
- * @arg_active: Argument to pass with the method invocation.
  * @out_success: (out) (optional): Return location for return parameter or %NULL to ignore.
  * @cancellable: (nullable): A #GCancellable or %NULL.
  * @error: Return location for error or %NULL.
@@ -1180,6 +1349,7 @@ gboolean
 gawake_server_database_call_edit_rule_sync (
     GawakeServerDatabase *proxy,
     guint16 arg_id,
+    const gchar *arg_name,
     guchar arg_hour,
     guchar arg_minutes,
     gboolean arg_day_0,
@@ -1189,10 +1359,9 @@ gawake_server_database_call_edit_rule_sync (
     gboolean arg_day_4,
     gboolean arg_day_5,
     gboolean arg_day_6,
-    const gchar *arg_name,
+    gboolean arg_active,
     guchar arg_mode,
     guchar arg_table,
-    gboolean arg_active,
     gboolean *out_success,
     GCancellable *cancellable,
     GError **error)
@@ -1200,8 +1369,9 @@ gawake_server_database_call_edit_rule_sync (
   GVariant *_ret;
   _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
     "EditRule",
-    g_variant_new ("(qyybbbbbbbsyyb)",
+    g_variant_new ("(qsyybbbbbbbbyy)",
                    arg_id,
+                   arg_name,
                    arg_hour,
                    arg_minutes,
                    arg_day_0,
@@ -1211,10 +1381,9 @@ gawake_server_database_call_edit_rule_sync (
                    arg_day_4,
                    arg_day_5,
                    arg_day_6,
-                   arg_name,
+                   arg_active,
                    arg_mode,
-                   arg_table,
-                   arg_active),
+                   arg_table),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
     cancellable,
@@ -1456,6 +1625,226 @@ _out:
 }
 
 /**
+ * gawake_server_database_call_query_rule:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @arg_id: Argument to pass with the method invocation.
+ * @arg_table: Argument to pass with the method invocation.
+ * @cancellable: (nullable): A #GCancellable or %NULL.
+ * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
+ * @user_data: User data to pass to @callback.
+ *
+ * Asynchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.QueryRule">QueryRule()</link> D-Bus method on @proxy.
+ * When the operation is finished, @callback will be invoked in the thread-default main loop of the thread you are calling this method from (see g_main_context_push_thread_default()).
+ * You can then call gawake_server_database_call_query_rule_finish() to get the result of the operation.
+ *
+ * See gawake_server_database_call_query_rule_sync() for the synchronous, blocking version of this method.
+ */
+void
+gawake_server_database_call_query_rule (
+    GawakeServerDatabase *proxy,
+    guint16 arg_id,
+    guchar arg_table,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data)
+{
+  g_dbus_proxy_call (G_DBUS_PROXY (proxy),
+    "QueryRule",
+    g_variant_new ("(qy)",
+                   arg_id,
+                   arg_table),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    callback,
+    user_data);
+}
+
+/**
+ * gawake_server_database_call_query_rule_finish:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @out_rule: (out) (optional): Return location for return parameter or %NULL to ignore.
+ * @out_success: (out) (optional): Return location for return parameter or %NULL to ignore.
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to gawake_server_database_call_query_rule().
+ * @error: Return location for error or %NULL.
+ *
+ * Finishes an operation started with gawake_server_database_call_query_rule().
+ *
+ * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
+ */
+gboolean
+gawake_server_database_call_query_rule_finish (
+    GawakeServerDatabase *proxy,
+    GVariant **out_rule,
+    gboolean *out_success,
+    GAsyncResult *res,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (proxy), res, error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(@(qsyybbbbbbbbyy)b)",
+                 out_rule,
+                 out_success);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * gawake_server_database_call_query_rule_sync:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @arg_id: Argument to pass with the method invocation.
+ * @arg_table: Argument to pass with the method invocation.
+ * @out_rule: (out) (optional): Return location for return parameter or %NULL to ignore.
+ * @out_success: (out) (optional): Return location for return parameter or %NULL to ignore.
+ * @cancellable: (nullable): A #GCancellable or %NULL.
+ * @error: Return location for error or %NULL.
+ *
+ * Synchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.QueryRule">QueryRule()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
+ *
+ * See gawake_server_database_call_query_rule() for the asynchronous version of this method.
+ *
+ * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
+ */
+gboolean
+gawake_server_database_call_query_rule_sync (
+    GawakeServerDatabase *proxy,
+    guint16 arg_id,
+    guchar arg_table,
+    GVariant **out_rule,
+    gboolean *out_success,
+    GCancellable *cancellable,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
+    "QueryRule",
+    g_variant_new ("(qy)",
+                   arg_id,
+                   arg_table),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(@(qsyybbbbbbbbyy)b)",
+                 out_rule,
+                 out_success);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * gawake_server_database_call_query_rules:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @arg_table: Argument to pass with the method invocation.
+ * @cancellable: (nullable): A #GCancellable or %NULL.
+ * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
+ * @user_data: User data to pass to @callback.
+ *
+ * Asynchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.QueryRules">QueryRules()</link> D-Bus method on @proxy.
+ * When the operation is finished, @callback will be invoked in the thread-default main loop of the thread you are calling this method from (see g_main_context_push_thread_default()).
+ * You can then call gawake_server_database_call_query_rules_finish() to get the result of the operation.
+ *
+ * See gawake_server_database_call_query_rules_sync() for the synchronous, blocking version of this method.
+ */
+void
+gawake_server_database_call_query_rules (
+    GawakeServerDatabase *proxy,
+    guchar arg_table,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data)
+{
+  g_dbus_proxy_call (G_DBUS_PROXY (proxy),
+    "QueryRules",
+    g_variant_new ("(y)",
+                   arg_table),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    callback,
+    user_data);
+}
+
+/**
+ * gawake_server_database_call_query_rules_finish:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @out_success: (out) (optional): Return location for return parameter or %NULL to ignore.
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to gawake_server_database_call_query_rules().
+ * @error: Return location for error or %NULL.
+ *
+ * Finishes an operation started with gawake_server_database_call_query_rules().
+ *
+ * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
+ */
+gboolean
+gawake_server_database_call_query_rules_finish (
+    GawakeServerDatabase *proxy,
+    gboolean *out_success,
+    GAsyncResult *res,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (proxy), res, error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(b)",
+                 out_success);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * gawake_server_database_call_query_rules_sync:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @arg_table: Argument to pass with the method invocation.
+ * @out_success: (out) (optional): Return location for return parameter or %NULL to ignore.
+ * @cancellable: (nullable): A #GCancellable or %NULL.
+ * @error: Return location for error or %NULL.
+ *
+ * Synchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.QueryRules">QueryRules()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
+ *
+ * See gawake_server_database_call_query_rules() for the asynchronous version of this method.
+ *
+ * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
+ */
+gboolean
+gawake_server_database_call_query_rules_sync (
+    GawakeServerDatabase *proxy,
+    guchar arg_table,
+    gboolean *out_success,
+    GCancellable *cancellable,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
+    "QueryRules",
+    g_variant_new ("(y)",
+                   arg_table),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(b)",
+                 out_success);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
  * gawake_server_database_complete_add_rule:
  * @object: A #GawakeServerDatabase.
  * @invocation: (transfer full): A #GDBusMethodInvocation.
@@ -1530,6 +1919,51 @@ gawake_server_database_complete_delete_rule (
  */
 void
 gawake_server_database_complete_enable_disable_rule (
+    GawakeServerDatabase *object G_GNUC_UNUSED,
+    GDBusMethodInvocation *invocation,
+    gboolean success)
+{
+  g_dbus_method_invocation_return_value (invocation,
+    g_variant_new ("(b)",
+                   success));
+}
+
+/**
+ * gawake_server_database_complete_query_rule:
+ * @object: A #GawakeServerDatabase.
+ * @invocation: (transfer full): A #GDBusMethodInvocation.
+ * @rule: Parameter to return.
+ * @success: Parameter to return.
+ *
+ * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-io-github-kelvinnovais-Database.QueryRule">QueryRule()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
+ *
+ * This method will free @invocation, you cannot use it afterwards.
+ */
+void
+gawake_server_database_complete_query_rule (
+    GawakeServerDatabase *object G_GNUC_UNUSED,
+    GDBusMethodInvocation *invocation,
+    GVariant *rule,
+    gboolean success)
+{
+  g_dbus_method_invocation_return_value (invocation,
+    g_variant_new ("(@(qsyybbbbbbbbyy)b)",
+                   rule,
+                   success));
+}
+
+/**
+ * gawake_server_database_complete_query_rules:
+ * @object: A #GawakeServerDatabase.
+ * @invocation: (transfer full): A #GDBusMethodInvocation.
+ * @success: Parameter to return.
+ *
+ * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-io-github-kelvinnovais-Database.QueryRules">QueryRules()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
+ *
+ * This method will free @invocation, you cannot use it afterwards.
+ */
+void
+gawake_server_database_complete_query_rules (
     GawakeServerDatabase *object G_GNUC_UNUSED,
     GDBusMethodInvocation *invocation,
     gboolean success)

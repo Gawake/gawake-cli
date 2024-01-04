@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <inttypes.h>
 #include <glib.h>
 #include <glib/gprintf.h>
 
@@ -26,15 +27,13 @@ sqlite3 *get_connection (void);
 gint connect_database(sqlite3 **db);
 void close_database (void);
 
-static gboolean rule_validated (gRule *rule);
-static gboolean run_sql (const gchar *sql);
-
 gboolean add_rule (const gRule *rule);
 gboolean edit_rule (const gRule *rule);
-gboolean delete_rule (guint16 id, guint8 table);
-gboolean enable_disable_rule (guint16 id, guint8 table, gboolean active);
-// TODO query_rule
-// TODO query_rules ***
+gboolean delete_rule (guint16 id, Table table);
+gboolean enable_disable_rule (guint16 id, Table table, gboolean active);
+
+gboolean query_rule (guint16 id, Table table, gRule *rule);
+gboolean query_rules (Table table, gRule **rules, guint16 *rowcount);
 
 /* TODO config database
  * set/get boot delay

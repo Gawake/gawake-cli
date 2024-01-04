@@ -1,8 +1,9 @@
 project('gawake-cli', 'c',
           version: '3.1.0',
     meson_version: '>= 0.62.0',
-  default_options: [ 'warning_level=everything', 'werror=false', 'c_std=gnu11', ],
+  default_options: [ 'warning_level=everything', 'werror=false', 'c_std=gnu18', ],
 )
+# Note: default template c_std=gnu11
 
 cc = meson.get_compiler('c')
 
@@ -14,7 +15,7 @@ add_project_arguments(['-I' + meson.project_build_root()], language: 'c')
 project_c_args = []
 test_c_args = [
   '-Wcast-align',
-  '-Wdeclaration-after-statement',
+  # '-Wdeclaration-after-statement', # TODO
   '-Werror=address',
   '-Werror=array-bounds',
   '-Werror=empty-body',

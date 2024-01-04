@@ -19,19 +19,17 @@ typedef enum
   SATURDAY
 } Week;
 
-// ATTENTION: must be synced
+// ATTENTION: enum and gchar[] must be synced
 typedef enum
 {
   T_ON,
   T_OFF
 } Table;
 
-static const char *TABLE[] = {
-  "rules_turnon",
-  "rules_turnoff"
-};
+extern const gchar *TABLE[];
+/////////////////////////////////////////////
 
-// ATTENTION: must be synced
+// ATTENTION: enum and gchar[] must be synced
 typedef enum
 {
   MEM,
@@ -39,11 +37,8 @@ typedef enum
   OFF
 } Mode;
 
-static const char *MODE[] = {
-  "mem",
-  "disk",
-  "off"
-};
+extern const char *MODE[];
+/////////////////////////////////////////////
 
 typedef enum
 {
@@ -53,16 +48,18 @@ typedef enum
   M_45 = 45
 } Minutes;
 
+// Same order as database
 typedef struct
 {
   guint16 id;                    // q
+  // ATTENTION: if not assigned on instantiation, naturally the memory must be allocated
+  gchar *name;                   // s
   guint8 hour;                   // y
   Minutes minutes;               // y
   gboolean days[7];              // ab
-  gchar *name;                   // s
-  Mode mode;                     // y
   gboolean active;               // b
-  guint8 table;                  // y
+  Mode mode;                     // y
+  Table table;                   // y
 } gRule;
 
 #endif /* GAWAKE_TYPES_H_ */

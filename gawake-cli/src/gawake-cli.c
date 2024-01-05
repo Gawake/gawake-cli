@@ -1,11 +1,15 @@
+// main file for gawake-cli
 
-/*
+/* gawake-cli.c
+ *
  * Gawake. A Linux software to make your PC wake up on a scheduled time. It makes the rtcwake command easier.
  *
- * Copyright (C) 2021 - 2023, Kelvin Ribeiro Novais
+ * Copyright 2021-2024 Kelvin Novais
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, considering ONLY the version 3 of the License.
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -13,15 +17,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>
- */
-
-/*! TODO:
- * (Possible implementations)
- * @Gawake updater function
- * @Run commands as other users, besides root
- * @Verify user input when receiving rtcwake options/arguments (on function config)
- * @Allow changing boot_time delay
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 #include <stdio.h>

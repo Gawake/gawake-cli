@@ -5,17 +5,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <inttypes.h>
 #include <glib.h>
 #include <glib/gprintf.h>
 
-#include "gawake.h"
 #include "gawake-types.h"
 
 #define DIR	    "/var/lib/gawake/"
 #define PATH        DIR "gawake.db"
 #define LOGS        DIR "logs/"           // TODO implement logs?
 
+#define VERSION "3.1.0"
 #define ALLOC 256
 
 // TODO apply GLib Object
@@ -42,3 +41,4 @@ gboolean query_rules (Table table, gRule **rules, guint16 *rowcount);
  */
 
 #endif /* DATABASE_CONNECTION_H_ */
+

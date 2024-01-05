@@ -1,91 +1,133 @@
-/* ASYNC */
-#include <stdio.h>
-#include <stdlib.h>
-#include <glib.h>
-#include "gawake-dbus.h"
+/* SYNC */
 
-static void
-callback_add_rule_async(GObject *proxy,
-                   GAsyncResult *res,
-                   gpointer user_data);
+#include "dbus-server.h"
+#include "dbus-client.h"
 
-int main (void)
+static GawakeServerDatabase *proxy;
+static GError *error = NULL;
+
+gint connect_dbus_client (void)
 {
-  GawakeDatabase *proxy;
-  GError *error;
-  error = NULL;
   gboolean retval;
 
-  proxy = gawake_database_proxy_new_for_bus_sync (
-                                                  G_BUS_TYPE_SESSION,
-                                                  G_DBUS_PROXY_FLAGS_NONE,
-                                                  "io.github.kelvinnovais.Gawake",
-                                                  "/io/github/kelvinnovais/Gawake",
-                                                  NULL,
-                                                  &error
-  );
+  proxy = gawake_server_database_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,        // bus_type
+                                                         G_DBUS_PROXY_FLAGS_NONE,   // flags
+                                                         "io.github.kelvinnovais.GawakeServer",  // name
+                                                         "/io/github/kelvinnovais/GawakeServer", //object_path
+                                                         NULL,                      // cancellable
+                                                         &error);                   // error
 
-  /* gawake_database_call_add_rule (GawakeDatabase *proxy, */
-  /*                                int arg_hour, */
-  /*                                int arg_minutes, */
-  /*                                int arg_day_0, */
-  /*                                int arg_day_1, */
-  /*                                int arg_day_2, */
-  /*                                int arg_day_3, */
-  /*                                int arg_day_4, */
-  /*                                int arg_day_5, */
-  /*                                int arg_day_6, */
-  /*                                const int *arg_name, */
-  /*                                int arg_mode, */
-  /*                                int arg_table, */
-  /*                                int *cancellable, */
-  /*                                int callback, */
-  /*                                int user_data); */
-
-  gawake_database_call_add_rule (
-                                 proxy,               // proxy
-                                 20,                  // arg_hour
-                                 15,                  // arg_minutes
-                                 TRUE,                // arg_day_0,
-                                 FALSE,               // ...
-                                 TRUE,
-                                 FALSE,
-                                 TRUE,
-                                 FALSE,
-                                 TRUE,                 // arg_day_6
-                                 "test client",                     // name
-                                 0,                                 // mode
-                                 0,                                 // table
-                                 NULL,                              // cancelable
-                                 callback_add_rule_async,           // callback
-                                 &error                             // user data (?)
-                                 );
-
-   GMainLoop *loop;
-   loop = g_main_loop_new(NULL, FALSE);
-   g_main_loop_run(loop);
-
-   g_object_unref (proxy);
-
-   return 0;
+  if (error != NULL)
+    {
+      g_fprintf (stderr, "Unable to get proxy: %s\n", error -> message);
+      g_error_free (error);
+      return EXIT_FAILURE;
+    }
+  else
+    return EXIT_SUCCESS;
 }
 
-static void
-callback_add_rule_async(GObject *proxy,
-                   GAsyncResult *res,
-                   gpointer user_data)
+void close_dbus_client (void)
 {
-    g_print("callback_add_rule_async called!\n");
-    gint retval;
-    GError *error;
+  if (error != NULL)
+      g_error_free (error);
+  else
     error = NULL;
-    gawake_database_call_add_rule_finish (GAWAKE_DATABASE (proxy), &retval, res, &error);
 
-    if (error == NULL)
+  g_object_unref (proxy);
+}
+
+gint add_rule (gRule *rule)
+{
+  gboolean success;
+
+  gawake_server_database_call_add_rule_sync (proxy,
+                                             rule -> name,
+                                             rule -> hour,
+                                             rule -> minutes,
+                                             rule -> days[0],
+                                             rule -> days[1],
+                                             rule -> days[2],
+                                             rule -> days[3],
+                                             rule -> days[4],
+                                             rule -> days[5],
+                                             rule -> days[6],
+                                             rule -> mode,
+                                             rule -> table,
+                                             &success,    // returned on success
+                                             NULL,        // cancellable
+                                             NULL);       // error
+
+  if (success)
     {
-        g_print("Answer = %d\n", retval);
-        exit(0);
+      gprinf ("Rule added successfully!\n");
+      return EXIT_SUCCESS;
     }
-    else
-        g_print("ERROR!!\n");
+  else
+    {
+      gprinf ("Couldn't add rule\n");
+      return EXIT_FAILURE;
+    }
+}
+
+gint delete_rule (guint16 id, Table table)
+{
+  gboolean success;
+
+  gawake_server_database_call_delete_rule_sync (proxy,
+                                                id,
+                                                table,
+                                                &success,
+                                                NULL,       // cancellable
+                                                NULL);      // error
+
+  if (success)
+    {
+      gprinf ("Rule deleted successfully!\n");
+      return EXIT_SUCCESS;
+    }
+  else
+    {
+      gprinf ("Couldn't delete rule\n");
+      return EXIT_FAILURE;
+    }
+}
+
+gint enable_disable_rule (guint16 id, Table table, gboolean active)
+{
+  gboolean success;
+
+  gawake_server_database_call_enable_disable_rule_sync (proxy,
+                                                        id,
+                                                        table,
+                                                        active,
+                                                        &success,
+                                                        NULL,     // cancellable
+                                                        NULL);    // error
+
+  if (success)
+    {
+      gprinf ("Rule state changed successfully!\n");
+      return EXIT_SUCCESS;
+    }
+  else
+    {
+      gprinf ("Couldn't change rule state\n");
+      return EXIT_FAILURE;
+    }
+}
+
+gint query_rules (Table table)
+{
+  gboolean success;
+
+  // TODO
+
+  if (success)
+      return EXIT_SUCCESS;
+  else
+    {
+      gprinf ("Couldn't query rules\n");
+      return EXIT_FAILURE;
+    }
 }

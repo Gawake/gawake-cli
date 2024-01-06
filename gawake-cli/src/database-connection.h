@@ -27,11 +27,11 @@ void close_database (void);
 // The names are merely mnemonic
 gboolean add_rule (const gRule *rule);
 gboolean edit_rule (const gRule *rule);
-gboolean delete_rule (guint16 id, Table table);
-gboolean enable_disable_rule (guint16 id, Table table, gboolean active);
+gboolean delete_rule (const guint16 id, const Table table);
+gboolean enable_disable_rule (const guint16 id, const Table table, const gboolean active);
 
-gboolean query_rule (guint16 id, Table table, gRule *rule);
-gboolean query_rules (Table table, gRule **rules, guint16 *rowcount);
+gboolean query_rule (const guint16 id, const Table table, gRule *rule);
+gboolean query_rules (const Table table, gRule **rules, guint16 *rowcount);
 
 /* TODO config database
  * set/get boot delay

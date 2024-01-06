@@ -94,7 +94,7 @@ static gint validate_rule (const gRule *rule)
     }
 }
 
-static gint validate_table (Table table)
+static gint validate_table (const Table table)
 {
   if (table == T_ON || table == T_OFF)
     return EXIT_SUCCESS;
@@ -220,7 +220,7 @@ gboolean edit_rule (const gRule *rule)
   return ret;
 }
 
-gboolean delete_rule (guint16 id, Table table)
+gboolean delete_rule (const guint16 id, const Table table)
 {
   if (validate_table (table))
     return FALSE;
@@ -238,7 +238,7 @@ gboolean delete_rule (guint16 id, Table table)
   return ret;
 }
 
-gboolean enable_disable_rule (guint16 id, Table table, gboolean active)
+gboolean enable_disable_rule (const guint16 id, const Table table, const gboolean active)
 {
   if (validate_table (table))
     return FALSE;
@@ -259,7 +259,7 @@ gboolean enable_disable_rule (guint16 id, Table table, gboolean active)
   return ret;
 }
 
-gboolean query_rule (guint16 id, Table table, gRule *rule)
+gboolean query_rule (const guint16 id, const Table table, gRule *rule)
 {
   if (validate_table (table))
     return FALSE;
@@ -326,7 +326,9 @@ gboolean query_rule (guint16 id, Table table, gRule *rule)
 
       // MODE (for turn on rules it isn't used):
       rule -> mode = (Mode) ((table == T_OFF) ? sqlite3_column_int (stmt, 11) : 0);
-      rule -> table = table;
+
+      // TABLE
+      rule -> table = (Table) table;
     }
 
   if (rc != SQLITE_DONE)
@@ -343,7 +345,7 @@ gboolean query_rule (guint16 id, Table table, gRule *rule)
   return TRUE;
 }
 
-gboolean query_rules (Table table, gRule **rules, guint16 *rowcount)
+gboolean query_rules (const Table table, gRule **rules, guint16 *rowcount)
 {
   if (validate_table (table))
     return FALSE;
@@ -456,7 +458,9 @@ gboolean query_rules (Table table, gRule **rules, guint16 *rowcount)
 
       // MODE (for turn on rules it isn't used):
       (*rules)[counter].mode = (Mode) ((table == T_OFF) ? sqlite3_column_int (stmt, 12) : 0);
-      (*rules)[counter].table = (guint8) table;
+
+      // TABLE
+      (*rules)[counter].table = (Table) table;
 
       counter++;
     }

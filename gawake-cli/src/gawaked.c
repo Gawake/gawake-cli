@@ -81,11 +81,22 @@ on_name_acquired (GDBusConnection *connection,
                                     "/io/github/kelvinnovais/GawakeServer",
                                     &error);
 
+  if (error != NULL)
+    {
+      g_fprintf (stderr, "Couldn't export interface skeleton: %s\n", error -> message);
+      g_error_free (error);
+    }
+
   //MyDBusAlarm *alarm_interface;
   //alarm_interface = my_dbus_alarm_skeleton_new();
   //g_signal_connect(alarm_interface, "handle-configure-alarm", G_CALLBACK(on_handle_configure_alarm), NULL);
   //error = NULL;
   //g_dbus_interface_skeleton_export(G_DBUS_INTERFACE_SKELETON(alarm_interface), connection, "/", &error);
+
+  if (error != NULL)
+    g_error_free (error);
+  else
+    error = NULL;
 }
 
 // If a connection to the bus can’t be made
@@ -355,7 +366,7 @@ on_handle_query_rules (GawakeServerDatabase    *interface,
 #endif
 
   // Create GVariant
-  // Maybe helful: https://stackoverflow.com/questions/61996790/gvariantbuilder-build-aii-or-avv
+  // Maybe helpful: https://stackoverflow.com/questions/61996790/gvariantbuilder-build-aii-or-avv
   GVariantBuilder builder;
   g_variant_builder_init (&builder, G_VARIANT_TYPE ("a(qsyybbbbbbbbyy)"));
   for (gint d = 0; d < rowcount; d++)

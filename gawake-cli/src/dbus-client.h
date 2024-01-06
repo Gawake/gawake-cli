@@ -6,6 +6,8 @@
 #include <glib/gprintf.h>
 
 #include "gawake-types.h"
+#include "dbus-server.h"
+#include "gawake-cli.h"
 
 gint connect_dbus_client (void);
 void close_dbus_client (void);

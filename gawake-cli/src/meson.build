@@ -8,7 +8,9 @@ gawaked_sources = files(
 
 gawake_cli_sources = files(
 	'gawake-cli.c',
-	'gawake-types.c'
+	'gawake-types.c',
+	'dbus-server.c',
+	'dbus-client.c'
 )
 
 
@@ -34,7 +36,7 @@ executable(
 	'gawaked',
 	gawaked_sources,
 	dependencies: gawaked_dependencies,
-	c_args: '-DPREPROCESSOR_DEBUG=0'
+	c_args: '-DPREPROCESSOR_DEBUG=1'
 )
 
 executable(

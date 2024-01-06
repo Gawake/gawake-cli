@@ -27,6 +27,7 @@
 
 #include "gawake-types.h"
 #include "version.h"
+#include "dbus-client.h"
 
 void menu (void);
 void info (void);
@@ -36,7 +37,7 @@ void invalid_value (void);
 void get_int (gint *, gint, gint, gint, gint);
 // gint print_config (void *, int, char **, char **);
 gint config (void);
-gint modify_rule (void);
+gint add_remove_rule (void);
 gint confirm (void);
 gint schedule (void);
 void usage (void);

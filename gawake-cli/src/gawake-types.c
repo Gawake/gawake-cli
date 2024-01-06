@@ -20,12 +20,12 @@
 
 #include "gawake-types.h"
 
-const gchar *TABLE[] = {
+const gchar TABLE[2][13] = {
   "rules_turnon",
   "rules_turnoff"
 };
 
-const char *MODE[] = {
+const gchar MODE[3][4] = {
   "mem",
   "disk",
   "off"

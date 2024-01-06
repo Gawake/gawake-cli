@@ -34,10 +34,11 @@
 #include "include/gawake.h"
 #include "include/issue.h"
 
-int main(void) {
+int main (void)
+{
   int rc, fd;
   sqlite3 *db;
-  const char *SQL = "CREATE TABLE IF NOT EXISTS rules_turnon ("\
+  const char *SQL = "CREATE TABLE rules_turnon ("\
                       "id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"\
                       "rule_name   TEXT NOT NULL,"\
                       "time        TEXT NOT NULL,"\
@@ -48,9 +49,9 @@ int main(void) {
                       "thu         INTEGER NOT NULL,"\
                       "fri         INTEGER NOT NULL,"\
                       "sat         INTEGER NOT NULL,"\
-                      "command     TEXT"\
+                      "active      INTEGER NOT NULL"\
                   ");"\
-                  "CREATE TABLE IF NOT EXISTS rules_turnoff ("\
+                  "CREATE TABLE rules_turnoff ("\
                       "id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"\
                       "rule_name   TEXT NOT NULL,"\
                       "time        TEXT NOT NULL,"\
@@ -61,10 +62,10 @@ int main(void) {
                       "thu         INTEGER NOT NULL,"\
                       "fri         INTEGER NOT NULL,"\
                       "sat         INTEGER NOT NULL,"\
-                      "command     TEXT,"\
+                      "active      INTEGER NOT NULL,"\
                       "mode        TEXT NOT NULL"\
                   ");"\
-                  "CREATE TABLE IF NOT EXISTS config ("\
+                  "CREATE TABLE config ("\
                       "id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"\
                       "options     TEXT,"\
                       "status      INTEGER NOT NULL,"\
@@ -74,11 +75,9 @@ int main(void) {
                       "def_mode    TEXT NOT NULL,"\
                       "boot_time   INTEGER NOT NULL"\
                   ");"\
-                  "INSERT INTO rules_turnon (rule_name, time, sun, mon, tue, wed, thu, fri, sat)"\
-                  "VALUES ('Example', '10:00:00', 0, 0, 0, 0, 0, 0, 0);"\
-                  "INSERT INTO rules_turnoff (rule_name, time, sun, mon, tue, wed, thu, fri, sat, command, mode)"\
-                  "VALUES ('Example', '11:30:00', 0, 0, 0, 0, 0, 0, 0, 'dnf update -y', 'mem');"\
-                  "INSERT INTO config (options, status, version, commands, localtime, def_mode, boot_time) VALUES ('-a -v', 1, '" VERSION "', 0, 1, 'off', 300);";
+                  "INSERT INTO config (options, status, version, commands, localtime, def_mode, boot_time)"\
+                  "VALUES ('-a', 1, '1.0.0', 0, 1, 'off', 120);";
+
 
   printf("Opening database...\n");
   // If the database doesn't exist, create and configure it
@@ -137,3 +136,4 @@ int main(void) {
   }
   return EXIT_SUCCESS;
 }
+

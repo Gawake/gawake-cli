@@ -3,7 +3,7 @@
 #ifndef GAWAKE_TYPES_H_
 #define GAWAKE_TYPES_H_
 
-#include <stdbool.h>
+#include <stdbool.h> // TODO remove (?)
 #include <glib.h>
 
 #define RULE_NAME_LENGTH 33    // Allowed length for rule name
@@ -26,7 +26,7 @@ typedef enum
   T_OFF
 } Table;
 
-extern const gchar *TABLE[];
+extern const gchar TABLE[2][13];
 /////////////////////////////////////////////
 
 // ATTENTION: enum and gchar[] must be synced
@@ -37,7 +37,7 @@ typedef enum
   OFF
 } Mode;
 
-extern const char *MODE[];
+extern const char MODE[3][4];
 /////////////////////////////////////////////
 
 typedef enum

@@ -1,5 +1,5 @@
-#ifndef DBUS_CLIENT_H
-#define DBUS_CLIENT_H
+#ifndef DBUS_CLIENT_H_
+#define DBUS_CLIENT_H_
 
 #include <stdio.h>
 #include <stdlib.h>

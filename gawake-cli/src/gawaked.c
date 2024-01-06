@@ -64,7 +64,7 @@ on_name_acquired (GDBusConnection *connection,
 {
   // Namespace + interface
   GawakeServerDatabase *interface;
-  GError *error;
+  GError *error;  // TODO handle error
 
   interface = gawake_server_database_skeleton_new ();
 
@@ -214,10 +214,10 @@ on_handle_edit_rule (GawakeServerDatabase    *interface,
 
 static gboolean
 on_handle_delete_rule (GawakeServerDatabase    *interface,
-                      GDBusMethodInvocation   *invocation,
-                      const guint16           id,
-                      const guint8            table,
-                      gpointer                user_data)
+                       GDBusMethodInvocation   *invocation,
+                       const guint16           id,
+                       const guint8            table,
+                       gpointer                user_data)
 {
   gboolean success;
 

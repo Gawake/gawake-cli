@@ -9,23 +9,22 @@
 #include <glib/gprintf.h>
 
 #include "gawake-types.h"
+#include "version.h"
 
 #define DIR	    "/var/lib/gawake/"
 #define PATH        DIR "gawake.db"
-#define LOGS        DIR "logs/"           // TODO implement logs?
 
-#define VERSION "3.1.0"
 #define ALLOC 256
 
-// TODO apply GLib Object
 // TODO database schema
-
-// gint set_connection (void);
-// sqlite3 *get_connection (void);
 
 gint connect_database(void);
 void close_database (void);
 
+// Although these functions have the same name as the dbus-client.h, they are not equivalent.
+// The following functions are used uniquely on the gawaked service (as a connection to the database);
+// in this way, gawaked intermediate the clients (gwake-cli and the graphical application).
+// The names are merely mnemonic
 gboolean add_rule (const gRule *rule);
 gboolean edit_rule (const gRule *rule);
 gboolean delete_rule (guint16 id, Table table);
@@ -37,7 +36,6 @@ gboolean query_rules (Table table, gRule **rules, guint16 *rowcount);
 /* TODO config database
  * set/get boot delay
  * set/get status
- * set/get dea
  */
 
 #endif /* DATABASE_CONNECTION_H_ */

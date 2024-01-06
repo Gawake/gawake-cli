@@ -2,7 +2,8 @@
 
 /* gawake-cli.c
  *
- * Gawake. A Linux software to make your PC wake up on a scheduled time. It makes the rtcwake command easier.
+ * Gawake. A Linux software to make your PC wake up on a scheduled time.
+ * It makes the rtcwake command easier.
  *
  * Copyright 2021-2024 Kelvin Novais
  *
@@ -22,384 +23,359 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#include <stdio.h>
-#include <string.h>
+#include "gawake-cli.h"
 
-#include <ctype.h>          // Character conversion
-#include <stdlib.h>         // Run system commands
-#include <errno.h>          // Errors handling
-#include <time.h>
-#include <signal.h>
-
-#include <sys/wait.h>       // Child process
-
-#include "include/gawake.h"
-#include "include/get_time.h"
-#include "include/wday.h"
-#include "include/issue.h"
-
-#define DB_CHECKER "/opt/gawake/bin/cli/db_checker"       // Database helper
-
-// DECLARATIONS
-void info(void);
-void clear_buffer(void);
-void user_input(struct rules *, int);
-void invalid_val(void);
-void get_int(int *, int, int, int, int);
-int print_table(void *, int, char **, char **);
-int print_config(void *, int, char **, char **);
-void sqlite_exec_err(int, char **);
-int config(sqlite3 **);
-int modify_rule(sqlite3 **);
-int confirm(void);
-void get_time(struct tm **);
-int wday(int);
-int schedule(sqlite3 **);
-void usage(void);
-void exit_handler(int);
-void exit_aux(sqlite3 **, int);
-
-int main(int argc, char **argv) {
-
-  // Database connection object
-  sqlite3 *db;
-
-  // Menu variables
-  int lock = 1;
-  char choice;
-  const char *MENU =  "[a]\tAdd/remove/edit rules\n"\
-                      "[s]\tSchedule wake up\n\n"\
-                      "[c]\tConfigure Gawake\n"\
-                      "[i]\tGawake information\n"\
-                      "[r]\tReset database\n"\
-                      "[m]\tPrint menu\n"\
-                      "[q]\tQuit\n";
-
-  // Receiving arguments
-  // Reference [4]
-  int cflag = 0, mflag = 0, sflag = 0, Uflag = 0;
-  char *cvalue = NULL, *mvalue = NULL;
-  int index;
-  int c;
+gint main (gint argc, gchar **argv)
+{
+  // Receiving arguments (reference [4])
+  gint cflag = 0, mflag = 0, sflag = 0;
+  gchar *cvalue = NULL, *mvalue = NULL;
+  gint index;
+  gint c;
 
   opterr = 0;
 
-  while ((c = getopt(argc, argv, "hsc:m:U")) != -1) {
-    switch (c) {
-    case 'h':
-      usage();
-      return EXIT_SUCCESS;
-    case 's':
-      sflag = 1;
-      break;
-    case 'c':
-      cflag = 1;
-      cvalue = optarg;
-      if (strlen(cvalue) != 14) {
-        printf("Invalid time stamp. It must be \"YYYYMMDDhhmmss\".\n");
-        return EXIT_FAILURE;
-      }
-      break;
-    case 'm':
-      {
-        const char *MODES[] = {"off", "disk", "mem", "standby", "freeze", "no", "on", "disable"}; // For checking user input
-        int valid = 0;
-        mflag = 1;
-        mvalue = optarg;
-        for (int i = 0; i < 8; i++) {
-          if (strcmp(mvalue, MODES[i]) == 0) {
-            valid = 1; // If there is a valid mode, continue
-            break;
+  while ((c = getopt (argc, argv, "hsc:m")) != -1)
+    {
+      switch (c)
+        {
+        case 'h':
+          usage ();
+          return EXIT_SUCCESS;
+
+        case 's':
+          sflag = 1;
+          break;
+
+        case 'c':
+          cflag = 1;
+          cvalue = optarg;
+          if (strlen (cvalue) != 14)
+            {
+              g_print ("Invalid time stamp. It must be \"YYYYMMDDhhmmss\".\n");
+              return EXIT_FAILURE;
+            }
+          break;
+
+        case 'm':
+          {
+            gboolean valid = FALSE;
+            mflag = 1;
+            mvalue = optarg;
+            for (gint i = 0; i < 3; i++)
+              {
+                if (strcmp (mvalue, MODE[i]) == 0)
+                  {
+                    valid = TRUE; // If there is a valid mode, continue
+                    break;
+                  }
+              }
+            // Exit on invalid mode
+            if (!valid)
+              {
+                g_print ("Invalid mode\n");
+                return EXIT_FAILURE;
+              }
           }
+          break;
+
+        default:
+          abort ();
         }
-        if (!valid) { // Exit on invalid mode
-          printf("Invalid mode\n");
-          return EXIT_FAILURE;
-        }
-      }
-      break;
-    case 'U':
-      Uflag = 1;
-      break;
-    case '?':
-      if (optopt == 'c')
-        fprintf(stderr, "Option -%c requires an argument.\n", optopt);
-      else if (optopt == 'm')
-        fprintf(stderr, "Option -%c requires an argument.\n", optopt);
-      else if (isprint (optopt))
-        fprintf(stderr, "Unknown option `-%c'.\n", optopt);
-      else
-        fprintf(stderr, "Unknown option character `\\x%x'.\n", optopt);
-      return EXIT_FAILURE;
-    default:
-      abort ();
     }
-  }
 
   // Case 's' and/or 'c'; 'm' is optional
-  if ((sflag && cflag) || cflag) {
-    char cmd[FORMATTED_CMD_LEN];
-    snprintf(cmd, FORMATTED_CMD_LEN, "sudo rtcwake -a --date %s", cvalue);
-    if (mflag) {
-      strcat(cmd, " -m ");
-      strcat(cmd, mvalue);
+  if ((sflag && cflag) || cflag)
+    {
+      /* TODO call dbus client */
+      /* char cmd[FORMATTED_CMD_LEN]; */
+      /* snprintf(cmd, FORMATTED_CMD_LEN, "sudo rtcwake -a --date %s", cvalue); */
+      if (mflag)
+        {
+          /* strcat(cmd, " -m "); */
+          /* strcat(cmd, mvalue); */
+        }
+      return EXIT_SUCCESS;
     }
-    printf("Running rtcwake: %s\n", cmd);
-
-    // Sending this information to logs
-    strcat(cmd, LOGS_OUTPUT);           // append command to redirect it' output
-    struct tm *timeinfo;                // Default structure, see documentation
-    get_time(&timeinfo);
-
-    char to_log[100 + strlen(LOGS_OUTPUT)];
-    snprintf(to_log, sizeof(to_log), "echo \"\n%s[TURN OFF MANUALLY TRIGGERED]\n\"%s", asctime(timeinfo), LOGS_OUTPUT);
-    system(to_log);
-    fflush(stdout);
-    system(cmd);
-    return EXIT_SUCCESS;
-  } else if (sflag) { // Case 's', only
-    if (mflag) {
-      printf("Mode not supported without timestamp (option '-c')\n");
-      return EXIT_FAILURE;
+  else if (sflag) // Case 's', only
+    {
+      if (mflag)
+        {
+          g_print ("Mode not supported without timestamp (option '-c')\n");
+          return EXIT_FAILURE;
+        }
+      /* TODO call dbus client */
+      return EXIT_SUCCESS;
     }
-    raise_priv();
-    if (sqlite3_open_v2(PATH, &db, SQLITE_OPEN_READONLY, NULL)  != SQLITE_OK) {
-      fprintf(stderr, "Couldn't open database: %s\n", sqlite3_errmsg(db));
-      return EXIT_FAILURE;
-    }
-    drop_priv();
-    if (schedule(&db) == EXIT_FAILURE) {
-      sqlite3_close(db);
-      exit(EXIT_FAILURE);
-    }
-  } else if (Uflag) {
-    printf("Do you really want to uninstall Gawake?\n");
-    if (confirm())
-      system("sudo /opt/gawake/uninstall.sh");
-  }
 
   // Exit if there are invalid arguments
   for (index = optind; index < argc; index++)
-    printf ("Non-option argument \"%s\"\n", argv[index]);
+    g_print ("Non-option argument \"%s\"\n", argv[index]);
   if (argc > 1)
     return EXIT_FAILURE;
 
-  // On any arguments (all the main):
-  printf("Starting Gawake...\n");
-  raise_priv();
-  database(&db);
-  drop_priv();
+  g_free (cvalue);
+  g_free (mvalue);
+
+  // If there's any arguments, continue to the menu
+  g_print ("Starting Gawake...\n");
 
   // Signal handler
-  // Just passing the databse pointer/object
-  exit_aux(&db, SIGINT + 1);    // SIGINT + 1: a value different from SIGINT; don't trigger the function, just store the database object
   // Triggered on <Ctrl C>
-  signal(SIGINT, exit_handler);
+  signal (SIGINT, exit_handler);
 
-  printf("···> Choose an option:\n");
-  printf("%s", MENU);
-  // This do...while loop is a menu: receives the user's choice and stops when the 'q' is entered
-  do {
-    printf("\n[MENU] ···> ");
-
-    // Receives the user's input
-    choice = getchar();
-    if (choice == EOF) {
-      // When <Ctrl D> was triggered: end execution
-      exit_handler(SIGINT);
-
-    } else if (choice != '\n' && getchar() != '\n') {
-      /* Reference [1]
-      A valid answer will have two characters:
-      (1st) a letter in 'choice' and
-      (2nd) a newline on the buffer                             like: ('i', '\n')
-      IF the input is not "empty" ('\n') AND the subsequent character entered is not a newline
-
-      flush buffered line and invalidate the input */
-      clear_buffer();
-      choice = 0;
-
-    } else {
-      // Previous conditions passed, just continue to the menu verification
-      choice = tolower(choice);
-    }
-
-    switch (choice) {
-    case 'a':
-      modify_rule(&db);
-      break;
-    case 's':
-      printf(ANSI_COLOR_YELLOW "ATTENTION: Your computer will turn off now\n" ANSI_COLOR_RESET);
-      if (confirm())
-        schedule(&db);
-      break;
-    case 'r':
-      printf(ANSI_COLOR_YELLOW "WARNING: Reset database? All rules will be lost!\n" ANSI_COLOR_RESET);
-      if (confirm()) {
-        printf("Removing database...\n");
-        sqlite3_close(db);
-        raise_priv();
-        remove(PATH);
-        database(&db);
-        drop_priv();
-      }
-      break;
-    case 'c':
-      config(&db);
-      break;
-    case 'i':
-      info();
-      break;
-    case 'm':
-      printf("%s", MENU);
-      break;
-    case 'q':
-      printf("Exiting...\n");
-      sqlite3_close(db);
-      lock = 0;
-      break;
-    case 'k':
-      printf("Your typo resulted in an easter egg: \n\t\"[...] Porque a minha existência não passa de um elétron, perante o Universo.\"\n");
-      break;
-    default:
-      printf("Choose a valid option!\n");
-    }
-  } while (lock);
+  menu ();
 
   return EXIT_SUCCESS;
 }
 
-// DEFINITIONS
+void menu (void)
+{
+  gboolean lock = TRUE;
+  gchar choice;
+
+  g_print ("---> Choose an option:\n");
+  g_print ("[a]\tAdd/remove rules\n"\
+           "[s]\tSchedule wake up\n\n"\
+           "[c]\tConfigure Gawake\n"\
+           "[i]\tInformation about Gawake\n"\
+           "[p]\tPrint menu\n"\
+           "[q]\tQuit\n");
+
+  // This do-while loop is the menu: receives the user's choice and stops when the 'q' is entered
+  do
+    {
+      g_print ("\n[MENU] ---> ");
+
+      // Receives the user's input
+      choice = getchar ();
+
+      if (choice == EOF)
+        {
+          // When <Ctrl D> was triggered: end execution
+          exit_handler (SIGINT);
+        }
+      else if (choice != '\n' && getchar () != '\n')
+        {
+          /* Reference [1]
+           * A valid answer will have two characters:
+           * (1st) a letter in 'choice' and
+           * (2nd) a newline on the buffer                   like: ('i', '\n')
+           * IF the input is not "empty" ('\n')
+           * AND the subsequent character entered is not a newline
+           * flush buffered line and invalidate the input
+           */
+          clear_buffer ();
+          choice = 0;
+        }
+      else
+        {
+          // Previous conditions passed, just continue to the menu verification
+          choice = tolower (choice);
+        }
+
+      switch (choice)
+        {
+        case 'a':
+          modify_rule ();
+          break;
+
+        case 's':
+          g_print (ANSI_COLOR_YELLOW "ATTENTION: Your computer will turn off now\n" ANSI_COLOR_RESET);
+          if (confirm ())
+            g_print ("todo");  /* schedule (); */
+          break;
+
+        case 'c':
+          g_print ("todo"); /* TODO config (); */
+          break;
+
+        case 'i':
+          info ();
+          break;
+
+        case 'p':
+          g_print ("[a]\tAdd/remove rules\n"\
+                   "[s]\tSchedule wake up\n"\
+                   "[c]\tConfigure Gawake\n"\
+                   "[i]\tInformation about Gawake\n"\
+                   "[p]\tPrint menu\n"\
+                   "[q]\tQuit\n");
+          break;
+
+        case 'q':
+          g_print ("Exiting...\n");
+          lock = FALSE;
+          break;
+
+        case 'k':
+          g_print ("Your typo resulted in an easter egg: \n"\
+                   "\t\"[...] Porque a minha existência não passa de um elétron, perante o Universo.\"\n");
+          break;
+
+        default:
+          g_print ("Choose a valid option!\n");
+      }
+    } while (lock);
+}
 
 // Prints information about Gawake
-void info(void) {
-  char choice[7];
+void info (void)
+{
+  gchar choice[7];
 
-  printf("\n[INFORMATION]\n");
-  printf("Gawake version: %s\n", VERSION);
-  printf("SQLite version: %s\n", sqlite3_libversion());
-  printf("Report issues: <https://github.com/KelvinNovais/Gawake/issues>\n");
-  printf("Logs available on /var/gawake/logs/\n\n");
+  g_print ("\n[INFORMATION]\n");
+  g_print ("gawake-cli version: %s\n", VERSION);
+  g_print ("Report issues: <https://github.com/KelvinNovais/Gawake/issues>\n");
 
-  printf("Gawake Copyright (C) 2021 - 2023 Kelvin Ribeiro Novais\nThis program comes with ABSOLUTELY NO WARRANTY; for details type \"show w\"."\
-         "\nThis is free software, and you are welcome to redistribute it under certain conditions; type \"show c\" for details.\n\n");
-  printf("(show w/show c/enter to skip) ···> ");
-  fgets(choice, 7, stdin);
+  g_print ("Gawake Copyright (C) 2021-2024 Kelvin Ribeiro Novais\n"\
+           "This program comes with ABSOLUTELY NO WARRANTY; for details type \"show w\"."\
+           "\nThis is free software, and you are welcome to redistribute it under certain conditions; "\
+           "type \"show c\" for details.\n\n");
 
-  // Checks if the previous string contains a '\n' character at the end; if not, the character is on the buffer and must be cleaned
-  if (strchr(choice, '\n') == NULL)
-    clear_buffer();
+  g_print ("(show w/show c/enter to skip) ---> ");
+  fgets (choice, 7, stdin);
 
-  if (strcmp(choice, "show w") == 0)
-    printf( "THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY"\
-            "APPLICABLE LAW.  EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT"\
-            "HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM \"AS IS\" WITHOUT WARRANTY"\
-            "OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO,"\
-            "THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR"\
-            "PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM"\
-            "IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF"\
-            "ALL NECESSARY SERVICING, REPAIR OR CORRECTION.\n\n");
+  // Checks if the previous string contains a '\n' character at the end;
+  // if not, the character is on the buffer and must be cleaned
+  if (strchr (choice, '\n') == NULL)
+    clear_buffer ();
+
+  if (strcmp (choice, "show w") == 0)
+    g_print ("THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY"\
+             "APPLICABLE LAW.  EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT"\
+             "HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM \"AS IS\" WITHOUT WARRANTY"\
+             "OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO,"\
+             "THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR"\
+             "PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM"\
+             "IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF"\
+             "ALL NECESSARY SERVICING, REPAIR OR CORRECTION.\n\n");
   else if (strcmp(choice, "show c") == 0)
-    printf("Please, see the whole GNU General Public License version 3 on the file \"LICENSE\" together the original script. "\
-           "You also can find the license at <https://www.gnu.org/licenses/>\n\n");
+    g_print ("Please, see the whole GNU General Public License version 3 on the file \"LICENSE\" together the original script. "\
+             "You also can find the license at <https://www.gnu.org/licenses/>\n\n");
 }
 
 // Clears the input buffer
-void clear_buffer(void) {
-  int c;
+void clear_buffer (void)
+{
+  gint c;
   while ((c = getchar()) != '\n' && c != EOF) { }
 }
 
 // Get the user input, on a valid rule format
-void user_input(struct rules *rule, int table) {
-  const char *DAYS_NAMES[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-  const char *MODES[] = {"off", "disk", "mem", "standby", "freeze", "no", "on", "disable"};
-  int mode;
-  int invalid = 1;    // This variable is a lock for invalid inputs
-  char *pch;          // To get the pointer of a new line char, and after, remove it
+void get_user_input (gRule *rule, Table table)
+{
+  const gchar *DAYS_NAMES[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+  gboolean invalid = TRUE;     // This variable is a lock for invalid inputs
+  gchar *pch;             // To get the pointer of a new line char, and after, remove it
 
   // RULE NAME
-  // (Do while): repeat if the no name was entered
-  printf("\n");
-  do {
-    printf("Enter the rule name (can't be null) ···> ");
-    fgets(rule -> rule_name, RULE_NAME_LEN, stdin);
-    // Checks if the previous string contains a '\n' character at the end; if not, the character is on the buffer and must be cleaned
-    if (strchr(rule -> rule_name, '\n') == NULL)
-      clear_buffer();
-  } while (rule -> rule_name[0] == '\n');
-  // Removing the bew line character
-  pch = strstr(rule -> rule_name, "\n");
-  if(pch != NULL)
-    strncpy(pch, "\0", 1);
+  // (do-while): repeat if the no name was entered
+  g_print ("\n");
+  do
+    {
+      g_print ("Enter the rule name (can't be null) ---> ");
+      fgets (rule -> name, RULE_NAME_LENGTH, stdin);
+
+      // Checks if the previous string contains a '\n' character at the end;
+      // if not, the character is on the buffvalueer and must be cleaned
+      if (strchr (rule -> name, '\n') == NULL)
+        clear_buffer ();
+    } while (rule -> name[0] == '\n');
+
+  // Removing the new line character
+  pch = strstr (rule -> name, "\n");
+  if (pch != NULL)
+    strncpy (pch, "\0", 1);
 
   // TIME
-  printf("\nEnter the time rule will be applied:\n");
-  const char *MSG[] = {"[Hour] (from 00 to 23) ", "[Minutes] (from 00 to 59) ", "[Seconds] (from 00 to 59) "};
-  const char *TURNOFF_MSG = "[Minutes] (00, 10, 20, 30, 40 or 50) ";
-  printf("%-30s", MSG[0]);
-  get_int(&( rule -> time[0]), 3, 0, 23, 1);
+  g_print ("\nEnter the time rule will be applied:\n");
+  // Hour
+  g_print ("%-30s", "[Hour] (from 00 to 23) ");
+  gint hour;
+  get_int (&hour, 3, 0, 23, 1);
+  rule -> hour = (guint8) hour;
 
-  // If it's a turn off rule, get the minutes as 0 or 10 or 20 or 30 or 40 or 50, only; seconds are 00, by default
-  if(table == 2) {
-    printf("%-30s", TURNOFF_MSG);
-    invalid = 1;
-    do {
-      get_int(&(rule -> time[1]), 3, 0, 50, 1);
-      if (rule -> time[1] == 0
-          || rule -> time[1] == 10
-          || rule -> time[1] == 20
-          || rule -> time[1] == 30
-          || rule -> time[1] == 40
-          || rule -> time[1] == 50)
-          invalid = 0;
-      else
-        invalid_val();
+  // Minutes
+  g_print ("%-30s", "[Minutes] (00, 15, 30 or 45) ");
+  invalid = TRUE;
+  gint minutes;
+  do
+    {
+      get_int (&minutes, 3, 0, 45, 1);
+
+      switch (minutes)
+        {
+        case M_00:
+          rule -> minutes = M_00;
+          invalid = FALSE;
+          break;
+
+        case M_15:
+          rule -> minutes = M_15;
+          invalid = FALSE;
+          break;
+
+        case M_30:
+          rule -> minutes = M_30;
+          invalid = FALSE;
+          break;
+
+        case M_45:
+          rule -> minutes = M_45;
+          invalid = FALSE;
+          break;
+
+        default:
+          invalid_value ();
+        }
+
     } while (invalid);
-    rule -> time[2] = 0;
-  } else {        // If it's a turn on rule, get the minutes and seconds
-    printf("%-30s", MSG[1]);
-    get_int(&(rule -> time[1]), 3, 0, 59, 1);
-
-    printf("%-30s", MSG[2]);
-    get_int(&(rule -> time[2]), 3, 0, 59, 1);
-  }
 
   // DAYS
-  printf("\nEnter the days the rule will be applied (1 for enabled, and 0 for disabled):\n");
+  g_print ("\nEnter the days the rule will be applied (1 for enabled, and 0 for disabled):\n");
   // For each day of the week, receive the user input
-  for (int i = 0; i < 7; i++) {
-    printf("%-10s", DAYS_NAMES[i]);
-    get_int(&(rule -> days[i]), 2, 0, 1, 1);
+  for (gint i = 0; i < 7; i++) {
+    g_print ("%-10s", DAYS_NAMES[i]);
+    get_int (&(rule -> days[i]), 2, 0, 1, 1);
   }
-
-  // COMMAND
-  printf("\nEnter a command (optional, enter to skip) ···> ");
-  fgets(rule -> command, CMD_LEN, stdin);
-  // Checks if the previous string contains a '\n' character at the end; if not, the character is on the buffer and must be cleaned
-  if (strchr(rule -> command, '\n') == NULL)
-    clear_buffer();
-  pch = strstr(rule -> command, "\n");
-  // Remove the new line character
-  if (pch != NULL)
-    strncpy(pch, "\0", 1);
-  if (rule -> command[0] == '\n')
-    rule -> command[0] = '\0';
 
   // MODE (only for turn off rules)
-  if(table == 2) {
-    printf("\nSelect a mode:\n");
-    for (int i = 0; i < 8; i++) {
-      printf("[%i]\t%s\n", i, MODES[i]);
-    }
-    get_int(&mode, 2, 0, 7, 1);
-    strcpy(rule -> mode, MODES[mode]);
+  if (table == T_OFF) {
+    g_print ("\nSelect a mode:\n");
+
+    for (gint i = 0; i < 3; i++)
+      g_print ("[%i]\t%s\n", i, MODE[i]);
+
+    gint mode;
+    get_int (&mode, 2, 0, 2, 1);
+    switch (mode)
+      {
+      case MEM:
+        rule -> mode = MEM;
+        break;
+
+      case DISK:
+        rule -> mode = DISK;
+        break;
+
+      case OFF:
+        rule -> mode = OFF;
+        break;
+
+      default:
+        invalid_value ();
+      }
   }
+
+  g_free (DAYS_NAMES);
+  g_free (pch);
 }
 
 // Tell the user that the entered value was invalid
-void invalid_val(void) {
-  printf(ANSI_COLOR_YELLOW "Please, enter a valid value!\n" ANSI_COLOR_RESET);
+void invalid_value (void)
+{
+  g_print (ANSI_COLOR_YELLOW "Please, enter a valid value!\n" ANSI_COLOR_RESET);
 }
 
 /*
@@ -414,39 +390,47 @@ void invalid_val(void) {
  * when the user enter an invalid input, the variable keeps equal to 0;
  * but if  a previous value was assigned, that value is kept.
  */
-void get_int(int *ptr, int digits, int min, int max, int repeat) {
-  char user_input[digits];    // Number of digits the user input must have
-  int val;
-  int invalid = 1;            // Boolean
-  do {
-    printf("···> ");
-    // IF the fgets AND the sscanf are successful...
-    if ((fgets(user_input, sizeof(user_input), stdin)) && (sscanf(user_input, "%d", &val) == 1)) {
-      // ...check if the value is in the range and finishes the loop
-      if (val >= min && val <= max)
-        invalid = 0;
-    }
+void get_int (gint *ptr, gint digits, gint min, gint max, gint repeat)
+{
+  gchar user_input[digits];    // Number of digits the user input must have
+  gint val;
+  gboolean invalid = TRUE;
+  do
+    {
+      g_print ("--> ");
 
-    // BUT, IF the user's input is longer than expected, invalidate the value
-    if(strchr(user_input, '\n') == NULL) {
-      if (getchar() != '\n') {
-        clear_buffer();
-        invalid = 1;
-      }
-    }
+      // IF the fgets AND the sscanf are successful...
+      if ((fgets(user_input, sizeof(user_input), stdin)) && (sscanf(user_input, "%d", &val) == 1))
+        {
+          // ...check if the value is in the range and finishes the loop
+          if (val >= min && val <= max)
+            invalid = FALSE;
+        }
 
-    if (invalid && repeat)
-      invalid_val(); // Print the invalid message only in case the repeat is required (and the input was invalid)
-  } while (invalid && repeat); // Only repeat if the function was called with "repeat = 1"
+      // BUT, IF the user's input is longer than expected, invalidate the value
+      if(strchr(user_input, '\n') == NULL)
+        {
+          if (getchar() != '\n')
+            {
+              clear_buffer ();
+              invalid = TRUE;
+            }
+        }
+
+      if (invalid && repeat)
+        invalid_value (); // Print the invalid message only in case the repeat is required (and the input was invalid)
+    } while (invalid && repeat); // Only repeat if the function was called with "repeat = 1"
+
   *ptr = val;
 }
 
+#if 0
 // Print Turn on and Turn off tables
 int print_table(void __attribute__((__unused__)) *NotUsed,
                 int __attribute__((__unused__)) argc,
                 char **argv,
                 char __attribute__((__unused__)) **azColName) {
-  printf("%s\n", argv[0]);
+  g_print ("%s\n", argv[0]);
   return EXIT_SUCCESS;
 }
 
@@ -462,28 +446,21 @@ int print_config(void __attribute__((__unused__)) *NotUsed,
   for (int i = 0; i < 3; i++) {
     sscanf(argv[i], "%d", &val);
     if (val == 1)
-      printf("[%i] %-19s%s\n", i+1, LABELS[i], ANSI_COLOR_GREEN "Enabled" ANSI_COLOR_RESET);
+      g_print ("[%i] %-19s%s\n", i+1, LABELS[i], ANSI_COLOR_GREEN "Enabled" ANSI_COLOR_RESET);
     else
-      printf("[%i] %-19s%s\n", i+1, LABELS[i], ANSI_COLOR_YELLOW "Disabled" ANSI_COLOR_RESET);
+      g_print ("[%i] %-19s%s\n", i+1, LABELS[i], ANSI_COLOR_YELLOW "Disabled" ANSI_COLOR_RESET);
   }
   // Print the other options
-  printf("[%i] %-19s%s\n", 4, LABELS[3], argv[3]);
-  printf("[%i] %-19s%s\n", 5, LABELS[4], argv[4]);
-  printf("[%i] %-19s\n", 6, LABELS[5]);
+  g_print ("[%i] %-19s%s\n", 4, LABELS[3], argv[3]);
+  g_print ("[%i] %-19s%s\n", 5, LABELS[4], argv[4]);
+  g_print ("[%i] %-19s\n", 6, LABELS[5]);
 
   return EXIT_SUCCESS;
 }
+#endif
 
-// Checks if there was an error, prints a message and frees the variable
-void sqlite_exec_err(int rc, char **err_msg) {
-  if (rc != SQLITE_OK ) {
-    fprintf(stderr, ANSI_COLOR_RED "SQL error: %s\n" ANSI_COLOR_RESET, *err_msg);
-    issue();
-    sqlite3_free(*err_msg);
-  }
-}
-
-int config(sqlite3 **db) {
+#if 0
+int config (void) {
   int rc, option = 0, number, alloc = 129;
   struct sqlite3_stmt *stmt;
 
@@ -504,7 +481,7 @@ int config(sqlite3 **db) {
   // Computer time
   struct tm *timeinfo;
   get_time(&timeinfo);
-  printf("Time information:\n%-35s %d-%02d-%02d %02d:%02d:%02d\n",
+  g_print ("Time information:\n%-35s %d-%02d-%02d %02d:%02d:%02d\n",
          "Current local time and date:",
          timeinfo -> tm_year + 1900, timeinfo -> tm_mon + 1, timeinfo -> tm_mday, timeinfo -> tm_hour, timeinfo -> tm_min, timeinfo -> tm_sec);
 
@@ -517,9 +494,9 @@ int config(sqlite3 **db) {
   while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
     char buff[20];
     snprintf(buff, 20, "%s", sqlite3_column_text(stmt, 0));
-    printf("%-35s %s\n", "Database time (using utc):", buff);
+    g_print ("%-35s %s\n", "Database time (using utc):", buff);
     snprintf(buff, 20, "%s", sqlite3_column_text(stmt, 1));
-    printf("%-35s %s\n\n", "Database time (using localtime):", buff);
+    g_print ("%-35s %s\n\n", "Database time (using localtime):", buff);
   }
   if (rc != SQLITE_DONE) {
     fprintf(stderr, ANSI_COLOR_RED "ERROR: Failed gettig database times (%s)\n" ANSI_COLOR_RESET, sqlite3_errmsg(*db));
@@ -533,15 +510,15 @@ int config(sqlite3 **db) {
   sqlite_exec_err(rc, &err_msg);
   // On success, allow user to change its values
   if (rc == SQLITE_OK) {
-    printf("To change a value, choose an option (1/2/3/4/5/6/enter to skip) ");
+    g_print ("To change a value, choose an option (1/2/3/4/5/6/enter to skip) ");
     get_int(&option, 2, 0, 6, 0);
 
     // If selected option 6 (for help), print it and continue
     if (option == 6) {
-      printf("\n[HELP]:\n- Gawake status: enable or disable Gawake functionality\n- Commands: the commands you set will only run if this option is enabled\n"\
+      g_print ("\n[HELP]:\n- Gawake status: enable or disable Gawake functionality\n- Commands: the commands you set will only run if this option is enabled\n"\
              "- Use localtime: if disabled, Gawake will use utc instead\n- rtcwake options: you can append the rtcwake command with some other argumments\n"\
              "- Default mode: the mode your computer will sleep when you call \"gawake-cli -c ...\"\n");
-      printf("To change a value, choose an option (1/2/3/4/5/enter to skip) ");
+      g_print ("To change a value, choose an option (1/2/3/4/5/enter to skip) ");
       option = 0;
       get_int(&option, 2, 0, 5, 0);
     }
@@ -550,7 +527,7 @@ int config(sqlite3 **db) {
     if (option != 0) {
       // The three first options have a common input: get 0 or 1 for them
       if (option < 4) {
-        printf("Enter the new value (0/1) ");
+        g_print ("Enter the new value (0/1) ");
         get_int(&number, 2, 0, 1, 1);
       }
       switch (option) {
@@ -574,16 +551,16 @@ int config(sqlite3 **db) {
         break;
       case 4: // RTCWAKE OPTIONS
         // Print warnings, get confirmation; if it's yes, receive the user input (string) and concatenate to the SQL statement
-        printf( ANSI_COLOR_YELLOW "ATTENTION: BE CAREFUL while changing the options. Check the rtcwake documentation. "\
+        g_print ( ANSI_COLOR_YELLOW "ATTENTION: BE CAREFUL while changing the options. Check the rtcwake documentation. "\
                 "DO NOT append the options with commands. Any verification is done.\n" ANSI_COLOR_RESET);
         if (confirm()) {
-          printf( "rtcwake manpage: <https://www.man7.org/linux/man-pages/man8/rtcwake.8.html>"\
-                  "\nGawake already use \"--date\" and \"-m, --mode\", do not use them.\nGawake default options value: \"-a\"\nEnter the options ···> ");
+          g_print ( "rtcwake manpage: <https://www.man7.org/linux/man-pages/man8/rtcwake.8.html>"\
+                  "\nGawake already use \"--date\" and \"-m, --mode\", do not use them.\nGawake default options value: \"-a\"\nEnter the options ---> ");
           strcat(sql, "UPDATE config SET options = '");
           fgets(string, alloc, stdin);
           // Checks if the previous string contains a '\n' character at the end; if not, the character is on the buffer and must be cleaned
           if (strchr(string, '\n') == NULL)
-            clear_buffer();
+            clear_buffer ();
           char *pch;
           pch = strstr(string, "\n"); // Remove new line character
           if (pch != NULL)
@@ -595,9 +572,9 @@ int config(sqlite3 **db) {
       case 5:
         {
           const char *MODES[] = {"off", "disk", "mem", "standby", "freeze", "no", "on", "disable"};
-          printf("Select a mode:\n");
+          g_print ("Select a mode:\n");
           for (int i = 0; i < 8; i++)
-            printf("[%i]\t%s\n", i, MODES[i]);
+            g_print ("[%i]\t%s\n", i, MODES[i]);
 
           get_int(&number, 2, 0, 7, 1);
           snprintf(sql, alloc, "UPDATE config SET def_mode = '%s';", MODES[number]);
@@ -610,7 +587,7 @@ int config(sqlite3 **db) {
       rc = sqlite3_exec(*db, sql, NULL, 0, &err_msg);
       drop_priv();
       if (rc == SQLITE_OK)
-        printf(ANSI_COLOR_GREEN "Successfully done!\n" ANSI_COLOR_RESET);
+        g_print (ANSI_COLOR_GREEN "Successfully done!\n" ANSI_COLOR_RESET);
       sqlite_exec_err(rc, &err_msg);
     }
   }
@@ -620,14 +597,24 @@ int config(sqlite3 **db) {
   free(string);
   return EXIT_SUCCESS;
 }
+#endif
 
 // Add or edit a rule
-int modify_rule(sqlite3 **db) {
-  char *err_msg = 0;
-  char *sql = 0;
-  int rc, option, table, id;
-  struct sqlite3_stmt *selectstmt;
-  struct rules rule;
+gint modify_rule (void) {
+  /* int rc, option, table, id; */
+  gRule rule;
+  rule.name = (gchar *) g_malloc (RULE_NAME_LENGTH);
+  if (rule.name == NULL)
+    {
+      g_fprintf (stderr, "Couldn't allocate memory\n");
+      return EXIT_FAILURE;
+    }
+
+   g_free (rule.name);
+   return EXIT_SUCCESS;
+}
+
+#if 0
   // SQL statements
   const char *PRINT_TURNON =  "SELECT PRINTF(\"│ %-03i │ %-16.16s│ %s │  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│ %-40.40s│\", "\
                               "id, rule_name, time, sun, mon, tue, wed, thu, fri, sat, command) AS t_on FROM rules_turnon;";
@@ -636,26 +623,26 @@ int modify_rule(sqlite3 **db) {
 
   // Print turn on/off tables, and handle with possible errors:
   // [1] Turn on table
-  printf( ANSI_COLOR_GREEN "[1] TURN ON RULES\n"\
+  g_print ( ANSI_COLOR_GREEN "[1] TURN ON RULES\n"\
           "┌─────┬─────────────────┬──────────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────────────────────────────────────────┐"\
           "\n│ %-4s│ %-16s│   Time   │ Sun │ Mon │ Tue │ Wed │ Thu │ Fri │ Sat │ %-40s│\n" ANSI_COLOR_RESET, "ID", "Name", "Command");
   rc = sqlite3_exec(*db, PRINT_TURNON, print_table, 0, &err_msg);
   sqlite_exec_err(rc, &err_msg);
   if (rc != SQLITE_OK)
     return EXIT_FAILURE;
-  printf("└─────┴─────────────────┴──────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────────────────────────────────────────┘\n");
+  g_print ("└─────┴─────────────────┴──────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────────────────────────────────────────┘\n");
 
   // [2] Turn off table
-  printf( ANSI_COLOR_YELLOW "[2] TURN OFF RULES\n"\
+  g_print ( ANSI_COLOR_YELLOW "[2] TURN OFF RULES\n"\
           "┌─────┬─────────────────┬──────────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬───────────────────────────────┬─────────┐"\
           "\n│ %-4s│ %-16s│   Time   │ Sun │ Mon │ Tue │ Wed │ Thu │ Fri │ Sat │ %-30s│ %-8s│\n" ANSI_COLOR_RESET, "ID", "Name", "Command", "Mode");
   rc = sqlite3_exec(*db, PRINT_TURNOFF, print_table, 0, &err_msg);
   sqlite_exec_err(rc, &err_msg);
   if (rc != SQLITE_OK)
     return EXIT_FAILURE;
-  printf("└─────┴─────────────────┴──────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴───────────────────────────────┴─────────┘\n");
+  g_print ("└─────┴─────────────────┴──────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴───────────────────────────────┴─────────┘\n");
 
-  printf("Select a table (1/2/enter to skip) ");
+  g_print ("Select a table (1/2/enter to skip) ");
   get_int(&table, 2, 0, 2, 0);
   if (table == 1 || table == 2) {
     int alloc = 512;
@@ -665,11 +652,11 @@ int modify_rule(sqlite3 **db) {
       fprintf(stderr, ANSI_COLOR_YELLOW "WARNING: couldn't allocate memory, try again.\n" ANSI_COLOR_RESET);
       return EXIT_FAILURE;
     }
-    printf("Choose an option:\n[1] Add rule\n[2] Remove rule\n[3] Edit rule\n");
+    g_print ("Choose an option:\n[1] Add rule\n[2] Remove rule\n[3] Edit rule\n");
     get_int(&option, 2, 1, 3, 1);
     // If is option 2 or 3, get the ID
     if (option != 1) {
-      printf("Enter the ID: ");
+      g_print ("Enter the ID: ");
       get_int(&id, 5, 1, 9999, 1); // ID between 1 and 9999
       if (table == 1)
         snprintf(sql, alloc, "SELECT id FROM rules_turnon WHERE id = %d;", id);
@@ -679,8 +666,8 @@ int modify_rule(sqlite3 **db) {
       // Id the ID doesn't exist, leave
       if (  sqlite3_prepare_v2(*db, sql, -1, &selectstmt, NULL) == SQLITE_OK
             && sqlite3_step(selectstmt) != SQLITE_ROW) {
-        printf(ANSI_COLOR_YELLOW "ID not found!\n" ANSI_COLOR_RESET);
-        printf("Nothing done.\n");
+        g_print (ANSI_COLOR_YELLOW "ID not found!\n" ANSI_COLOR_RESET);
+        g_print ("Nothing done.\n");
         free(sql);
         sqlite3_finalize(selectstmt);
         return EXIT_FAILURE;
@@ -688,7 +675,7 @@ int modify_rule(sqlite3 **db) {
     }
     switch (option) {
     case 1:
-      user_input(&rule, table);
+      get_user_input(&rule, table);
       if (table == 1) // rules_turnon
         snprintf(sql, alloc,  "INSERT INTO rules_turnon (rule_name, time, sun, mon, tue, wed, thu, fri, sat, command) "\
                  "VALUES ('%s', '%02d:%02d:%02d', %d, %d, %d, %d, %d, %d, %d, '%s');",
@@ -709,7 +696,7 @@ int modify_rule(sqlite3 **db) {
         snprintf(sql, alloc, "DELETE FROM rules_turnoff WHERE id = %d;", id);
       break;
     case 3:
-      user_input(&rule, table);
+      get_user_input(&rule, table);
       if (table == 1) // rules_turnon
         snprintf(sql, alloc, "UPDATE rules_turnon SET rule_name = '%s', time = '%02d:%02d:%02d', sun = %d, mon = %d, tue = %d, wed = %d, thu = %d, fri = %d, sat = %d, "\
                  "command = '%s' WHERE id = %d;",
@@ -728,26 +715,29 @@ int modify_rule(sqlite3 **db) {
     drop_priv();
     // Print success or fail
     if (rc == SQLITE_OK)
-      printf(ANSI_COLOR_GREEN "Successfully done!\n" ANSI_COLOR_RESET);
+      g_print (ANSI_COLOR_GREEN "Successfully done!\n" ANSI_COLOR_RESET);
     sqlite_exec_err(rc, &err_msg);
 
     free(sql);
   }
   return EXIT_SUCCESS;
 }
+#endif
 
 // Get user's confirmation as 'y'; if confirmed, returns 1
-int confirm(void) {
+gint confirm (void)
+{
   // Reference [1]
-  printf("Do you want to continue? (y/N) ···> ");
-  char choice = getchar();
-  if (choice != '\n' && getchar() != '\n') {
-    // More than one character: flush buffered line and invalidate the input
-    clear_buffer();
-    choice = 0 ;
-  } else {
-    choice = tolower(choice);
-  }
+  g_print ("Do you want to continue? (y/N) ---> ");
+  gchar choice = getchar ();
+  if (choice != '\n' && getchar() != '\n')
+    {
+      // More than one character: flush buffered line and invalidate the input
+      clear_buffer ();
+      choice = 0 ;
+    }
+  else
+    choice = tolower (choice);
 
   if (choice == 'y')
     return 1;
@@ -755,6 +745,7 @@ int confirm(void) {
     return 0;
 }
 
+#if 0
 /*
  * DESCRIPTION:
  * The time is gotten in  HHMMSS format, and then converted to integer;
@@ -796,7 +787,7 @@ int schedule(sqlite3 **db) {
   now = atoi(buff);             // HHMMSS as an integer, leading zeros don't care
 
   // TRY TO SCHEDULE FOR TODAY
-  printf("[SCHEDULER] ···> Trying to schedule for today...\n");
+  g_print ("[SCHEDULER] ---> Trying to schedule for today...\n");
   // Create an SQL statement to get today's active rules time; tm_wday = number of the week
   snprintf(query, alloc, "SELECT id, strftime('%%H%%M%%S', time), strftime('%%Y%%m%%d', 'now', '%s') FROM rules_turnon WHERE %s = 1 ORDER BY time(time) ASC;",
            DB_TIMES[db_time], DAYS[timeinfo -> tm_wday]);
@@ -826,7 +817,7 @@ int schedule(sqlite3 **db) {
 
   // IF IT WASN'T POSSIBLE TO SCHEDULE FOR TODAY, TRY ON THE NEXT DAYS
   if (id_match < 0) {
-    printf("[SCHEDULER] ···> Any time matched. Trying to schedule for tomorrow or later...\n");
+    printf("[SCHEDULER] ---> Any time matched. Trying to schedule for tomorrow or later...\n");
     // search for a matching rule within a week
     for (int i = 1; i <= 7; i++) {
       int wday_num = wday(timeinfo -> tm_wday + i);
@@ -868,60 +859,44 @@ int schedule(sqlite3 **db) {
   }
   // ELSE, SCHEDULE
   sqlite3_close(*db);
-  printf("Match on turn on rule with ID [%d]\n", id_match);
+  g_print ("Match on turn on rule with ID [%d]\n", id_match);
   snprintf(rtcwake_cmd, FORMATTED_CMD_LEN, "rtcwake --date %s%s %s -m %s", date, time, options, mode);
-  printf(ANSI_COLOR_GREEN "Running rtcwake: %s\n" ANSI_COLOR_RESET, rtcwake_cmd);
+  g_print (ANSI_COLOR_GREEN "Running rtcwake: %s\n" ANSI_COLOR_RESET, rtcwake_cmd);
   raise_priv();
   system(rtcwake_cmd);
   drop_priv();                // If the command fails, for any reason
   exit(EXIT_SUCCESS);
 }
+#endif
 
-void usage(void) {
-  printf( "Gawake: A Linux software to make your PC wake up on a scheduled time. It makes the rtcwake command easier.\n\n"\
-          "-c\tSchedule with a custom timestamp (YYYYMMDDhhmmss)\n"\
-          "-h\tShow this help and exit\n"\
-          "-m\tSet a mode; must be used together '-c'\n"\
-          "-s\tDirectly run the schedule function, based on the first upcoming turn on rule; you can set a different time with the '-d' option\n"\
-          "-U\tUninstall Gawake\n\n"\
-          "Examples:\n"\
-          "%-45sSchedule according to the next turn on rule\n"\
-          "%-45sSchedule wake for 01 January 2025, at 09:45:00\n"\
-          "%-45sSchedule wake for 28 December 2025, at 15:30:00; use mode off\n\n",
-          "gawake-cli -s", "gawake-cli -c 20250115094500", "gawake-cli -c 20251228153000 -m off");
+void usage (void)
+{
+  g_print ("Gawake (cli version): A Linux software to make your PC wake up on a scheduled time. "\
+           "It makes the rtcwake command easier.\n\n"\
+           "-c\tSchedule with a custom timestamp (YYYYMMDDhhmmss)\n"\
+           "-h\tShow this help and exit\n"\
+           "-m\tSet a mode; must be used together '-c'\n"\
+           "-s\tDirectly run the schedule function, based on the first upcoming turn on rule; "\
+           "you can set a different time with the '-d' option\n"\
+           "Examples:\n"\
+           "%-45sSchedule according to the next turn on rule\n"\
+           "%-45sSchedule wake for 01 January 2025, at 09:45:00\n"\
+           "%-45sSchedule wake for 28 December 2025, at 15:30:00; use mode off\n\n",
+           "gawake-cli -s", "gawake-cli -c 20250115094500", "gawake-cli -c 20251228153000 -m off");
 }
 
 // Close the database and exit on <Ctrl C>
-void exit_handler(int sig) {
-  printf("\nUser interruption...\n");
-  sqlite3 *NotUsed;
-  exit_aux(&NotUsed, sig);
+__attribute__((__noreturn__)) void exit_handler (gint sig)
+{
+  g_print ("\nUser interruption...\n");
+  exit (EXIT_FAILURE);
 }
 
-// Helper function for the exit_handler; closes the database
-void exit_aux(sqlite3 **ptr, int sig) {
-  // Declaring an SQLite object to store the database pointer locally
-  static sqlite3 *db_ptr;
-
-  /*
-   * The pointer is assigned only when the function is called with a signal different from SIGINT;
-   * that is done once, on the main function, just for storing the database pointer.
-   * In this way, it's possible to have a signal handler function, without the need of passing parameters to it:
-   * signal(SIGINT, exit_handler)       <--- no need to pass the database pointer
-   */
-  if (sig != SIGINT) {                                // Assing pointer
-    db_ptr = *ptr;
-  }
-  else {                                              // Exit
-    printf("Closing database...\n");
-    if (sqlite3_close(db_ptr) != SQLITE_OK) {
-      printf("Couldn't close database, exiting forcibly\n");
-      exit(EXIT_FAILURE);
-    } else {
-      printf("Exiting.\n");
-      exit(EXIT_SUCCESS);
-    }
-  }
+// Prints the issue URL and related instructions
+void issue (void)
+{
+  g_print (ANSI_COLOR_RED "If it continues, consider reporting the bug "\
+           "<https://github.com/KelvinNovais/Gawake/issues>\n" ANSI_COLOR_RESET);
 }
 
 /* REFERENCES:
@@ -932,4 +907,5 @@ void exit_aux(sqlite3 **ptr, int sig) {
  *
  * rtcwake manpage: https://www.man7.org/linux/man-pages/man8/rtcwake.8.html
  */
+
 

@@ -1,33 +1,21 @@
-#ifndef GAWAKE_CLI_H_
-#define GAWAKE_CLI_H_
+// SHOULD NOT BE INCLUDED IN OTHER SOURCES FILES BESIDES "gawake-cli.c"
 
-// Defining colors for a better output
-#define ANSI_COLOR_RED     "\033[91m"
-#define ANSI_COLOR_GREEN   "\033[92m"
-#define ANSI_COLOR_YELLOW  "\033[93m"
-#define ANSI_COLOR_RESET   "\x1b[0m"
-
-#define GREEN(str)    (ANSI_COLOR_GREEN str ANSI_COLOR_RESET)
-#define YELLOW(str)   (ANSI_COLOR_YELLOW str ANSI_COLOR_RESET)
-#define RED(str)      (ANSI_COLOR_RED str ANSI_COLOR_RESET)
+#ifndef __GAWAKE_CLI_H_
+#define __GAWAKE_CLI_H_
 
 #include <stdio.h>
-#include <string.h>
-
 #include <ctype.h>          // Character conversion
 #include <stdlib.h>         // Run system commands
-#include <errno.h>          // Errors handling
-#include <time.h>
 #include <signal.h>
 #include <unistd.h>
 #include <glib.h>
-#include <glib/gprintf.h>
 
 #include <sys/wait.h>       // Child process
 
 #include "gawake-types.h"
 #include "version.h"
 #include "dbus-client.h"
+#include "colors.h"
 
 void menu (void);
 void info (void);
@@ -44,5 +32,5 @@ void usage (void);
 void exit_handler (gint);
 void issue (void);
 
-#endif /* GAWAKE_H_ */
+#endif /* __GAWAKE_CLI_H_ */
 

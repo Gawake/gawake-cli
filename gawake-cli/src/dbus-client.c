@@ -18,7 +18,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "dbus-client.h"
+#include "dbus-server.h"
+#include "colors.h"
 
 static GawakeServerDatabase *proxy;
 static GError *error = NULL;

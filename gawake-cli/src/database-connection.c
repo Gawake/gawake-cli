@@ -18,6 +18,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+#include <sqlite3.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "version.h"
 #include "database-connection.h"
 
 static sqlite3 *db = NULL;
@@ -27,7 +32,7 @@ static sqlite3 *db = NULL;
 gint connect_database (void)
 {
   // Open the SQLite database
-  gint rc = sqlite3_open_v2 (PATH, &db, SQLITE_OPEN_READWRITE, NULL);
+  gint rc = sqlite3_open_v2 (DB, &db, SQLITE_OPEN_READWRITE, NULL);
 
   if (rc != SQLITE_OK)
     {
@@ -286,7 +291,7 @@ gboolean query_rule (const guint16 id, const Table table, gRule *rule)
   if (sqlite3_prepare_v2 (db, sql, -1, &stmt, NULL) == SQLITE_OK
       && sqlite3_step (stmt) != SQLITE_ROW)
     {
-      g_fprintf(stderr, "Invalid ID\n\n");
+      g_fprintf (stderr, "Invalid ID\n\n");
       g_free (sql);
       sqlite3_finalize (stmt);
       return FALSE;
@@ -339,7 +344,7 @@ gboolean query_rule (const guint16 id, const Table table, gRule *rule)
       return FALSE;
     }
 
-  sqlite3_finalize(stmt);
+  sqlite3_finalize (stmt);
   g_free (sql);
 
   return TRUE;
@@ -397,7 +402,7 @@ gboolean query_rules (const Table table, gRule **rules, guint16 *rowcount)
   // Prepare statement
   if (sqlite3_prepare_v2 (db, sql, -1, &stmt, NULL) != SQLITE_OK)
     {
-      g_fprintf(stderr, "ERROR: Failed to query rule\n");
+      g_fprintf (stderr, "ERROR: Failed to query rule\n");
       g_free (sql);
       sqlite3_finalize (stmt);
       return FALSE;

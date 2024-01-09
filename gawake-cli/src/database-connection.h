@@ -1,18 +1,14 @@
 #ifndef DATABASE_CONNECTION_H_
 #define DATABASE_CONNECTION_H_
 
-#include <sqlite3.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
 #include <glib.h>
 #include <glib/gprintf.h>
 
 #include "gawake-types.h"
-#include "version.h"
 
+#define DB          "gawake.db"
 #define DIR	    "/var/lib/gawake/"
-#define PATH        DIR "gawake.db"
+#define PATH        DIR DB
 
 #define ALLOC 256
 

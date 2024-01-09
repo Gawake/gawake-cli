@@ -20,24 +20,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#include "dbus-server.h"
-#include "gawake-types.h"
-#include "database-connection.h"
-/* #include "privileges.h" */
-#include "gawaked.h"
+#include "__gawake-service.h"
+#include "gawake-service.h"
 
-int main (void)
+int gawake_service (void)
 {
-  /* TODO */
-  /* if (query_gawake_uid ()) */
-  /*   return EXIT_FAILURE; */
-
-  /* if (drop_privileges ()) */
-  /*   return EXIT_FAILURE; */
-
-  if (connect_database ())
-    return EXIT_FAILURE;
-
   GMainLoop *loop;
   loop = g_main_loop_new (NULL, FALSE);
 
@@ -49,6 +36,25 @@ int main (void)
                   on_name_lost,                               // name_lost_handler
                   NULL,                                       // user_data
                   NULL);                                      // user_data_free_func
+
+  // TODO close dbus connection if the following fails
+
+  // Change the working directory
+  if ((chdir (DIR)) < 0)
+    {
+      // Exit on fail
+      fprintf (stderr, "ERROR on gawake-service's chdir ()\n");
+      return EXIT_FAILURE;
+    }
+
+  /* TODO */
+  if (drop_privileges ())
+    return EXIT_FAILURE;
+
+  system ("ls");
+
+  if (connect_database ())
+    return EXIT_FAILURE;
 
   g_main_loop_run (loop);
 
@@ -404,6 +410,49 @@ on_handle_query_rules (GawakeServerDatabase    *interface,
   g_variant_unref (rules);
 
   return TRUE;
+}
+
+// Querying the gawake's uid and gid, an unprivileged user that is used to drop the root privileges
+static gint drop_privileges (void)
+{
+  uid_t gawake_uid;
+  gid_t gawake_gid;
+
+  struct passwd *p;  // TODO free ?
+
+  if ((p = getpwnam("gawake")) == NULL)
+  {
+    fprintf (stderr, "ERROR: Couldn't query gawake UID\n");
+    return EXIT_FAILURE;
+  }
+  else
+    {
+      gawake_uid = p -> pw_uid;
+      gawake_gid = p -> pw_gid;
+    }
+
+  // Set group ID
+  if (setgid (gawake_gid) != 0)
+    {
+      fprintf (stderr, "ERROR: Couldn't drop group privileges\n");
+      return EXIT_FAILURE;
+    }
+
+  // Set user ID
+  if (setuid (gawake_uid) != 0)
+    {
+      fprintf (stderr, "ERROR: Couldn't drop user privileges\n");
+      return EXIT_FAILURE;
+    }
+
+  // For more security, if it's possible to get your root privileges back, return failure
+  if (setuid(0) != -1)
+    {
+      fprintf (stderr, "ERROR: Managed to regain root privileges?\n");
+      return EXIT_FAILURE;
+    }
+
+  return EXIT_SUCCESS;
 }
 
 // TODO should implement SIGKILL or SIGINT?

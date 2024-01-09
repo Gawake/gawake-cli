@@ -1,11 +1,17 @@
-// SHOULD NOT BE INCLUDED ON OTHER SOURCES FILES BESIDES GAWAKED
+// SHOULD NOT BE INCLUDED IN OTHER SOURCES FILES BESIDES "gawake-service.c"
 
-#ifndef GAWAKED_H_
-#define GAWAKED_H_
+#ifndef __GAWAKE_SERVICE_H_
+#define __GAWAKE_SERVICE_H_
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <pwd.h>
 #include <glib.h>
+
+#include "dbus-server.h"
+#include "gawake-types.h"
+#include "database-connection.h"
 
 static void on_name_acquired (GDBusConnection *connection,
                               const gchar *name,
@@ -79,4 +85,6 @@ on_handle_query_rules (GawakeServerDatabase    *interface,
                        const guint8            table,
                        gpointer                user_data);
 
-#endif /* GAWAKED_H_ */
+static gint drop_privileges (void);
+
+#endif /* __GAWAKE_SERVICE_H_ */

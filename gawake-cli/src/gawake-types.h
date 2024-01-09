@@ -1,9 +1,8 @@
-// Defining types according to https://dbus.freedesktop.org/doc/dbus-specification.html#basic-types
+// Defining types  for gRule struct according to https://dbus.freedesktop.org/doc/dbus-specification.html#basic-types
 
 #ifndef GAWAKE_TYPES_H_
 #define GAWAKE_TYPES_H_
 
-#include <stdbool.h> // TODO remove (?)
 #include <glib.h>
 
 #define RULE_NAME_LENGTH 33    // Allowed length for rule name

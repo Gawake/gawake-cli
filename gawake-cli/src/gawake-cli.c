@@ -23,7 +23,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#include "gawake-cli.h"
+#include "__gawake-cli.h"
 #include "dbus-client.h"
 
 gint main (gint argc, gchar **argv)
@@ -31,7 +31,7 @@ gint main (gint argc, gchar **argv)
   // If can't connect to the D-Bus client, exit
   if (connect_dbus_client ())
     {
-      g_fprintf (stderr, RED("ERROR: can't connect to the D-Bus server\n"));
+      fprintf (stderr, RED("ERROR: can't connect to the D-Bus server\n"));
       return EXIT_FAILURE;
     }
 
@@ -629,7 +629,7 @@ gint add_remove_rule (void) {
   rule.name = (gchar *) g_malloc (RULE_NAME_LENGTH);
   if (rule.name == NULL)
     {
-      g_fprintf (stderr, "Couldn't allocate memory\n");
+      fprintf (stderr, "Couldn't allocate memory\n");
       return EXIT_FAILURE;
     }
 

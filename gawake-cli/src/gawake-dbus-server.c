@@ -20,15 +20,14 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#include "__gawake-service.h"
-#include "gawake-service.h"
+#include "__gawake-dbus-server.h"
 
-int gawake_service (void)
+int main (void)
 {
   GMainLoop *loop;
   loop = g_main_loop_new (NULL, FALSE);
 
-  g_bus_own_name (G_BUS_TYPE_SESSION,                         // bus type       TODO should it be system wide?
+  g_bus_own_name (G_BUS_TYPE_SYSTEM,                          // bus type       TODO should it be system wide?
                   "io.github.kelvinnovais.GawakeServer",      // name
                   G_BUS_NAME_OWNER_FLAGS_REPLACE,             // flags
                   NULL,                                       // bus_acquired_handler
@@ -40,21 +39,21 @@ int gawake_service (void)
   // TODO close dbus connection if the following fails
 
   // Change the working directory
-  if ((chdir (DIR)) < 0)
-    {
-      // Exit on fail
-      fprintf (stderr, "ERROR on gawake-service's chdir ()\n");
-      return EXIT_FAILURE;
-    }
+  /* if ((chdir (DIR)) < 0) */
+  /*   { */
+  /*     // Exit on fail */
+  /*     fprintf (stderr, "ERROR on gawake-service's chdir ()\n"); */
+  /*     return EXIT_FAILURE; */
+  /*   } */
 
   /* TODO */
-  if (drop_privileges ())
-    return EXIT_FAILURE;
+  /* if (drop_privileges ()) */
+  /*   return EXIT_FAILURE; */
 
-  system ("ls");
+  /* system ("ls"); */
 
-  if (connect_database ())
-    return EXIT_FAILURE;
+  /* if (connect_database ()) */
+  /*   return EXIT_FAILURE; */
 
   g_main_loop_run (loop);
 

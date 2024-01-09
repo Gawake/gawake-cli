@@ -1,7 +1,5 @@
-init_gawake_sources = files(
-	'init-gawake.c',
-	'scheduler.c',
-	'gawake-service.c',
+gawake_dbus_server_sources = files(
+	'gawake-dbus-server.c',
 	'dbus-server.c',
 	'database-connection.c',
 	'gawake-types.c',
@@ -26,7 +24,7 @@ gawake_cli_dependencies = [
 	gio_unix
 ]
 
-init_gawake_dependencies = [
+gawake_dbus_server_dependencies = [
 	glib,
 	gio,
 	gio_unix,
@@ -34,9 +32,9 @@ init_gawake_dependencies = [
 ]
 
 executable(
-	'init-gawake',
-	init_gawake_sources,
-	dependencies: init_gawake_dependencies,
+	'gawake-dbus-server',
+	gawake_dbus_server_sources,
+	dependencies: gawake_dbus_server_dependencies,
 	c_args: '-DPREPROCESSOR_DEBUG=1'
 )
 

@@ -83,7 +83,7 @@ static gint validate_rule (const gRule *rule)
 #if PREPROCESSOR_DEBUG
   g_print ("VALIDATION:\n");
   g_print ("Name: %d\n", name);
-  g_print ("\tName length: %ld\n", strlen (rule->name));
+  g_print ("\tName length: %lu\n", strlen (rule->name));
   g_print ("Hour: %d\n", hour);
   g_print ("Minutes: %d\n", minutes);
   g_print ("Mode: %d\n", mode);
@@ -144,7 +144,7 @@ gboolean add_rule (const gRule *rule)
     case T_ON:
       g_snprintf (sql, ALLOC, "INSERT INTO rules_turnon "\
                   "(rule_name, time, sun, mon, tue, wed, thu, fri, sat, active) "\
-                  "VALUES ('%s', '%02d%02d00', %d, %d, %d, %d, %d, %d, %d, %d);",
+                  "VALUES ('%s', '%02d%02u00', %d, %d, %d, %d, %d, %d, %d, %d);",
                   rule -> name,
                   rule -> hour,
                   rule -> minutes,
@@ -155,7 +155,7 @@ gboolean add_rule (const gRule *rule)
     case T_OFF:
       g_snprintf (sql, ALLOC, "INSERT INTO rules_turnoff "\
                   "(rule_name, time, sun, mon, tue, wed, thu, fri, sat, active, mode) "\
-                  "VALUES ('%s', '%02d%02d00', %d, %d, %d, %d, %d, %d, %d, %d, %d);",
+                  "VALUES ('%s', '%02d%02u00', %d, %d, %d, %d, %d, %d, %d, %d, %u);",
                   rule -> name,
                   rule -> hour,
                   rule -> minutes,
@@ -305,6 +305,7 @@ gboolean query_rule (const guint16 id, const Table table, gRule *rule)
    *                                                                        |
    *                                                  only for turn off rules
    */
+  gint hour, minutes; // Temporary variable to receive the minutes and pass to the structure;
   while ((rc = sqlite3_step (stmt)) == SQLITE_ROW)
     {
       // ID
@@ -314,10 +315,10 @@ gboolean query_rule (const guint16 id, const Table table, gRule *rule)
 
       // MINUTES AND HOUR
       // TODO sqlite3_column_text16 has correct data type for sscanf, bbut returned data is wrong
-      // Temporary variable to receive the minutes and pass to the structure;
-      guint8 min;
-      sscanf (sqlite3_column_text (stmt, 2), "%02hhd%02hhd", &(rule -> hour), &min);
-      rule -> minutes = (Minutes) min;
+
+      sscanf (sqlite3_column_text (stmt, 2), "%02d%02d", &hour, &minutes);
+      rule -> hour = (guint8) hour;
+      rule -> minutes = (Minutes) minutes;
 
       // DAYS
       for (gint i = 0; i <= 6; i++)
@@ -417,6 +418,8 @@ gboolean query_rules (const Table table, gRule **rules, guint16 *rowcount)
    *                                                                                            |
    *                                                                      only for turn off rules
    */
+
+  gint hour, minutes; // Temporary variable to receive the hour and minutes, and then pass to the structure
   while ((rc = sqlite3_step (stmt)) == SQLITE_ROW)
     {
       // If the loop tries to assign on non allocated space, leave
@@ -445,11 +448,9 @@ gboolean query_rules (const Table table, gRule **rules, guint16 *rowcount)
 
       // MINUTES AND HOUR
       // TODO sqlite3_column_text16 has correct data type for sscanf, but returned data is wrong
-      // Temporary variable to receive the hour and minutes, and then pass to the structure
-      guint8 mm, hh;
-      sscanf (sqlite3_column_text (stmt, 3), "%02hhd%02hhd", &hh, &mm);
-      (*rules)[counter].hour =  hh;
-      (*rules)[counter].minutes = (Minutes) mm;
+      sscanf (sqlite3_column_text (stmt, 3), "%02d%02d", &hour, &minutes);
+      (*rules)[counter].hour =  (guint8) hour;
+      (*rules)[counter].minutes = (Minutes) minutes;
 
       // DAYS
       for (gint i = 0; i <= 6; i++)

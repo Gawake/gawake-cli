@@ -354,7 +354,7 @@ on_handle_query_rules (GawakeServerDatabase    *interface,
       g_print ("\nStruct ID: %d\nRule ID: %d\n", i, data[i].id);
       g_print ("Name: %s\n", data[i].name);
       g_print ("Hour: %d\n", data[i].hour);
-      g_print ("Minutes: %d\n", data[i].minutes);
+      g_print ("Minutes: %u\n", data[i].minutes);
 
       const char P_DAYS[7] = {'S', 'M', 'T', 'W', 'T', 'F', 'S'};
       g_print ("Days: \n");
@@ -364,8 +364,8 @@ on_handle_query_rules (GawakeServerDatabase    *interface,
         }
 
       g_print ("Active: %d\n", data[i].active);
-      g_print ("Mode: %d\n", data[i].mode);
-      g_print ("Table: %d\n\n", data[i].table);
+      g_print ("Mode: %u\n", data[i].mode);
+      g_print ("Table: %u\n\n", data[i].table);
     }
     g_print ("===========================================\n");
 #endif

@@ -163,14 +163,14 @@ static void print_row (const gRule *rule, const Table table)
 {
   if (table == T_ON)
     {
-      printf ("\n│ %03d │ %-16.15s│  %02d%02d00  │  %d  │  %d  │  %d  │  %d  │  %d  │  %d  │  %d  │   %-5d│",
+      printf ("\n│ %03d │ %-16.15s│  %02d%02u00  │  %d  │  %d  │  %d  │  %d  │  %d  │  %d  │  %d  │   %-5d│",
                rule->id, rule->name, rule->hour, rule->minutes,
                rule->days[0], rule->days[1], rule->days[2], rule->days[3], rule->days[4], rule->days[5], rule->days[6],
                rule->active);
     }
   else
     {
-      printf ("\n│ %03d │ %-16.15s│  %02d%02d00  │  %d  │  %d  │  %d  │  %d  │  %d  │  %d  │  %d  │   %-5d│ %-8s│",
+      printf ("\n│ %03d │ %-16.15s│  %02d%02u00  │  %d  │  %d  │  %d  │  %d  │  %d  │  %d  │  %d  │   %-5d│ %-8s│",
                rule->id, rule->name, rule->hour, rule->minutes,
                rule->days[0], rule->days[1], rule->days[2], rule->days[3], rule->days[4], rule->days[5], rule->days[6],
                rule->active, MODE[rule->mode]);

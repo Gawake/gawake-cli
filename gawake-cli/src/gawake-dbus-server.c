@@ -27,6 +27,7 @@ int main (void)
   GMainLoop *loop;
   loop = g_main_loop_new (NULL, FALSE);
 
+  // https://nyirog.medium.com/register-dbus-service-f923dfca9f1
   g_bus_own_name (G_BUS_TYPE_SYSTEM,                          // bus type       TODO should it be system wide?
                   "io.github.kelvinnovais.GawakeServer",      // name
                   G_BUS_NAME_OWNER_FLAGS_REPLACE,             // flags

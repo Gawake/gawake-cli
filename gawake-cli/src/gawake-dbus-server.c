@@ -26,39 +26,34 @@ int main (void)
 {
   GMainLoop *loop;
   loop = g_main_loop_new (NULL, FALSE);
+  guint owner_id;
 
   // https://nyirog.medium.com/register-dbus-service-f923dfca9f1
-  g_bus_own_name (G_BUS_TYPE_SYSTEM,                          // bus type       TODO should it be system wide?
-                  "io.github.kelvinnovais.GawakeServer",      // name
-                  G_BUS_NAME_OWNER_FLAGS_REPLACE,             // flags
-                  NULL,                                       // bus_acquired_handler
-                  on_name_acquired,                           // name_acquired_handler
-                  on_name_lost,                               // name_lost_handler
-                  NULL,                                       // user_data
-                  NULL);                                      // user_data_free_func
+  owner_id = g_bus_own_name (G_BUS_TYPE_SYSTEM,                          // bus type       TODO should it be system wide?
+                             "io.github.kelvinnovais.GawakeServer",      // name
+                             G_BUS_NAME_OWNER_FLAGS_REPLACE,             // flags
+                             NULL,                                       // bus_acquired_handler
+                             on_name_acquired,                           // name_acquired_handler
+                             on_name_lost,                               // name_lost_handler
+                             NULL,                                       // user_data
+                             NULL);                                      // user_data_free_func
 
   // TODO close dbus connection if the following fails
-
-  // Change the working directory
-  /* if ((chdir (DIR)) < 0) */
-  /*   { */
-  /*     // Exit on fail */
-  /*     fprintf (stderr, "ERROR on gawake-service's chdir ()\n"); */
-  /*     return EXIT_FAILURE; */
-  /*   } */
 
   /* TODO */
   /* if (drop_privileges ()) */
   /*   return EXIT_FAILURE; */
 
-  /* system ("ls"); */
-
-  /* if (connect_database ()) */
-  /*   return EXIT_FAILURE; */
+  if (connect_database ())
+    {
+      g_bus_unown_name (owner_id);
+      return EXIT_FAILURE;
+    }
 
   g_main_loop_run (loop);
 
   close_database ();
+  g_bus_unown_name (owner_id);
 
   return EXIT_SUCCESS;
 }

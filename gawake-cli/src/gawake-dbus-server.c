@@ -1,6 +1,4 @@
-// Main file for gawaked
-
-/* gawaked.c
+/* gawake-dbus-server.c
  *
  * Copyright 2021-2024 Kelvin Novais
  *
@@ -20,16 +18,27 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+/* Main file for gawake-dbus-server
+ * This is a D-Bus systemd service
+ */
+
 #include "__gawake-dbus-server.h"
+
+static GMainLoop *loop;
+static guint owner_id;
 
 int main (void)
 {
-  GMainLoop *loop;
+  // Signal for systemd
+  signal (SIGTERM, exit_handler);
+
   loop = g_main_loop_new (NULL, FALSE);
-  guint owner_id;
+
+  if (check_user ())
+    return EXIT_FAILURE;
 
   // https://nyirog.medium.com/register-dbus-service-f923dfca9f1
-  owner_id = g_bus_own_name (G_BUS_TYPE_SYSTEM,                          // bus type       TODO should it be system wide?
+  owner_id = g_bus_own_name (G_BUS_TYPE_SYSTEM,                          // bus type
                              "io.github.kelvinnovais.GawakeServer",      // name
                              G_BUS_NAME_OWNER_FLAGS_REPLACE,             // flags
                              NULL,                                       // bus_acquired_handler
@@ -37,12 +46,6 @@ int main (void)
                              on_name_lost,                               // name_lost_handler
                              NULL,                                       // user_data
                              NULL);                                      // user_data_free_func
-
-  // TODO close dbus connection if the following fails
-
-  /* TODO */
-  /* if (drop_privileges ()) */
-  /*   return EXIT_FAILURE; */
 
   if (connect_database ())
     {
@@ -407,61 +410,40 @@ on_handle_query_rules (GawakeServerDatabase    *interface,
   return TRUE;
 }
 
-// Querying the gawake's uid and gid, an unprivileged user that is used to drop the root privileges
-static gint drop_privileges (void)
+// Although systemd already takes care of the user that executes the code,
+// this function acts as an additional security layer
+static gint check_user (void)
 {
   uid_t gawake_uid;
   gid_t gawake_gid;
 
   struct passwd *p;  // TODO free ?
 
-  if ((p = getpwnam("gawake")) == NULL)
-  {
-    fprintf (stderr, "ERROR: Couldn't query gawake UID\n");
-    return EXIT_FAILURE;
-  }
+  // Query gawake user information
+  if ((p = getpwnam ("gawake")) == NULL)
+    {
+      fprintf (stderr, "ERROR: Couldn't query gawake UID\n");
+      return EXIT_FAILURE;
+    }
   else
     {
       gawake_uid = p -> pw_uid;
       gawake_gid = p -> pw_gid;
     }
 
-  // Set group ID
-  if (setgid (gawake_gid) != 0)
+  // Compare results
+  if (gawake_uid != getuid () || gawake_gid != getgid ())
     {
-      fprintf (stderr, "ERROR: Couldn't drop group privileges\n");
-      return EXIT_FAILURE;
-    }
-
-  // Set user ID
-  if (setuid (gawake_uid) != 0)
-    {
-      fprintf (stderr, "ERROR: Couldn't drop user privileges\n");
-      return EXIT_FAILURE;
-    }
-
-  // For more security, if it's possible to get your root privileges back, return failure
-  if (setuid(0) != -1)
-    {
-      fprintf (stderr, "ERROR: Managed to regain root privileges?\n");
-      return EXIT_FAILURE;
+      fprintf (stderr, "ERROR: Process not running as gawake user\n");
     }
 
   return EXIT_SUCCESS;
 }
 
-// TODO should implement SIGKILL or SIGINT?
-/* #include <signal.h> */
-
-/* void exit_handler (int sig); */
-
-/* signal (SIGKILL, exit_handler); */
-
-/* void exit_handler (int sig) */
-/* { */
-/*   g_print ("\nProcess interrupted\n"); */
-/*   g_main_loop_quit (); */
-/*   g_bus_unown_name() */
-/*   close_database (); */
-/*   exit (0); */
-/* } */
+static void exit_handler (int sig)
+{
+  g_main_loop_quit (loop);
+  g_bus_unown_name (owner_id);
+  close_database ();
+  exit (0);
+}

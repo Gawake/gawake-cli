@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <pwd.h>
 #include <glib.h>
+#include <signal.h>
 
 #include "dbus-server.h"
 #include "gawake-types.h"
@@ -85,6 +86,8 @@ on_handle_query_rules (GawakeServerDatabase    *interface,
                        const guint8            table,
                        gpointer                user_data);
 
-static gint drop_privileges (void);
+static gint check_user (void);
+
+static void exit_handler (int sig);
 
 #endif /* __GAWAKE_SERVICE_H_ */

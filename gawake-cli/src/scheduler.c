@@ -1,85 +1,104 @@
+/* scheduler.c
+ *
+ * Copyright 2021-2024 Kelvin Novais
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 #include <stdlib.h>
-#include <unistd.h>
+#include <sqlite3.h>
 #include <stdio.h>
-#include <sys/wait.h>
 
 #include "scheduler.h"
-#include "gawake-service.h"
+#include "get-time.h"
 
-// if pid == 0, it's the child process
-
-int _scheduler (void)
+int scheduler (pipe_args_t *args)
 {
-  fprintf (stdout, "Starting Gawake's scheduler...\n");
+  int rc, now, db_time = 1, id_match = -1, alloc = 230, gawake_stat = 0;
+  Mode mode, default_mode;
 
-  // FORK OFF THE PARENT PROCESS
-  // PID: Process ID
-  // SID: Session ID
-  pid_t pid, sid;
+  struct tm *timeinfo;                // Default structure, see documentation
+  struct sqlite3_stmt *stmt;
 
+  sqlite3 *db;
 
-  pid = fork ();
+  char time[7];
+  const char *DB_TIMES[] = {"utc", "localtime"};
+  const char *DAYS[] = {"sun", "mon", "tue", "wed", "thu", "fri", "sat"};     // Index(0 to 6) matches tm_wday; the string refers to SQLite column name
+  char query[alloc], buffer[7], date[9], options[alloc];
 
-  if (pid < 0)
+  // OPEN DATABASE
+  rc = sqlite3_open_v2 (DB_PATH, &db, SQLITE_OPEN_READONLY, NULL);
+  if (rc != SQLITE_OK)
     {
-      // fork failed, no child process, end parent execution
-      fprintf (stderr, "ERROR on fork ()\n");
-      exit (EXIT_FAILURE);
+      fprintf (stderr, "Couldn't open database: %s\n", sqlite3_errmsg(db));
+      return EXIT_FAILURE;
     }
 
-  if (pid > 0)
+  // GET THE DATABASE CONFIG
+  rc = sqlite3_prepare_v2 (db,
+                           "SELECT localtime, def_mode, status FROM config WHERE id = 1;",
+                           -1,
+                           &stmt,
+                           NULL);
+  if (rc != SQLITE_OK)
     {
-      // fork done, end parent process and continue to child process
-      fprintf (stdout, "Gawake's scheduler forked.\n");
-      exit (EXIT_SUCCESS);
+      fprintf (stderr, "ERROR: Failed getting config information\n");
+      sqlite3_close (db);
+      return EXIT_FAILURE;
     }
 
-  // CREATE SID FOR CHILD
-  sid = setsid ();
-  if (sid < 0)
+  while ((rc = sqlite3_step (stmt)) == SQLITE_ROW)
     {
-      // Exit on fail
-      fprintf (stderr, "ERROR on setsid ()\n");
-      exit (EXIT_FAILURE);
+      // (boolean) 0 = utc, 1 = localtime
+      db_time = sqlite3_column_int (stmt, 0);
+      // default mode, for schedules that doesn't come from a turn off rule
+      snprintf (mode, 8, "%s", sqlite3_column_text(stmt, 1));
+      snprintf(options, 129, "%s", sqlite3_column_text(stmt, 2));       // rtcwake options
+      cmd_stat =      sqlite3_column_int(stmt, 3);
+      gawake_stat =   sqlite3_column_int(stmt, 4);
     }
+  if (rc != SQLITE_DONE) {
+    fprintf(stderr, "ERROR (failed getting config information): %s\n", sqlite3_errmsg(db));
+    sqlite3_close(db);
+    return EXIT_FAILURE;
+  }
+  sqlite3_finalize(stmt);
 
-  // CHANGE THE WORKING DIRECTORY
-  // TODO should it be / or something else?
-  if ((chdir ("/home/kelvin/")) < 0)
-    {
-      // Exit on fail
-      fprintf (stderr, "ERROR on scheduler's chdir ()\n");
-      exit (EXIT_FAILURE);
-    }
-
-  // CALL gawake-service
-  /* int fd[2]; */
-  /* char buffer[2048]; */
-  pid = fork ();
-  if (pid < 0)
-    {
-      // Exit on fail
-      fprintf (stderr, "ERROR when forking to gawake-service\n");
-      exit (EXIT_FAILURE);
-    }
-
-  if (pid == 0)
-    {
-      fprintf (stdout, "Starting gawake-service\n");
-      gawake_service ();
-    }
-
-  if (pid != 0)
-    {
-      wait (NULL);
-      printf ("returned \n");
-    }
+  // DO NOTHING IF GAWAKE IS DISABLED
+  if (gawake_stat == 0) {
+    fprintf(stdout, "Gawake is disabled, exiting...\n");
+    return EXIT_SUCCESS;
+  }
 
 
-  // CLOSE FILE DESCRIPTORS
-  /* close (STDIN_FILENO); */
-  /* close (STDOUT_FILENO); */
-  /* close (STDERR_FILENO); */
+
+
+
+
+
+
+
+
+
+
+  // GET THE CURRENT TIME
+  get_time (&timeinfo);                                                       // hour, minutes and seconds as integer members
+  snprintf (buffer, 7, "%02d%02d", timeinfo -> tm_hour, timeinfo -> tm_min);  // Concatenate: HHMM as a string
+  now = atoi (buffer);                                                        // HHMM as an integer, leading zeros doesn't matter
 
   return EXIT_SUCCESS;
 }

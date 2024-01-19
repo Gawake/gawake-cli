@@ -3,6 +3,6 @@
 
 #include <time.h>
 
-void get_time(struct tm **);
+void get_time (struct tm **timeinfo);
 
 #endif /* GET_TIME_H_ */

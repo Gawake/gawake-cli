@@ -13,7 +13,7 @@
 #include <sys/wait.h>       // Child process
 
 #include "gawake-types.h"
-#include "version.h"
+#include "gawake-gtypes.h"
 #include "dbus-client.h"
 #include "colors.h"
 

@@ -22,7 +22,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "version.h"
 #include "database-connection.h"
 
 static sqlite3 *db = NULL;
@@ -32,7 +31,7 @@ static sqlite3 *db = NULL;
 gint connect_database (void)
 {
   // Open the SQLite database
-  gint rc = sqlite3_open_v2 (DB, &db, SQLITE_OPEN_READWRITE, NULL);
+  gint rc = sqlite3_open_v2 (DB_NAME, &db, SQLITE_OPEN_READWRITE, NULL);
 
   if (rc != SQLITE_OK)
     {

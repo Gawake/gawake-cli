@@ -1,4 +1,4 @@
-/* gawake-types.c
+/* get-time.c
  *
  * Copyright 2021-2024 Kelvin Novais
  *
@@ -18,15 +18,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#include "gawake-types.h"
+#include "get-time.h"
 
-const char TABLE[2][13] = {
-  "rules_turnon",
-  "rules_turnoff"
-};
-
-const char MODE[3][4] = {
-  "mem",
-  "disk",
-  "off"
-};
+// Get the system time
+void get_time (struct tm **timeinfo)
+{
+  time_t rawtime;
+  time (&rawtime);
+  *timeinfo = localtime(&rawtime);
+}

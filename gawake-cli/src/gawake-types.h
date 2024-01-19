@@ -3,9 +3,13 @@
 #ifndef GAWAKE_TYPES_H_
 #define GAWAKE_TYPES_H_
 
-#include <glib.h>
-
 #define RULE_NAME_LENGTH 33    // Allowed length for rule name
+
+#define VERSION "3.1.0"
+
+#define DB_NAME "gawake.db"
+#define DB_DIR "/var/lib/gawake/"
+#define DB_PATH DB_DIR DB_NAME
 
 typedef enum
 {
@@ -25,7 +29,7 @@ typedef enum
   T_OFF
 } Table;
 
-extern const gchar TABLE[2][13];
+extern const char TABLE[2][13];
 /////////////////////////////////////////////
 
 // ATTENTION: enum and gchar[] must be synced
@@ -39,6 +43,7 @@ typedef enum
 extern const char MODE[3][4];
 /////////////////////////////////////////////
 
+// TODO add minutes in range of 10
 typedef enum
 {
   M_00 = 00,
@@ -46,19 +51,5 @@ typedef enum
   M_30 = 30,
   M_45 = 45
 } Minutes;
-
-// Same order as database
-typedef struct
-{
-  guint16 id;                    // q
-  // ATTENTION: if not assigned on instantiation, naturally the memory must be allocated
-  gchar *name;                   // s
-  guint8 hour;                   // y
-  Minutes minutes;               // y
-  gboolean days[7];              // ab
-  gboolean active;               // b
-  Mode mode;                     // y
-  Table table;                   // y
-} gRule;
 
 #endif /* GAWAKE_TYPES_H_ */

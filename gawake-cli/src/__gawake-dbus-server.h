@@ -7,11 +7,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <pwd.h>
-#include <glib.h>
 #include <signal.h>
 
 #include "dbus-server.h"
 #include "gawake-types.h"
+#include "gawake-gtypes.h"
 #include "database-connection.h"
 
 static void on_name_acquired (GDBusConnection *connection,

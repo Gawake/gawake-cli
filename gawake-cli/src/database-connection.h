@@ -5,10 +5,7 @@
 #include <glib/gprintf.h>
 
 #include "gawake-types.h"
-
-#define DB          "gawake.db"
-#define DIR	    "/var/lib/gawake/"
-#define PATH        DIR DB
+#include "gawake-gtypes.h"
 
 #define ALLOC 256
 

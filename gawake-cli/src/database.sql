@@ -24,19 +24,18 @@ CREATE TABLE rules_turnoff (
 	fri         INTEGER NOT NULL,
 	sat         INTEGER NOT NULL,
 	active      INTEGER NOT NULL,
-	mode        TEXT NOT NULL
+	mode        INTEGER NOT NULL
 );
 
 CREATE TABLE config (
 	id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-	options     TEXT,
 	status      INTEGER NOT NULL,
-	version     TEXT,
+	cli_version TEXT,
 	commands    INTEGER NOT NULL,
 	localtime   INTEGER NOT NULL,
-	def_mode    TEXT NOT NULL,
+	def_mode    INTEGER NOT NULL,
 	boot_time   INTEGER NOT NULL
 );
 
-INSERT INTO config (options, status, version, commands, localtime, def_mode, boot_time)
-VALUES ('-a', 1, '1.0.0', 0, 1, 'off', 120);
+INSERT INTO config (status, version, commands, localtime, def_mode, boot_time)
+VALUES (1, '1.0.0', 0, 1, 2, 120);

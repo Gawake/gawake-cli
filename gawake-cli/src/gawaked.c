@@ -88,7 +88,7 @@ int main (void)
 
       // https://stackoverflow.com/questions/28800809/how-to-create-a-child-process-with-a-different-name
       // Call scheduler function, passing pointer to arguments that must be filled
-      /* scheduler (args); */
+      /* scheduler (pipe_args); */
       pipe_args->hour = 5; pipe_args->minutes=M_30; pipe_args->mode=OFF;
       write (fd[1], pipe_args, pipe_args_s);
 

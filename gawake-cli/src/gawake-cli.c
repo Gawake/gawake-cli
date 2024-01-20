@@ -656,7 +656,7 @@ gint add_remove_rule (void) {
 
     case 2:
       printf ("Enter the rule ID:\n");
-      get_int (&id, 6, 0, 65535, 0);  // the max value of ID is 65535 (uint16)
+      get_int (&id, 6, 0, G_MAXINT, 0);  // the max value of ID is 65535 (uint16)
       delete_rule ((guint16) id, (Table) table);
       break;
 

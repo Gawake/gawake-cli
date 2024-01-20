@@ -10,7 +10,8 @@ gawaked_sources = files(
 	'gawaked.c',
 	'gawake-types.c',
 	# 'scheduler.c',
-	'get-time.c'
+	'get-time.c',
+	'week-day.c'
 )
 
 gawake_cli_sources = files(

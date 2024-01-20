@@ -142,8 +142,8 @@ gboolean add_rule (const gRule *rule)
     {
     case T_ON:
       g_snprintf (sql, ALLOC, "INSERT INTO rules_turnon "\
-                  "(rule_name, time, sun, mon, tue, wed, thu, fri, sat, active) "\
-                  "VALUES ('%s', '%02d%02u00', %d, %d, %d, %d, %d, %d, %d, %d);",
+                  "(rule_name, rule_time, sun, mon, tue, wed, thu, fri, sat, active) "\
+                  "VALUES ('%s', '%02d:%02u:00', %d, %d, %d, %d, %d, %d, %d, %d);",
                   rule -> name,
                   rule -> hour,
                   rule -> minutes,
@@ -153,8 +153,8 @@ gboolean add_rule (const gRule *rule)
       break;
     case T_OFF:
       g_snprintf (sql, ALLOC, "INSERT INTO rules_turnoff "\
-                  "(rule_name, time, sun, mon, tue, wed, thu, fri, sat, active, mode) "\
-                  "VALUES ('%s', '%02d%02u00', %d, %d, %d, %d, %d, %d, %d, %d, %u);",
+                  "(rule_name, rule_time, sun, mon, tue, wed, thu, fri, sat, active, mode) "\
+                  "VALUES ('%s', '%02d:%02u:00', %d, %d, %d, %d, %d, %d, %d, %d, %u);",
                   rule -> name,
                   rule -> hour,
                   rule -> minutes,
@@ -188,7 +188,7 @@ gboolean edit_rule (const gRule *rule)
     {
     case T_ON:
       g_snprintf (sql, ALLOC, "UPDATE rules_turnon SET "\
-                  "rule_name = '%s', time = '%02d%02d00', "\
+                  "rule_name = '%s', rule_time = '%02d:%02d:00', "\
                   "sun = %d, mon = %d, tue = %d, wed = %d, thu = %d, fri = %d, sat = %d, "\
                   "active = %d WHERE id = %d;",
                   rule -> name,
@@ -201,7 +201,7 @@ gboolean edit_rule (const gRule *rule)
       break;
     case T_OFF:
       g_snprintf (sql, ALLOC, "UPDATE rules_turnoff SET "\
-                  "rule_name = '%s', time = '%02d%02d00', "\
+                  "rule_name = '%s', rule_time = '%02d:%02d:00', "\
                   "sun = %d, mon = %d, tue = %d, wed = %d, thu = %d, fri = %d, sat = %d, "\
                   "active = %d, mode = %d WHERE id = %d;",
                   rule -> name,
@@ -315,7 +315,7 @@ gboolean query_rule (const guint16 id, const Table table, gRule *rule)
       // MINUTES AND HOUR
       // TODO sqlite3_column_text16 has correct data type for sscanf, bbut returned data is wrong
 
-      sscanf (sqlite3_column_text (stmt, 2), "%02d%02d", &hour, &minutes);
+      sscanf (sqlite3_column_text (stmt, 2), "%02d:%02d", &hour, &minutes);
       rule -> hour = (guint8) hour;
       rule -> minutes = (Minutes) minutes;
 
@@ -447,7 +447,7 @@ gboolean query_rules (const Table table, gRule **rules, guint16 *rowcount)
 
       // MINUTES AND HOUR
       // TODO sqlite3_column_text16 has correct data type for sscanf, but returned data is wrong
-      sscanf (sqlite3_column_text (stmt, 3), "%02d%02d", &hour, &minutes);
+      sscanf (sqlite3_column_text (stmt, 3), "%02d:%02d", &hour, &minutes);
       (*rules)[counter].hour =  (guint8) hour;
       (*rules)[counter].minutes = (Minutes) minutes;
 

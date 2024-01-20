@@ -1,7 +1,7 @@
 CREATE TABLE rules_turnon (
 	id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	rule_name   TEXT NOT NULL,
-	time        TEXT NOT NULL,
+	rule_time   TEXT NOT NULL,
 	sun         INTEGER NOT NULL,
 	mon         INTEGER NOT NULL,
 	tue         INTEGER NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE rules_turnon (
 CREATE TABLE rules_turnoff (
 	id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	rule_name   TEXT NOT NULL,
-	time        TEXT NOT NULL,
+	rule_time   TEXT NOT NULL,
 	sun         INTEGER NOT NULL,
 	mon         INTEGER NOT NULL,
 	tue         INTEGER NOT NULL,
@@ -28,14 +28,13 @@ CREATE TABLE rules_turnoff (
 );
 
 CREATE TABLE config (
-	id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-	status      INTEGER NOT NULL,
-	cli_version TEXT,
-	commands    INTEGER NOT NULL,
-	localtime   INTEGER NOT NULL,
-	def_mode    INTEGER NOT NULL,
-	boot_time   INTEGER NOT NULL
+	id              INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	status          INTEGER NOT NULL,
+	cli_version     TEXT,
+	localtime       INTEGER NOT NULL,
+	default_mode    INTEGER NOT NULL,
+	boot_time       INTEGER NOT NULL
 );
 
-INSERT INTO config (status, version, commands, localtime, def_mode, boot_time)
-VALUES (1, '1.0.0', 0, 1, 2, 120);
+INSERT INTO config (status, cli_version, localtime, default_mode, boot_time)
+VALUES (1, '1.0.0', 1, 2, 120);

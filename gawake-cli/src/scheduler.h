@@ -13,6 +13,7 @@ typedef struct {
 
 #define MINUTES_AHEAD 15
 #define BUFFER_ALLOC 5
+#define CHECK_DELAY (10 * 60)
 
 int scheduler (pipe_args_t *args);
 

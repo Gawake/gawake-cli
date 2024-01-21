@@ -21,10 +21,53 @@
 #include <stdlib.h>
 #include <sqlite3.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "scheduler.h"
 #include "get-time.h"
 #include "week-day.h"
+
+static volatile int condition = 1;
+static volatile int database_updated = 0;
+
+// Thread 1: listen to D-Bus signals
+void *dbus_listener ()
+{
+  // Database updated
+  // Immediate schedule (check if it's a custom schedule or a signal for trigger next rule): call pthread_kill()
+  // Cancel schedule
+
+  return NULL;
+}
+
+void *timed_checker ()
+{
+  // UpcomingRule upcoming_rule;  /* struct or timestamp */
+
+  // Load rules for today, however needs to keep track of which day is today:
+  // I'm considering the  possibility of the device be active across days)
+  TIMED_CHECKER_LOOP:
+  while (condition)
+    {
+      /* if (database_updated) */
+      /*   { */
+      /*     update_upcoming_rule (&ur); */
+      /*     database_updated = 0; */
+      /*   } */
+
+      /* calculate_timediff */
+      /* if (timediff <= 15) */
+      /*   break; */
+
+      sleep (CHECK_DELAY);
+    }
+
+    /* emit notification missing 5 mintes */
+    /* if (cancelled) */
+    /*   goto TIMED_CHECKER_LOOP; */
+
+  return NULL;
+}
 
 int scheduler (pipe_args_t *args)
 {

@@ -5,7 +5,6 @@
 #include <glib/gprintf.h>
 
 #include "gawake-types.h"
-#include "gawake-gtypes.h"
 
 #define ALLOC 256
 

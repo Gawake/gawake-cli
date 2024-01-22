@@ -22,7 +22,7 @@
  * This is a D-Bus systemd service
  */
 
-#include "__gawake-dbus-server.h"
+#include "_include/gawake-dbus-server.h"
 
 static GMainLoop *loop;
 static guint owner_id;

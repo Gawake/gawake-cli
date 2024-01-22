@@ -23,7 +23,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#include "__gawake-cli.h"
+#include "_include/gawake-cli.h"
 #include "dbus-client.h"
 
 gint main (gint argc, gchar **argv)
@@ -322,8 +322,13 @@ void get_user_input (gRule *rule, Table table)
           invalid = FALSE;
           break;
 
-        case M_15:
-          rule -> minutes = M_15;
+        case M_10:
+          rule -> minutes = M_10;
+          invalid = FALSE;
+          break;
+
+        case M_20:
+          rule -> minutes = M_20;
           invalid = FALSE;
           break;
 
@@ -332,8 +337,13 @@ void get_user_input (gRule *rule, Table table)
           invalid = FALSE;
           break;
 
-        case M_45:
-          rule -> minutes = M_45;
+        case M_40:
+          rule -> minutes = M_40;
+          invalid = FALSE;
+          break;
+
+        case M_50:
+          rule -> minutes = M_50;
           invalid = FALSE;
           break;
 

@@ -35,6 +35,9 @@ gawake_dbus_server_dependencies = [
 ]
 
 gawaked_dependencies = [
+	glib,
+	gio,
+	gio_unix,
 	sqlite
 ]
 
@@ -44,24 +47,28 @@ gawake_cli_dependencies = [
 	gio_unix
 ]
 
-
+# INCLUDE DIRECTORIES
+incdir = include_directories('_include')
 
 # EXECUTABLES
 executable(
 	'gawake-dbus-server',
 	gawake_dbus_server_sources,
 	dependencies: gawake_dbus_server_dependencies,
-	c_args: '-DPREPROCESSOR_DEBUG=1'
+	c_args: '-DPREPROCESSOR_DEBUG=1',
+	include_directories: incdir
 )
 
 executable(
 	'gawaked',
 	gawaked_sources,
-	dependencies: gawaked_dependencies
+	dependencies: gawaked_dependencies,
+	include_directories: incdir
 )
 
 executable(
 	'gawake-cli',
 	gawake_cli_sources,
-	dependencies: gawake_cli_dependencies
+	dependencies: gawake_cli_dependencies,
+	include_directories: incdir
 )

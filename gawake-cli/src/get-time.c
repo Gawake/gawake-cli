@@ -25,5 +25,5 @@ void get_time (struct tm **timeinfo)
 {
   time_t rawtime;
   time (&rawtime);
-  *timeinfo = localtime(&rawtime);
+  *timeinfo = localtime (&rawtime);
 }

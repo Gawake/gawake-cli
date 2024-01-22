@@ -18,7 +18,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#include "__gawaked.h"
+#include "_include/gawaked.h"
 
 // if pid == 0, it's the child process
 
@@ -77,8 +77,8 @@ int main (void)
       exit (EXIT_FAILURE);
     }
 
-  pipe_args_t *pipe_args;
-  pipe_args = malloc (pipe_args_s);
+  /* pipe_args_t *pipe_args; */
+  /* pipe_args = malloc (pipe_args_s); */
   if (pid == 0)
     {
       // Child process: call gawake-scheduler
@@ -89,11 +89,11 @@ int main (void)
       // https://stackoverflow.com/questions/28800809/how-to-create-a-child-process-with-a-different-name
       // Call scheduler function, passing pointer to arguments that must be filled
       /* scheduler (pipe_args); */
-      pipe_args->hour = 5; pipe_args->minutes=M_30; pipe_args->mode=OFF;
-      write (fd[1], pipe_args, pipe_args_s);
+      /* pipe_args->hour = 5; pipe_args->minutes=M_30; pipe_args->mode=OFF; */
+      /* write (fd[1], pipe_args, pipe_args_s); */
 
       close (fd[1]);
-      free (pipe_args);
+      /* free (pipe_args); */
       exit (EXIT_SUCCESS);
     }
   else if (pid > 0)
@@ -106,11 +106,11 @@ int main (void)
       // Wait for child process
       wait (NULL);
 
-      read (fd[0], pipe_args, pipe_args_s);
-      printf ("hh %u mm %d mode %d\n", pipe_args->hour, pipe_args->minutes, pipe_args->mode);
+      /* read (fd[0], pipe_args, pipe_args_s); */
+      /* printf ("hh %u mm %d mode %d\n", pipe_args->hour, pipe_args->minutes, pipe_args->mode); */
 
       close (fd[0]);
-      free (pipe_args);
+      /* free (pipe_args); */
     }
 
 

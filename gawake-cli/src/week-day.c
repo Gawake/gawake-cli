@@ -1,4 +1,4 @@
-/* wday.c
+/* week-day.c
  *
  * Copyright 2021-2024 Kelvin Novais
  *
@@ -24,7 +24,7 @@
 // in other words, two weeks must be represented from 0 to 6 instead of 0 to 13
 int week_day (int num)
 {
-  switch(num)
+  switch (num)
   {
   case 0:
   case 7:
@@ -53,7 +53,8 @@ int week_day (int num)
   case 6:
   case 13:
     return 6;
-  }
 
-  return -1;
+  default:
+    return -1;
+  }
 }

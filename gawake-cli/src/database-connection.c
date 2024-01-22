@@ -66,13 +66,15 @@ static gint validate_rule (const gRule *rule)
   gboolean name = !(strlen (rule->name) >= RULE_NAME_LENGTH);     // (>=) do not include null terminator
 
   // hour [00,23]
-  gboolean hour = (rule->hour <= 23);     // Due to the data type, houver is always >= 0
+  gboolean hour = (rule->hour <= 23);     // Due to the data type, it is always >= 0
 
   // minutes according to enum predefined values
   gboolean minutes = (rule->minutes == M_00
-                      || rule->minutes == M_15
+                      || rule->minutes == M_10
+                      || rule->minutes == M_20
                       || rule->minutes == M_30
-                      || rule->minutes == M_45);
+                      || rule->minutes == M_40
+                      || rule->minutes == M_50);
 
   // mode according to enum predefined values
   gboolean mode = (rule->mode >= 0 && rule->mode <= OFF);
@@ -371,7 +373,7 @@ gboolean query_rules (const Table table, gRule **rules, guint16 *rowcount)
   if (sqlite3_prepare_v2 (db, sql, -1, &stmt, NULL) == SQLITE_OK
       && sqlite3_step (stmt) != SQLITE_ROW)
     {
-      g_fprintf(stderr, "ERROR: Failed to query row count\n");
+      g_fprintf (stderr, "ERROR: Failed to query row count\n");
       g_free (sql);
       sqlite3_finalize (stmt);
       return FALSE;
@@ -385,7 +387,7 @@ gboolean query_rules (const Table table, gRule **rules, guint16 *rowcount)
   *rules = malloc (*rowcount * sizeof (**rules));
   if (*rules == NULL)
     {
-      g_fprintf(stderr, "ERROR: Failed to allocate memory\n");
+      g_fprintf (stderr, "ERROR: Failed to allocate memory\n");
       g_free (sql);
       sqlite3_finalize (stmt);
       return FALSE;
@@ -461,7 +463,7 @@ gboolean query_rules (const Table table, gRule **rules, guint16 *rowcount)
       // ACTIVE
       (*rules)[counter].active = (gboolean) sqlite3_column_int (stmt, 11);
 
-      // MODE (for turn on rules it isn't used):
+      // MODE (for turn on rules it isn't used, assigning 0):
       (*rules)[counter].mode = (Mode) ((table == T_OFF) ? sqlite3_column_int (stmt, 12) : 0);
 
       // TABLE

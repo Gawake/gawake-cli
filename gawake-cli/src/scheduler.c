@@ -18,6 +18,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+// FIXME possible problem: user won't get notified if the turn off rule is tomorrow
+// but that notification should happen today.
+// In this case the device is active across days
+
 #include <stdlib.h>
 #include <sqlite3.h>
 #include <stdio.h>
@@ -29,12 +33,12 @@
 #include "week-day.h"
 
 // TODO static functions
-void *dbus_listener ();
-void *timed_checker ();
+void *dbus_listener (void);
+void *timed_checker (void *args);
 int day_changed (void);
-int query_upcoming_off_rule (UpcomingOffRule *upcoming_off_rule);
-int query_upcoming_on_rule (RtcwakeArgs *rtcwake_args);
-// TODO
+int query_upcoming_off_rule (UpcomingOffRule *upcoming_off_rule); // TODO treat on fail (?)
+int query_upcoming_on_rule (RtcwakeArgs *rtcwake_args); // TODO treat on fail (?)
+// TODO:
 int validade_rtcawake_args (RtcwakeArgs *rtcwake_args);
 
 static volatile gboolean database_updated = FALSE, cancel = FALSE;
@@ -43,11 +47,14 @@ int scheduler (RtcwakeArgs *args)
 {
   pthread_t timed_checker_thread, dbus_listener_thread;
 
-  if (pthread_create (&dbus_listener_thread, NULL, &dbus_listener, NULL) != 0)
-    fprintf (stderr, "ERROR: Failed to create dbus_listener thread\n");
+  /* if (pthread_create (&dbus_listener_thread, NULL, &dbus_listener, NULL) != 0) */
+  /*   fprintf (stderr, "ERROR: Failed to create dbus_listener thread\n"); */
 
   if (pthread_create (&timed_checker_thread, NULL, &timed_checker, NULL) != 0)
     fprintf (stderr, "ERROR: Failed to create timed_checker thread\n");
+
+  if (pthread_join (timed_checker_thread, NULL) != 0)
+    fprintf (stderr, "ERROR: Failed to join timed_checker thread\n");
 
   return EXIT_SUCCESS;
 }
@@ -69,9 +76,10 @@ void *dbus_listener ()
  * -> if there's NOT a turn off for today, check if there's a new one when the
  * day changes or the database is updated
  */
-void *timed_checker ()
+void *timed_checker (void *args)
 {
   UpcomingOffRule upcoming_off_rule;
+  double diff;
 
   // Check rules for today, however, keep track of which day is today:
   // I'm considering the  possibility of the device be active across days)
@@ -80,26 +88,49 @@ void *timed_checker ()
   TIMED_CHECKER_LOOP:
   while (1)
     {
-      /* if (no_rule && day_changed) */
-      /*   update_upcoming_rule (&ur); */
+      if (!upcoming_off_rule.found && day_changed ())
+        {
+          printf ("Success: %d\n", upcoming_off_rule.found);
+          query_upcoming_off_rule (&upcoming_off_rule);
+        }
 
-      /* if (database_updated) */
-      /*   { */
-      /*     update_upcoming_rule (&ur); */
-      /*     database_updated = 0; */
-      /*   } */
+      if (database_updated)
+        {
+          query_upcoming_off_rule (&upcoming_off_rule);
+          database_updated = FALSE;
+        }
 
+      /* https://stackoverflow.com/questions/25720013/getting-a-time-difference-in-seconds-from-now-to-future-using-difftime */
       /* calculate_timediff */
-      /* if (timediff <= 15) */
-      /*   break; */
+      time_t now;
+      get_time (&now);
+      diff = difftime (upcoming_off_rule.rule_time, now);    // seconds
+      if (diff <= (CHECK_DELAY + upcoming_off_rule.notification_time))
+        break;
 
       sleep (CHECK_DELAY);
     }
 
-    /* emit notification missing 5 mintes */
+    /* emit notification missing X minutes */
+    sleep (diff - upcoming_off_rule.notification_time);
+    // TODO notification
+#if PREPROCESSOR_DEBUG
+    time_t notification_debug;
+    get_time (&notification_debug);
+    printf ("Notification at %s\n", ctime (&notification_debug));
+#endif
+    sleep (upcoming_off_rule.notification_time);
+    // TODO get turn on rule attributes
     /* if (cancelled) */
     /*   goto TIMED_CHECKER_LOOP; */
-
+    /* else */
+    /*   schedule */
+    /*   on fail, notify and shutdown */
+#if PREPROCESSOR_DEBUG
+    time_t schedule_debug;
+    get_time (&schedule_debug);
+    printf ("Schedule at %s\n", ctime (&schedule_debug));
+#endif
   return NULL;
 }
 
@@ -114,7 +145,7 @@ int day_changed (void)
   struct tm *timeinfo;
 
   // Get current time
-  get_time (&timeinfo);
+  get_time_tm (&timeinfo);
 
   if (timeinfo -> tm_wday != last_week_day)
     return 1;   // day changed
@@ -132,8 +163,8 @@ int query_upcoming_off_rule (UpcomingOffRule *upcoming_off_rule)
   sqlite3 *db;
 
   // Index(0 to 6) matches tm_wday; these strings refer to SQLite columns name
-  const char DAYS[7][3] = {"sun", "mon", "tue", "wed", "thu", "fri", "sat"};
-  char query[ALLOC], buffer[BUFFER_ALLOC], date[9];
+  const char DAYS[7][4] = {"sun", "mon", "tue", "wed", "thu", "fri", "sat"};
+  char query[ALLOC], buffer[BUFFER_ALLOC];
 
   // SET UPCOMING RULE AS NOT FOUND
   upcoming_off_rule -> found = FALSE;
@@ -177,7 +208,7 @@ int query_upcoming_off_rule (UpcomingOffRule *upcoming_off_rule)
 
   // GET THE CURRENT TIME
   // hour, minutes and seconds as integer members
-  get_time (&timeinfo);
+  get_time_tm (&timeinfo);
   // Concatenate: HHMM as a string
   snprintf (buffer, BUFFER_ALLOC, "%02d%02d", timeinfo -> tm_hour, timeinfo -> tm_min);
   // HHMM as an integer, leading zeros doesn't matter
@@ -187,9 +218,9 @@ int query_upcoming_off_rule (UpcomingOffRule *upcoming_off_rule)
   // This query SQL returns time on format HHMM
   snprintf (query,
             ALLOC,
-            "SELECT strftime('%%H%%M', rule_time), mode"\
-            "FROM rules_turnoff "\
-            "WHERE %s = 1 ORDER BY time(rule_time) ASC;",
+            "SELECT strftime('%%H%%M', rule_time), mode "\
+            "FROM rules_turnoff WHERE %s = 1 "\
+            "ORDER BY time(rule_time) ASC;",
             DAYS[timeinfo -> tm_wday]);
 
   rc = sqlite3_prepare_v2 (db, query, -1, &stmt, NULL);
@@ -216,6 +247,18 @@ int query_upcoming_off_rule (UpcomingOffRule *upcoming_off_rule)
           sscanf (sqlite3_column_text (stmt, 0), "%02d%02d", &hour, &minutes);
           upcoming_off_rule -> hour = hour;
           upcoming_off_rule -> minutes = (Minutes) minutes;
+
+          // Fill time_t
+          timeinfo -> tm_hour = hour;
+          timeinfo -> tm_min = minutes;
+          /* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           * Note: other fields (day, month, year) on timeinfo were not changed;
+           * If there is the need of considering the rule at tomorrow, this might be modified
+           */
+          upcoming_off_rule -> rule_time = mktime (timeinfo);
+          // If fails
+          if (upcoming_off_rule -> rule_time == (time_t) -1)
+            return EXIT_FAILURE;
 
           // Mode
           upcoming_off_rule -> mode = (Mode) sqlite3_column_int (stmt, 0);
@@ -287,7 +330,7 @@ int query_upcoming_on_rule (RtcwakeArgs *rtcwake_args)
 
   // GET THE CURRENT TIME
   // hour, minutes and seconds as integer members
-  get_time (&timeinfo);
+  get_time_tm (&timeinfo);
   // Concatenate: HHMM as a string
   snprintf (buffer, BUFFER_ALLOC, "%02d%02d", timeinfo -> tm_hour, timeinfo -> tm_min);
   // HHMM as an integer, leading zeros doesn't matter

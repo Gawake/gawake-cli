@@ -40,7 +40,7 @@ typedef enum
   T_OFF
 } Table;
 
-extern const char TABLE[2][13];
+extern const char TABLE[2][14];
 /////////////////////////////////////////////
 
 // ATTENTION: enum and gchar[] must be synced
@@ -51,7 +51,7 @@ typedef enum
   OFF
 } Mode;
 
-extern const char MODE[3][4];
+extern const char MODE[3][5];
 /////////////////////////////////////////////
 
 typedef enum

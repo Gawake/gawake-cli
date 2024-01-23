@@ -20,12 +20,12 @@
 
 #include "gawake-types.h"
 
-const char TABLE[2][13] = {
+const char TABLE[2][14] = {
   "rules_turnon",
   "rules_turnoff"
 };
 
-const char MODE[3][4] = {
+const char MODE[3][5] = {
   "mem",
   "disk",
   "off"

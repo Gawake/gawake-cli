@@ -20,10 +20,32 @@
 
 #include "get-time.h"
 
-// Get the system time
-void get_time (struct tm **timeinfo)
+// Get the system time (now) as struct tm
+int get_time_tm (struct tm **timeinfo)
 {
   time_t rawtime;
   time (&rawtime);
+
+  // If fails
+  if (rawtime == (time_t) -1)
+    {
+      fprintf (stderr, "ERROR: failed while getting time\n");
+      return EXIT_FAILURE;
+    }
+
   *timeinfo = localtime (&rawtime);
+  return EXIT_SUCCESS;
+}
+
+// Get the system time (now) as time_t
+int get_time (time_t *time_now)
+{
+  time (time_now);
+  if (*time_now ==  (time_t) -1)
+    {
+      fprintf (stderr, "ERROR: failed while getting time\n");
+      return EXIT_FAILURE;
+    }
+  else
+    return EXIT_SUCCESS;
 }

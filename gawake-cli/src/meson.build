@@ -9,7 +9,7 @@ gawake_dbus_server_sources = files(
 gawaked_sources = files(
 	'gawaked.c',
 	'gawake-types.c',
-	# 'scheduler.c',
+	'scheduler.c',
 	'get-time.c',
 	'week-day.c'
 )
@@ -63,6 +63,7 @@ executable(
 	'gawaked',
 	gawaked_sources,
 	dependencies: gawaked_dependencies,
+	c_args: '-DPREPROCESSOR_DEBUG=1',
 	include_directories: incdir
 )
 

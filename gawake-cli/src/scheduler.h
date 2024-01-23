@@ -1,6 +1,8 @@
 #ifndef SCHEDULER_H_
 #define SCHEDULER_H_
 
+#include <time.h>
+
 #include "gawake-types.h"
 
 typedef enum
@@ -18,6 +20,7 @@ typedef struct {
   int hour;
   Minutes minutes;
   Mode mode;
+  time_t rule_time;
   NotificationTime notification_time;
 } UpcomingOffRule;
 
@@ -39,7 +42,12 @@ typedef struct {
 
 #define ALLOC 256
 #define BUFFER_ALLOC 5
+
+#if PREPROCESSOR_DEBUG
+#define CHECK_DELAY (1 * 60)   /* in seconds */
+#else
 #define CHECK_DELAY (10 * 60)   /* in seconds */
+#endif
 
 int scheduler (RtcwakeArgs *args);
 

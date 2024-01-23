@@ -29,30 +29,30 @@ int main (void)
   // SID: Session ID
   pid_t pid, sid;
 
-  pid = fork ();
+  /* pid = fork (); */
 
-  if (pid < 0)
-    {
-      // fork failed, no child process, end parent execution
-      fprintf (stderr, "ERROR on fork ()\n");
-      exit (EXIT_FAILURE);
-    }
+  /* if (pid < 0) */
+  /*   { */
+  /*     // fork failed, no child process, end parent execution */
+  /*     fprintf (stderr, "ERROR on fork ()\n"); */
+  /*     exit (EXIT_FAILURE); */
+  /*   } */
 
-  if (pid > 0)
-    {
-      // fork done, end parent process and continue to child process
-      fprintf (stdout, "gawaked forked\n");
-      exit (EXIT_SUCCESS);
-    }
+  /* if (pid > 0) */
+  /*   { */
+  /*     // fork done, end parent process and continue to child process */
+  /*     fprintf (stdout, "gawaked forked\n"); */
+  /*     exit (EXIT_SUCCESS); */
+  /*   } */
 
-  // CREATE SID FOR CHILD
-  sid = setsid ();
-  if (sid < 0)
-    {
-      // Exit on fail
-      fprintf (stderr, "ERROR on setsid ()\n");
-      exit (EXIT_FAILURE);
-    }
+  /* // CREATE SID FOR CHILD */
+  /* sid = setsid (); */
+  /* if (sid < 0) */
+  /*   { */
+  /*     // Exit on fail */
+  /*     fprintf (stderr, "ERROR on setsid ()\n"); */
+  /*     exit (EXIT_FAILURE); */
+  /*   } */
 
   // CHANGE THE WORKING DIRECTORY
   /* if ((chdir ("/home/kelvin/")) < 0) */
@@ -82,13 +82,14 @@ int main (void)
   if (pid == 0)
     {
       // Child process: call gawake-scheduler
+      RtcwakeArgs rtc_args;
 
       // Close the read file descriptor
       close (fd[0]);
 
       // https://stackoverflow.com/questions/28800809/how-to-create-a-child-process-with-a-different-name
       // Call scheduler function, passing pointer to arguments that must be filled
-      /* scheduler (pipe_args); */
+      scheduler (&rtc_args);
       /* pipe_args->hour = 5; pipe_args->minutes=M_30; pipe_args->mode=OFF; */
       /* write (fd[1], pipe_args, pipe_args_s); */
 

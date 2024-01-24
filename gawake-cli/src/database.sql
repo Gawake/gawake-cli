@@ -31,11 +31,14 @@ CREATE TABLE config (
 	id                      INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	status                  INTEGER NOT NULL,
 	cli_version             TEXT,
+	-- Boolean: use localtime or not (utc)
 	localtime               INTEGER NOT NULL,
 	default_mode            INTEGER NOT NULL,
 	boot_time               INTEGER NOT NULL,
-	notification_time       INTEGER NOT NULL
+	notification_time       INTEGER NOT NULL,
+	-- Boolean: shutdown on failure
+	shutdown_fail           INTEGER NOT NULL
 );
 
 INSERT INTO config (status, cli_version, localtime, default_mode, boot_time, notification_time)
-VALUES (1, '1.0.0', 1, 2, 120, 5);
+VALUES (1, '1.0.0', 1, 2, 120, 5, 1);

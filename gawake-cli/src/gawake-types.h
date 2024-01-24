@@ -64,6 +64,15 @@ typedef enum
   M_50 = 50
 } Minutes;
 
+typedef enum
+{
+  NT_00 = 00,  /* no notification */
+  NT_01 = 01,
+  NT_05 = 05,
+  NT_15 = 15,
+  NT_30 = 30
+} NotificationTime;
+
 // Same order as database
 typedef struct
 {

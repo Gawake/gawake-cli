@@ -82,19 +82,25 @@ int main (void)
   if (pid == 0)
     {
       // Child process: call gawake-scheduler
-      RtcwakeArgs rtc_args;
+      RtcwakeArgs rtcwake_args;
+      int scheduler_return;
 
       // Close the read file descriptor
       close (fd[0]);
 
       // https://stackoverflow.com/questions/28800809/how-to-create-a-child-process-with-a-different-name
       // Call scheduler function, passing pointer to arguments that must be filled
-      scheduler (&rtc_args);
+      scheduler_return = scheduler (&rtcwake_args);
+
+      /* if (scheduler_return == EXIT_FAILURE) */
+      /*   { */
+
+      /*   } */
       /* pipe_args->hour = 5; pipe_args->minutes=M_30; pipe_args->mode=OFF; */
       /* write (fd[1], pipe_args, pipe_args_s); */
 
       close (fd[1]);
-      /* free (pipe_args); */
+
       exit (EXIT_SUCCESS);
     }
   else if (pid > 0)

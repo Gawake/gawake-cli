@@ -5,14 +5,6 @@
 
 #include "gawake-types.h"
 
-typedef enum
-{
-  NT_00 = 00,  /* no notification */
-  NT_05 = 05,
-  NT_15 = 15,
-  NT_30 = 30
-} NotificationTime;
-
 // Structure for the upcoming turn off rule
 typedef struct {
   gboolean found;
@@ -43,12 +35,13 @@ typedef struct {
 #define ALLOC 256
 #define BUFFER_ALLOC 5
 
+// Defining a short sleep time for debug purposes
 #if PREPROCESSOR_DEBUG
-#define CHECK_DELAY (1 * 60)   /* in seconds */
+#define CHECK_DELAY (10)   /* in seconds */
 #else
 #define CHECK_DELAY (10 * 60)   /* in seconds */
 #endif
 
-int scheduler (RtcwakeArgs *args);
+int scheduler (RtcwakeArgs *rtcwake_args_ptr);
 
 #endif /* SCHEDULER_H_ */

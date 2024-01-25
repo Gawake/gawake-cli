@@ -43,5 +43,6 @@ typedef struct {
 #endif
 
 int scheduler (RtcwakeArgs *rtcwake_args_ptr);
+int validade_rtcwake_args (void);
 
 #endif /* SCHEDULER_H_ */

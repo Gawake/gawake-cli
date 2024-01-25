@@ -36,27 +36,34 @@
 static void *dbus_listener (void *args);
 static void *timed_checker (void *args);
 static int day_changed (void);
-static int query_upcoming_off_rule (void); // TODO treat on fail (?)
-static int query_upcoming_on_rule (void); // TODO treat on fail (?)
-int validade_rtcawake_args (void);    // TODO
+static int query_upcoming_off_rule (void);  // TODO treat on fail (?)
+static int query_upcoming_on_rule (void);   // TODO treat on fail (?)
 static void sync_time (void);
 
 /*
- * These are static (and private to this file) variables
- * They are shared among these functions and threads; shouldn't be use somewhere else
+ * These are static (and private to this file) variables.
+ * They are shared among:
+ * -> timed_checker and dbus_listener threads;
+ * -> functions in this file that are called by the threads;
+ *
+ * These variables shouldn't be used on other files.
  */
 static volatile gboolean database_updated = FALSE, cancel = FALSE;
 static UpcomingOffRule upcoming_off_rule;
+
+// ATTENTION: This is a POINTER to a gawaked.c OWNED variable
 static RtcwakeArgs *rtcwake_args;
 
-static pthread_mutex_t upcoming_rule_mutex;
+static pthread_mutex_t upcoming_off_rule_mutex, rtcwake_args_mutex, booleans_mutex;
 
 int scheduler (RtcwakeArgs *rtcwake_args_ptr)
 {
   rtcwake_args = rtcwake_args_ptr;
   pthread_t timed_checker_thread, dbus_listener_thread;
 
-  pthread_mutex_init (&upcoming_rule_mutex, NULL);
+  pthread_mutex_init (&upcoming_off_rule_mutex, NULL);
+  pthread_mutex_init (&rtcwake_args_mutex, NULL);
+  pthread_mutex_init (&booleans_mutex, NULL);
 
   // CREATE THREADS
   if (pthread_create (&dbus_listener_thread, NULL, &dbus_listener, NULL) != 0)
@@ -82,7 +89,9 @@ int scheduler (RtcwakeArgs *rtcwake_args_ptr)
       return EXIT_FAILURE;
     }
 
-  pthread_mutex_destroy (&upcoming_rule_mutex);
+  pthread_mutex_destroy (&upcoming_off_rule_mutex);
+  pthread_mutex_destroy (&rtcwake_args_mutex);
+  pthread_mutex_destroy (&booleans_mutex);
 
   return EXIT_SUCCESS;
 }
@@ -135,7 +144,9 @@ static void *timed_checker (void *args)
         {
           DEBUG_PRINT (("Querying rule because database updated"));
           query_upcoming_off_rule ();
+          pthread_mutex_lock (&booleans_mutex);
           database_updated = FALSE;
+          pthread_mutex_unlock (&booleans_mutex);
         }
 
       // Calculate time until the upcoming off rule
@@ -147,15 +158,18 @@ static void *timed_checker (void *args)
 
           DEBUG_PRINT (("Missing time: %f s", diff));
 
-          // If the time missing is lesser than the delay and plus notification, exit the loop
-          if (diff <= (CHECK_DELAY + upcoming_off_rule.notification_time))
+          /*
+           * If the time missing is lesser than the delay plus notification plus
+           *  minimum sync time, exit the loop
+           */
+          if (diff <= (CHECK_DELAY + upcoming_off_rule.notification_time + 60))
             break;
         }
 
       sleep (CHECK_DELAY);
     }
 
-  // TODO get turn on rule attributes
+  // TODO get turn on rule attributes; override default mode with mode
 
   sync_time ();
 
@@ -169,8 +183,6 @@ static void *timed_checker (void *args)
   /*   send notification */
 
   sleep (upcoming_off_rule.notification_time);
-
-
 
   /* if (cancelled) */
   /*   goto TIMED_CHECKER_LOOP; */
@@ -223,7 +235,9 @@ static int query_upcoming_off_rule (void)
   char query[ALLOC], buffer[BUFFER_ALLOC];
 
   // SET UPCOMING RULE AS NOT FOUND
+  pthread_mutex_lock (&upcoming_off_rule_mutex);
   upcoming_off_rule.found = FALSE;
+  pthread_mutex_unlock (&upcoming_off_rule_mutex);
 
   // OPEN DATABASE
   rc = sqlite3_open_v2 (DB_PATH, &db, SQLITE_OPEN_READONLY, NULL);
@@ -248,6 +262,8 @@ static int query_upcoming_off_rule (void)
     }
   while ((rc = sqlite3_step (stmt)) == SQLITE_ROW)
     {
+      pthread_mutex_lock (&upcoming_off_rule_mutex);
+
       // Gawake status (boolean)
       upcoming_off_rule.gawake_status = sqlite3_column_int (stmt, 0);
 
@@ -255,6 +271,8 @@ static int query_upcoming_off_rule (void)
       upcoming_off_rule.notification_time = (NotificationTime) sqlite3_column_int (stmt, 1);
       // Convert to seconds
       upcoming_off_rule.notification_time *= 60;
+
+      pthread_mutex_unlock (&upcoming_off_rule_mutex);
     }
   if (rc != SQLITE_DONE)
     {
@@ -297,6 +315,8 @@ static int query_upcoming_off_rule (void)
       ruletime = sqlite3_column_int (stmt, 0);
       if (ruletime > now)
         {
+          pthread_mutex_lock (&upcoming_off_rule_mutex);
+
           // Set "rule found?" to true
           upcoming_off_rule.found = TRUE;
 
@@ -321,6 +341,7 @@ static int query_upcoming_off_rule (void)
           // Mode
           upcoming_off_rule.mode = (Mode) sqlite3_column_int (stmt, 1);
 
+          pthread_mutex_unlock (&upcoming_off_rule_mutex);
           break;
         }
     }
@@ -381,7 +402,9 @@ static int query_upcoming_on_rule (void)
       is_localtime = sqlite3_column_int (stmt, 0);
 
       // Default mode
+      pthread_mutex_lock (&rtcwake_args_mutex);
       rtcwake_args -> mode = (Mode) sqlite3_column_int (stmt, 1);
+      pthread_mutex_unlock (&rtcwake_args_mutex);
     }
   if (rc != SQLITE_DONE)
     {
@@ -472,7 +495,7 @@ static int query_upcoming_on_rule (void)
               fprintf (stderr, "ERROR: Failed scheduling for after\n");
               return EXIT_FAILURE;
             }
-          while ((rc = sqlite3_step(stmt)) == SQLITE_ROW)
+          while ((rc = sqlite3_step (stmt)) == SQLITE_ROW)
             {
               id_match = sqlite3_column_int (stmt, 0);
               snprintf (date, 9, "%s", sqlite3_column_text (stmt, 1)); // YYYYMMDD
@@ -498,14 +521,17 @@ static int query_upcoming_on_rule (void)
   if (id_match < 0)
     {
       fprintf(stdout, "WARNING: Any turn on rule found.\n");
+      pthread_mutex_lock (&rtcwake_args_mutex);
       rtcwake_args -> found = FALSE;
+      pthread_mutex_unlock (&rtcwake_args_mutex);
       return EXIT_SUCCESS;
     }
 
   // ELSE, RETURN PARAMETERS
+  pthread_mutex_lock (&rtcwake_args_mutex);
+
   rtcwake_args -> found = TRUE;
 
-  // TODO hour and minutes as (Minutes)
   int minutes;
   sscanf (buffer, "%02d%02d",
           &(rtcwake_args -> hour),
@@ -517,7 +543,83 @@ static int query_upcoming_on_rule (void)
           &(rtcwake_args -> month),
           &(rtcwake_args -> day));
 
+  pthread_mutex_unlock (&rtcwake_args_mutex);
   return EXIT_SUCCESS;
+}
+
+int validade_rtcwake_args (void)
+{
+  pthread_mutex_lock (&rtcwake_args_mutex);
+
+  gboolean hour, minutes, year, timestamp, mode;
+  hour = minutes = year = timestamp = mode = FALSE;
+  time_t time_check;
+  int ret;
+  struct tm *timeinfo;
+
+  // Hour
+  if (rtcwake_args -> hour >= 0 && rtcwake_args -> hour <= 23)
+    hour = TRUE;
+
+  // Minutes
+  switch (rtcwake_args -> minutes)
+    {
+    case M_00:
+    case M_10:
+    case M_20:
+    case M_30:
+    case M_40:
+    case M_50:
+      minutes = TRUE;
+      break;
+
+    default:
+      minutes = FALSE;
+    }
+
+  // Date (as a valid DD/MM/YYYY date format)
+  timeinfo -> tm_mday = rtcwake_args -> day;
+  timeinfo -> tm_mon = rtcwake_args -> month - 1;
+  timeinfo -> tm_year = rtcwake_args -> year - 1900;
+  timeinfo -> tm_isdst = -1;
+
+  time_check = mktime (timeinfo);
+
+  if (time_check == -1
+      || timeinfo -> tm_mday != rtcwake_args -> day
+      || timeinfo -> tm_mon != rtcwake_args -> month
+      || timeinfo -> tm_year != rtcwake_args -> year)
+    timestamp = FALSE;
+  else
+    timestamp = TRUE;
+
+  // Year (must be this year or at most the next, only)
+  get_time_tm (&timeinfo);
+  if (rtcwake_args -> year > timeinfo -> tm_year + 1)
+    year = FALSE;
+  else
+    year = TRUE;
+
+  switch (rtcwake_args -> mode)
+    {
+    case MEM:
+    case DISK:
+    case OFF:
+      mode = TRUE;
+      break;
+
+    default:
+      mode = FALSE;
+    }
+
+  if (hour && minutes && year && timestamp && mode)
+    ret = 1;    // valid
+  else
+    ret = 0;    // invalid
+
+  pthread_mutex_unlock (&rtcwake_args_mutex);
+
+  return ret;
 }
 
 static void sync_time (void)
@@ -528,13 +630,13 @@ static void sync_time (void)
   get_time_tm (&timeinfo);
 
   // Calculate how many seconds lacks for the next minute
-  int diff = 60 - timeinfo -> tm_sec;
+  int sync_diff = 60 - timeinfo -> tm_sec;
 
   // If time is already synced, do nothing
-  if (diff == 60)
-    diff = 0;
+  if (sync_diff == 60)
+    sync_diff = 0;
 
   DEBUG_PRINT_TIME (("Syncing time"));
-  sleep (diff);
+  sleep (sync_diff);
   DEBUG_PRINT_TIME (("Time synced"));
 }

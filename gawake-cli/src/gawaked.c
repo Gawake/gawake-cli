@@ -66,7 +66,6 @@ int main (void)
 
   // CALL gawake-scheduler
   int fd[2];          // fd[0]: read; fd[1]: write
-  char buffer[2048];
   pipe (fd);         // TODO error when return -1
   pid = fork ();
 

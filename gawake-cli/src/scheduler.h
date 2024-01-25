@@ -20,6 +20,8 @@ typedef struct {
 // process; these are the rtcwake command arguments
 typedef struct {
   gboolean found;
+  gboolean shutdown_fail;   // This variable is independent of turn on rules
+  gboolean run_shutdown;
   int hour;
   Minutes minutes;
   int day;
@@ -28,9 +30,12 @@ typedef struct {
   Mode mode;
 } RtcwakeArgs;
 
-// TODO
-//#define pipe_args_s (sizeof (pipe_args_t))
-// #define MINUTES_AHEAD 15
+#define RtcwakeArgs_s sizeof (RtcwakeArgs)
+
+typedef enum {
+  ON_RULE_NOT_FOUND = 5,
+  INVALID_ON_RULE_ATTRIBUTES,
+} RtcwakeArgsReturn;
 
 #define ALLOC 256
 #define BUFFER_ALLOC 5

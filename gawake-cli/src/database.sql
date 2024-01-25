@@ -40,5 +40,5 @@ CREATE TABLE config (
 	shutdown_fail           INTEGER NOT NULL
 );
 
-INSERT INTO config (status, cli_version, localtime, default_mode, boot_time, notification_time)
-VALUES (1, '1.0.0', 1, 2, 120, 5, 1);
+INSERT INTO config (status, cli_version, localtime, default_mode, boot_time, notification_time, shutdown_fail)
+VALUES (1, '1.0.0', 1, 2, 120, 5, 0);

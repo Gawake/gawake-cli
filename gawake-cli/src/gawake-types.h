@@ -54,6 +54,8 @@ typedef enum
 extern const char MODE[3][5];
 /////////////////////////////////////////////
 
+extern const char DAYS[7][4];
+
 typedef enum
 {
   M_00 = 00,

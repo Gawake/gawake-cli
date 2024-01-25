@@ -19,12 +19,17 @@
  */
 
 #include "get-time.h"
+#include <time.h>
 
-void print_timestamp (void)
+// Defining a size that's big enough to receive the timesatmp without compilation problems
+#define TIMESTAMP_ALLOC 26
+
+const char* print_timestamp (void)
 {
   static struct tm * timeinfo;
+  static char timestamp[TIMESTAMP_ALLOC];
   get_time_tm (&timeinfo);
-  printf ("[%02d/%02d/%d %02d:%02d:%02d]: ",
-          timeinfo->tm_mday, timeinfo->tm_mon + 1, timeinfo->tm_year + 1900,
-          timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec);
+  strftime (timestamp, TIMESTAMP_ALLOC, "%Y/%m/%d %H:%M:%S", timeinfo);
+
+  return timestamp;
 }

@@ -37,8 +37,9 @@ static void *dbus_listener (void *args);
 static void *timed_checker (void *args);
 static int day_changed (void);
 static int query_upcoming_off_rule (void);  // TODO treat on fail (?)
-static int query_upcoming_on_rule (void);   // TODO treat on fail (?)
+static int query_upcoming_on_rule (gboolean use_default_mode);
 static void sync_time (void);
+static void notify_user (int ret);
 
 /*
  * These are static (and private to this file) variables.
@@ -48,17 +49,15 @@ static void sync_time (void);
  *
  * These variables shouldn't be used on other files.
  */
-static volatile gboolean database_updated = FALSE, cancel = FALSE;
+static volatile gboolean database_updated = FALSE, canceled = FALSE;
 static UpcomingOffRule upcoming_off_rule;
-
-// ATTENTION: This is a POINTER to a gawaked.c OWNED variable
-static RtcwakeArgs *rtcwake_args;
+static RtcwakeArgs rtcwake_args_local;
 
 static pthread_mutex_t upcoming_off_rule_mutex, rtcwake_args_mutex, booleans_mutex;
 
 int scheduler (RtcwakeArgs *rtcwake_args_ptr)
 {
-  rtcwake_args = rtcwake_args_ptr;
+  RtcwakeArgs *rtcwake_args = rtcwake_args_ptr;
   pthread_t timed_checker_thread, dbus_listener_thread;
 
   pthread_mutex_init (&upcoming_off_rule_mutex, NULL);
@@ -68,11 +67,13 @@ int scheduler (RtcwakeArgs *rtcwake_args_ptr)
   // CREATE THREADS
   if (pthread_create (&dbus_listener_thread, NULL, &dbus_listener, NULL) != 0)
     {
+      DEBUG_PRINT_CONTEX;
       fprintf (stderr, "ERROR: Failed to create dbus_listener thread\n");
       return EXIT_FAILURE;
     }
   if (pthread_create (&timed_checker_thread, NULL, &timed_checker, rtcwake_args) != 0)
     {
+      DEBUG_PRINT_CONTEX;
       fprintf (stderr, "ERROR: Failed to create timed_checker thread\n");
       return EXIT_FAILURE;
     }
@@ -80,11 +81,13 @@ int scheduler (RtcwakeArgs *rtcwake_args_ptr)
   // JOIN THREADS
   if (pthread_join (timed_checker_thread, NULL) != 0)
     {
+      DEBUG_PRINT_CONTEX;
       fprintf (stderr, "ERROR: Failed to join timed_checker thread\n");
       return EXIT_FAILURE;
     }
   if (pthread_join (dbus_listener_thread, NULL) != 0)
     {
+      DEBUG_PRINT_CONTEX;
       fprintf (stderr, "ERROR: Failed to join dbus_listener thread\n");
       return EXIT_FAILURE;
     }
@@ -92,6 +95,17 @@ int scheduler (RtcwakeArgs *rtcwake_args_ptr)
   pthread_mutex_destroy (&upcoming_off_rule_mutex);
   pthread_mutex_destroy (&rtcwake_args_mutex);
   pthread_mutex_destroy (&booleans_mutex);
+
+  /* *rtcwake_args = rtcwake_args_local; */
+
+  /* rtcwake_args -> found = rtcwake_args_local.found; */
+  /* rtcwake_args -> shutdown_fail = rtcwake_args_local.shutdown_fail; */
+  /* rtcwake_args -> run_shutdown = rtcwake_args_local.run_shutdown; */
+  /* rtcwake_args -> minutes = rtcwake_args_local.minutes; */
+  /* rtcwake_args -> day = rtcwake_args_local.day; */
+  /* rtcwake_args -> month = rtcwake_args_local.month; */
+  /* rtcwake_args -> year = rtcwake_args_local.year; */
+  /* rtcwake_args -> mode = rtcwake_args_local.mode; */
 
   return EXIT_SUCCESS;
 }
@@ -136,21 +150,21 @@ static void *timed_checker (void *args)
 
       if (!upcoming_off_rule.found && day_changed ())
         {
-          DEBUG_PRINT (("Querying rule because day changed"));
+          DEBUG_PRINT (("Querying turn off rule because day changed"));
           query_upcoming_off_rule ();
         }
 
       if (database_updated)
         {
-          DEBUG_PRINT (("Querying rule because database updated"));
+          DEBUG_PRINT (("Querying turn off rule because database updated"));
           query_upcoming_off_rule ();
           pthread_mutex_lock (&booleans_mutex);
           database_updated = FALSE;
           pthread_mutex_unlock (&booleans_mutex);
         }
 
-      // Calculate time until the upcoming off rule
-      if (upcoming_off_rule.found)
+      // Calculate time until the upcoming off rule, if the rule was found and Gawake is enabled
+      if (upcoming_off_rule.found && upcoming_off_rule.gawake_status)
         {
           time_t now;
           get_time (&now);
@@ -159,8 +173,8 @@ static void *timed_checker (void *args)
           DEBUG_PRINT (("Missing time: %f s", diff));
 
           /*
-           * If the time missing is lesser than the delay plus notification plus
-           *  minimum sync time, exit the loop
+           * If the time missing is lesser than the delay + notification +
+           *  minimum sync time, exit the loop to emit notification
            */
           if (diff <= (CHECK_DELAY + upcoming_off_rule.notification_time + 60))
             break;
@@ -169,27 +183,53 @@ static void *timed_checker (void *args)
       sleep (CHECK_DELAY);
     }
 
-  // TODO get turn on rule attributes; override default mode with mode
+  DEBUG_PRINT_TIME (("Left timed_checker main loop"));
 
+  int ret = query_upcoming_on_rule (TRUE);
+  DEBUG_PRINT_TIME (("ret %d", ret)); // TODO remove
+
+  // If querying rule failed, and the user wants to shutdown in this exception,
+  // set this action to true
+  if  (ret != EXIT_SUCCESS && rtcwake_args_local.shutdown_fail == TRUE)
+    rtcwake_args_local.run_shutdown = TRUE;
+  else
+    rtcwake_args_local.run_shutdown = FALSE;
+
+  DEBUG_PRINT_TIME (("#-1")); // TODO remove
+  // Sync time to emit notification on right time
   sync_time ();
-
-  // Emit notification missing X minutes
+  DEBUG_PRINT_TIME (("#0")); // TODO remove
+  // Wait until notification time
   sleep (diff - upcoming_off_rule.notification_time);
-  DEBUG_PRINT_TIME (("Notification"));
-  // TODO notification
-  /* if (failed_get_attributes) */
-  /*   send error */
-  /* else */
-  /*   send notification */
 
+  DEBUG_PRINT_TIME (("#1")); // TODO remove
+  // Emit custom notification according to the returned value
+  notify_user (ret);
+
+  DEBUG_PRINT_TIME (("#2")); // TODO remove
+
+  // Wait until time the rule must be triggered
   sleep (upcoming_off_rule.notification_time);
+  DEBUG_PRINT_TIME (("#3")); // TODO remove
 
-  /* if (cancelled) */
-  /*   goto TIMED_CHECKER_LOOP; */
-  /* else */
-  /*   schedule */
-  /*   on fail, notify and shutdown */
+  /*
+   * IF
+   * (1) the schedule was canceled
+   *      OR
+   * (2) the action is to NOT shutdown on failure
+   * return to the main loop
+   */
+  if (canceled || rtcwake_args_local.run_shutdown == FALSE)
+    {
+      // Sleep 1 minute to get another rule, and go back to main loop
+      sleep (60);
+      query_upcoming_off_rule ();
+      DEBUG_PRINT_TIME (("Returning to timed_checker main loop"));
+      goto TIMED_CHECKER_LOOP;
+    }
 
+  // ELSE, continue to schedule
+  // TODO
   DEBUG_PRINT_TIME (("Scheduling"));
 
   return NULL;
@@ -231,7 +271,6 @@ static int query_upcoming_off_rule (void)
   sqlite3 *db;
 
   // Index(0 to 6) matches tm_wday; these strings refer to SQLite columns name
-  const char DAYS[7][4] = {"sun", "mon", "tue", "wed", "thu", "fri", "sat"};
   char query[ALLOC], buffer[BUFFER_ALLOC];
 
   // SET UPCOMING RULE AS NOT FOUND
@@ -243,6 +282,7 @@ static int query_upcoming_off_rule (void)
   rc = sqlite3_open_v2 (DB_PATH, &db, SQLITE_OPEN_READONLY, NULL);
   if (rc != SQLITE_OK)
     {
+      DEBUG_PRINT_CONTEX;
       fprintf (stderr, "Couldn't open database: %s\n", sqlite3_errmsg (db));
       return EXIT_FAILURE;
     }
@@ -256,6 +296,7 @@ static int query_upcoming_off_rule (void)
                            NULL);
   if (rc != SQLITE_OK)
     {
+      DEBUG_PRINT_CONTEX;
       fprintf (stderr, "ERROR: Failed getting config information\n");
       sqlite3_close (db);
       return EXIT_FAILURE;
@@ -276,6 +317,7 @@ static int query_upcoming_off_rule (void)
     }
   if (rc != SQLITE_DONE)
     {
+      DEBUG_PRINT_CONTEX;
       fprintf (stderr, "ERROR (failed getting config information): %s\n", sqlite3_errmsg (db));
       sqlite3_close (db);
       return EXIT_FAILURE;
@@ -292,6 +334,7 @@ static int query_upcoming_off_rule (void)
 
   // QUERY TURN OFF RULES
   // This query SQL returns time on format HHMM
+  // FIXME add (acitve == 1)
   snprintf (query,
             ALLOC,
             "SELECT strftime('%%H%%M', rule_time), mode "\
@@ -302,6 +345,7 @@ static int query_upcoming_off_rule (void)
   rc = sqlite3_prepare_v2 (db, query, -1, &stmt, NULL);
   if (rc != SQLITE_OK)
     {
+      DEBUG_PRINT_CONTEX;
       fprintf (stderr, "ERROR: Failed querying turn off rules for today\n");
       sqlite3_close (db);
       return EXIT_FAILURE;
@@ -317,9 +361,6 @@ static int query_upcoming_off_rule (void)
         {
           pthread_mutex_lock (&upcoming_off_rule_mutex);
 
-          // Set "rule found?" to true
-          upcoming_off_rule.found = TRUE;
-
           // Hour and minutes
           // TODO sqlite3_column_text16 has correct data type for sscanf, but returned data is wrong
           sscanf (sqlite3_column_text (stmt, 0), "%02d%02d", &hour, &minutes);
@@ -329,8 +370,10 @@ static int query_upcoming_off_rule (void)
           // Fill time_t
           timeinfo -> tm_hour = hour;
           timeinfo -> tm_min = minutes;
+          timeinfo -> tm_sec = 00;
           /* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
            * Note: other fields (day, month, year) on timeinfo were not changed;
+           * they were filled by get_time_tm (), and refers to today.
            * If there is the need of considering the rule at tomorrow, this might be modified
            */
           upcoming_off_rule.rule_time = mktime (timeinfo);
@@ -348,11 +391,17 @@ static int query_upcoming_off_rule (void)
 
   if (rc != SQLITE_DONE && rc != SQLITE_ROW)
     {
+      DEBUG_PRINT_CONTEX;
       fprintf (stderr, "ERROR (failed while querying rules time): %s\n", sqlite3_errmsg (db));
       sqlite3_close (db);
       return EXIT_FAILURE;
     }
   sqlite3_finalize (stmt);
+
+  // Set "rule found?" to true
+  pthread_mutex_lock (&upcoming_off_rule_mutex);
+  upcoming_off_rule.found = TRUE;
+  pthread_mutex_unlock (&upcoming_off_rule_mutex);
 
   DEBUG_PRINT (("Upcoming rule fields:\n"\
                 "\tFound: %d\n\tHour: %02d\n\tMinutes: %02d\n\tMode: %d\n\tNotification time: %d s",
@@ -362,7 +411,7 @@ static int query_upcoming_off_rule (void)
   return EXIT_SUCCESS;
 }
 
-static int query_upcoming_on_rule (void)
+static int query_upcoming_on_rule (gboolean use_default_mode)
 {
   int rc, now, ruletime, is_localtime = 1, id_match = -1;
 
@@ -372,26 +421,27 @@ static int query_upcoming_on_rule (void)
   sqlite3 *db;
 
   // Index(0 to 6) matches tm_wday; these strings refer to SQLite columns name
-  const char DAYS[7][3] = {"sun", "mon", "tue", "wed", "thu", "fri", "sat"};
   char query[ALLOC], buffer[BUFFER_ALLOC], date[9];
 
   // OPEN DATABASE
   rc = sqlite3_open_v2 (DB_PATH, &db, SQLITE_OPEN_READONLY, NULL);
   if (rc != SQLITE_OK)
     {
+      DEBUG_PRINT_CONTEX;
       fprintf (stderr, "Couldn't open database: %s\n", sqlite3_errmsg (db));
       return EXIT_FAILURE;
     }
 
   // GET THE DATABASE CONFIG
   rc = sqlite3_prepare_v2 (db,
-                           "SELECT localtime, default_mode "\
+                           "SELECT localtime, default_mode, shutdown_fail "\
                            "FROM config WHERE id = 1;",
                            -1,
                            &stmt,
                            NULL);
   if (rc != SQLITE_OK)
     {
+      DEBUG_PRINT_CONTEX;
       fprintf (stderr, "ERROR: Failed getting config information\n");
       sqlite3_close (db);
       return EXIT_FAILURE;
@@ -401,13 +451,20 @@ static int query_upcoming_on_rule (void)
       // Localtime (boolean)
       is_localtime = sqlite3_column_int (stmt, 0);
 
-      // Default mode
       pthread_mutex_lock (&rtcwake_args_mutex);
-      rtcwake_args -> mode = (Mode) sqlite3_column_int (stmt, 1);
+      // Mode
+      if (use_default_mode)
+        rtcwake_args_local.mode = (Mode) sqlite3_column_int (stmt, 1);
+      else
+        rtcwake_args_local.mode = upcoming_off_rule.mode;
+
+      // Shutdown on failure
+      rtcwake_args_local.shutdown_fail = sqlite3_column_int (stmt, 2);
       pthread_mutex_unlock (&rtcwake_args_mutex);
     }
   if (rc != SQLITE_DONE)
     {
+      DEBUG_PRINT_CONTEX;
       fprintf (stderr, "ERROR (failed getting config information): %s\n", sqlite3_errmsg (db));
       sqlite3_close (db);
       return EXIT_FAILURE;
@@ -425,6 +482,7 @@ static int query_upcoming_on_rule (void)
   fprintf (stdout, "Trying to get schedule for today\n");
 
   // Create an SQL statement to get today's active rules time; tm_wday = number of the week
+  // FIXME add (active == 1)
   snprintf (query,
             ALLOC,
             "SELECT id, strftime('%%H%%M', rule_time), strftime('%%Y%%m%%d', 'now', '%s') "\
@@ -435,6 +493,7 @@ static int query_upcoming_on_rule (void)
   rc = sqlite3_prepare_v2 (db, query, -1, &stmt, NULL);
   if (rc != SQLITE_OK)
     {
+      DEBUG_PRINT_CONTEX;
       fprintf (stderr, "ERROR: Failed while querying rules to make schedule for today\n");
       sqlite3_close (db);
       return EXIT_FAILURE;
@@ -455,6 +514,7 @@ static int query_upcoming_on_rule (void)
       }
     if (rc != SQLITE_DONE && rc != SQLITE_ROW)
       {
+        DEBUG_PRINT_CONTEX;
         fprintf (stderr, "ERROR (failed scheduling for today): %s\n", sqlite3_errmsg (db));
         sqlite3_close (db);
         return EXIT_FAILURE;
@@ -471,6 +531,7 @@ static int query_upcoming_on_rule (void)
           int wday_num = week_day (timeinfo -> tm_wday + i);
           if (wday_num == -1)
             {
+              DEBUG_PRINT_CONTEX;
               fprintf (stderr, "ERROR: Failed to get schedule for for tomorrow or later (on wday function)\n");
               sqlite3_close (db);
               return EXIT_FAILURE;
@@ -492,6 +553,7 @@ static int query_upcoming_on_rule (void)
           rc = sqlite3_prepare_v2 (db, query, -1, &stmt, NULL);
           if (rc != SQLITE_OK)
             {
+              DEBUG_PRINT_CONTEX;
               fprintf (stderr, "ERROR: Failed scheduling for after\n");
               return EXIT_FAILURE;
             }
@@ -506,6 +568,7 @@ static int query_upcoming_on_rule (void)
             }
           if (rc != SQLITE_DONE)
             {
+              DEBUG_PRINT_CONTEX;
               fprintf (stderr, "ERROR (failed scheduling for after): %s\n", sqlite3_errmsg (db));
               sqlite3_close (db);
               return EXIT_FAILURE;
@@ -517,38 +580,52 @@ static int query_upcoming_on_rule (void)
         }
     }
 
-  // IF ANY RULE WAS FOUND, RETURN AS RULE NOT FOUND
+  // IF ANY RULE WAS FOUND, SEND RETURN AS RULE NOT FOUND
   if (id_match < 0)
     {
       fprintf(stdout, "WARNING: Any turn on rule found.\n");
       pthread_mutex_lock (&rtcwake_args_mutex);
-      rtcwake_args -> found = FALSE;
+      rtcwake_args_local.found = FALSE;
       pthread_mutex_unlock (&rtcwake_args_mutex);
-      return EXIT_SUCCESS;
+      return ON_RULE_NOT_FOUND;
     }
 
   // ELSE, RETURN PARAMETERS
   pthread_mutex_lock (&rtcwake_args_mutex);
 
-  rtcwake_args -> found = TRUE;
+  rtcwake_args_local.found = TRUE;
 
   int minutes;
   sscanf (buffer, "%02d%02d",
-          &(rtcwake_args -> hour),
+          &(rtcwake_args_local.hour),
           &minutes);
-  rtcwake_args -> minutes = (Minutes) minutes;
+  rtcwake_args_local.minutes = (Minutes) minutes;
 
   sscanf (date, "%04d%02d%02d",
-          &(rtcwake_args -> year),
-          &(rtcwake_args -> month),
-          &(rtcwake_args -> day));
+          &(rtcwake_args_local.year),
+          &(rtcwake_args_local.month),
+          &(rtcwake_args_local.day));
 
   pthread_mutex_unlock (&rtcwake_args_mutex);
+
+  DEBUG_PRINT (("RtcwakeArgs fields:\n"\
+                "\tFound: %d\n\tShutdown: %d"\
+                "\n\t(HH:MM) %02d:%02d (DD/MM/YYYY) %02d/%02d/%d"\
+                "\n\tMode: %d",
+                rtcwake_args_local.found, rtcwake_args_local.shutdown_fail,
+                rtcwake_args_local.hour, rtcwake_args_local.minutes,
+                rtcwake_args_local.day, rtcwake_args_local.month, rtcwake_args_local.year,
+                rtcwake_args_local.mode));
+
+  /* if (validade_rtcwake_args () == EXIT_FAILURE) */
+  /*   return INVALID_ON_RULE_ATTRIBUTES; */
+
   return EXIT_SUCCESS;
 }
 
 int validade_rtcwake_args (void)
 {
+  DEBUG_PRINT (("Validating rtcwake_args"));
   pthread_mutex_lock (&rtcwake_args_mutex);
 
   gboolean hour, minutes, year, timestamp, mode;
@@ -558,11 +635,11 @@ int validade_rtcwake_args (void)
   struct tm *timeinfo;
 
   // Hour
-  if (rtcwake_args -> hour >= 0 && rtcwake_args -> hour <= 23)
+  if (rtcwake_args_local.hour >= 0 && rtcwake_args_local.hour <= 23)
     hour = TRUE;
 
   // Minutes
-  switch (rtcwake_args -> minutes)
+  switch (rtcwake_args_local.minutes)
     {
     case M_00:
     case M_10:
@@ -578,29 +655,29 @@ int validade_rtcwake_args (void)
     }
 
   // Date (as a valid DD/MM/YYYY date format)
-  timeinfo -> tm_mday = rtcwake_args -> day;
-  timeinfo -> tm_mon = rtcwake_args -> month - 1;
-  timeinfo -> tm_year = rtcwake_args -> year - 1900;
+  timeinfo -> tm_mday = rtcwake_args_local.day;
+  timeinfo -> tm_mon = rtcwake_args_local.month - 1;
+  timeinfo -> tm_year = rtcwake_args_local.year - 1900;
   timeinfo -> tm_isdst = -1;
 
   time_check = mktime (timeinfo);
 
   if (time_check == -1
-      || timeinfo -> tm_mday != rtcwake_args -> day
-      || timeinfo -> tm_mon != rtcwake_args -> month
-      || timeinfo -> tm_year != rtcwake_args -> year)
+      || timeinfo -> tm_mday != rtcwake_args_local.day
+      || timeinfo -> tm_mon != rtcwake_args_local.month
+      || timeinfo -> tm_year != rtcwake_args_local.year)
     timestamp = FALSE;
   else
     timestamp = TRUE;
 
   // Year (must be this year or at most the next, only)
   get_time_tm (&timeinfo);
-  if (rtcwake_args -> year > timeinfo -> tm_year + 1)
+  if (rtcwake_args_local.year > timeinfo -> tm_year + 1)
     year = FALSE;
   else
     year = TRUE;
 
-  switch (rtcwake_args -> mode)
+  switch (rtcwake_args_local.mode)
     {
     case MEM:
     case DISK:
@@ -611,6 +688,10 @@ int validade_rtcwake_args (void)
     default:
       mode = FALSE;
     }
+
+  DEBUG_PRINT (("RtcwakeArgs validation:\n"\
+                  "\tHour: %d\n\tMinutes: %d\n\tYear: %d\n\tTimestamp: %d\n\tMode: %d",
+                  hour, minutes, year, timestamp, mode));
 
   if (hour && minutes && year && timestamp && mode)
     ret = 1;    // valid
@@ -639,4 +720,26 @@ static void sync_time (void)
   DEBUG_PRINT_TIME (("Syncing time"));
   sleep (sync_diff);
   DEBUG_PRINT_TIME (("Time synced"));
+}
+
+static void notify_user (int ret)
+{
+  // TODO make graphical calls
+  switch (ret)
+    {
+    case EXIT_SUCCESS:
+      DEBUG_PRINT_TIME (("Normal notification"));
+      break;
+
+    case ON_RULE_NOT_FOUND:
+      DEBUG_PRINT_TIME (("Turn on rule not found notification"));
+      break;
+
+    case INVALID_ON_RULE_ATTRIBUTES:
+      DEBUG_PRINT_TIME (("Invalid turn on rule attributes notification"));
+      break;
+
+    default:
+      DEBUG_PRINT_TIME (("Error notification"));
+    }
 }

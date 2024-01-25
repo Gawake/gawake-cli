@@ -30,3 +30,5 @@ const char MODE[3][5] = {
   "disk",
   "off"
 };
+
+const char DAYS[7][4] = {"sun", "mon", "tue", "wed", "thu", "fri", "sat"};

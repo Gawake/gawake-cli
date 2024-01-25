@@ -19,6 +19,7 @@
  */
 
 #include "_include/gawaked.h"
+#include "debugger.h"
 
 // if pid == 0, it's the child process
 
@@ -34,6 +35,7 @@ int main (void)
   /* if (pid < 0) */
   /*   { */
   /*     // fork failed, no child process, end parent execution */
+  /*     DEBUG_PRINT_CONTEX; */
   /*     fprintf (stderr, "ERROR on fork ()\n"); */
   /*     exit (EXIT_FAILURE); */
   /*   } */
@@ -45,11 +47,12 @@ int main (void)
   /*     exit (EXIT_SUCCESS); */
   /*   } */
 
-  /* // CREATE SID FOR CHILD */
+  // CREATE SID FOR CHILD
   /* sid = setsid (); */
   /* if (sid < 0) */
   /*   { */
   /*     // Exit on fail */
+  /*     DEBUG_PRINT_CONTEX; */
   /*     fprintf (stderr, "ERROR on setsid ()\n"); */
   /*     exit (EXIT_FAILURE); */
   /*   } */
@@ -58,6 +61,7 @@ int main (void)
   /* if ((chdir ("/home/kelvin/")) < 0) */
   /*   { */
   /*     // Exit on fail */
+  /*     DEBUG_PRINT_CONTEX; */
   /*     fprintf (stderr, "ERROR on scheduler's chdir ()\n"); */
   /*     exit (EXIT_FAILURE); */
   /*   } */
@@ -66,22 +70,27 @@ int main (void)
 
   // CALL gawake-scheduler
   int fd[2];          // fd[0]: read; fd[1]: write
-  pipe (fd);         // TODO error when return -1
+  if (pipe (fd) == -1)
+    {
+      // Error when trying to pipe, child process not create, exit parent process
+      DEBUG_PRINT_CONTEX;
+      fprintf (stderr, "Error on pipe\n");
+      exit (EXIT_FAILURE);
+    }
   pid = fork ();
 
   if (pid < 0)
     {
       // Failed while forking gawake-scheduler, end gawaked (parent process)
+      DEBUG_PRINT_CONTEX;
       fprintf (stderr, "ERROR when forking to gawake-scheduler\n");
       exit (EXIT_FAILURE);
     }
 
-  /* pipe_args_t *pipe_args; */
-  /* pipe_args = malloc (pipe_args_s); */
+  RtcwakeArgs rtcwake_args;
   if (pid == 0)
     {
       // Child process: call gawake-scheduler
-      RtcwakeArgs rtcwake_args;
       int scheduler_return;
 
       // Close the read file descriptor
@@ -91,12 +100,32 @@ int main (void)
       // Call scheduler function, passing pointer to arguments that must be filled
       scheduler_return = scheduler (&rtcwake_args);
 
-      /* if (scheduler_return == EXIT_FAILURE) */
-      /*   { */
+      DEBUG_PRINT (("RtcwakeArgs fields returned by scheduler ():\n"\
+                    "\tFound: %d\n\tShutdown: %d"\
+                    "\n\t(HH:MM) %02d:%02d (DD/MM/YYYY) %02d/%02d/%d"\
+                    "\n\tMode: %d",
+                    rtcwake_args.found, rtcwake_args.shutdown_fail,
+                    rtcwake_args.hour, rtcwake_args.minutes,
+                    rtcwake_args.day, rtcwake_args.month, rtcwake_args.year,
+                    rtcwake_args.mode));
 
-      /*   } */
-      /* pipe_args->hour = 5; pipe_args->minutes=M_30; pipe_args->mode=OFF; */
-      /* write (fd[1], pipe_args, pipe_args_s); */
+      // If scheduler failed, end child process
+      if (scheduler_return == EXIT_FAILURE)
+        {
+          close (fd[1]);
+          exit (EXIT_SUCCESS);
+        }
+      else
+        {
+          // If write to pipe fails, end child process
+          if (write (fd[1], &rtcwake_args, RtcwakeArgs_s) == -1)
+            {
+              DEBUG_PRINT_CONTEX;
+              fprintf (stderr, "ERROR when writing to pipe\n");
+              close (fd[1]);
+              exit (EXIT_FAILURE);
+            }
+        }
 
       close (fd[1]);
 
@@ -112,11 +141,24 @@ int main (void)
       // Wait for child process
       wait (NULL);
 
-      /* read (fd[0], pipe_args, pipe_args_s); */
-      /* printf ("hh %u mm %d mode %d\n", pipe_args->hour, pipe_args->minutes, pipe_args->mode); */
+      if (read (fd[0], &rtcwake_args, RtcwakeArgs_s) == -1)
+        {
+          DEBUG_PRINT_CONTEX;
+          fprintf (stderr, "ERROR when reading from pipe\n");
+          close (fd[0]);
+          exit (EXIT_FAILURE);
+        }
+
+      DEBUG_PRINT (("RtcwakeArgs fields read from pipe by parent process:\n"\
+                    "\tFound: %d\n\tShutdown: %d"\
+                    "\n\t(HH:MM) %02d:%02d (DD/MM/YYYY) %02d/%02d/%d"\
+                    "\n\tMode: %d",
+                    rtcwake_args.found, rtcwake_args.shutdown_fail,
+                    rtcwake_args.hour, rtcwake_args.minutes,
+                    rtcwake_args.day, rtcwake_args.month, rtcwake_args.year,
+                    rtcwake_args.mode));
 
       close (fd[0]);
-      /* free (pipe_args); */
     }
 
 

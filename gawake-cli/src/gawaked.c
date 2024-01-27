@@ -149,7 +149,7 @@ int main (void)
           exit (EXIT_FAILURE);
         }
 
-      DEBUG_PRINT (("RtcwakeArgs fields read from pipe by parent process:\n"\
+      DEBUG_PRINT (("RtcwakeArgs fields read from pipe by gawaked process:\n"\
                     "\tFound: %d\n\tShutdown: %d"\
                     "\n\t(HH:MM) %02d:%02d (DD/MM/YYYY) %02d/%02d/%d"\
                     "\n\tMode: %d",

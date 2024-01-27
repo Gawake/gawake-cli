@@ -35,6 +35,7 @@ typedef struct {
 typedef enum {
   ON_RULE_NOT_FOUND = 5,
   INVALID_ON_RULE_ATTRIBUTES,
+  VALID_ON_RULE_ATTRIBUTES
 } RtcwakeArgsReturn;
 
 #define ALLOC 256

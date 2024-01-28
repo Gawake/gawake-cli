@@ -17,6 +17,52 @@
 #  include <gio/gunixfdlist.h>
 #endif
 
+#ifdef G_ENABLE_DEBUG
+#define g_marshal_value_peek_boolean(v)  g_value_get_boolean (v)
+#define g_marshal_value_peek_char(v)     g_value_get_schar (v)
+#define g_marshal_value_peek_uchar(v)    g_value_get_uchar (v)
+#define g_marshal_value_peek_int(v)      g_value_get_int (v)
+#define g_marshal_value_peek_uint(v)     g_value_get_uint (v)
+#define g_marshal_value_peek_long(v)     g_value_get_long (v)
+#define g_marshal_value_peek_ulong(v)    g_value_get_ulong (v)
+#define g_marshal_value_peek_int64(v)    g_value_get_int64 (v)
+#define g_marshal_value_peek_uint64(v)   g_value_get_uint64 (v)
+#define g_marshal_value_peek_enum(v)     g_value_get_enum (v)
+#define g_marshal_value_peek_flags(v)    g_value_get_flags (v)
+#define g_marshal_value_peek_float(v)    g_value_get_float (v)
+#define g_marshal_value_peek_double(v)   g_value_get_double (v)
+#define g_marshal_value_peek_string(v)   (char*) g_value_get_string (v)
+#define g_marshal_value_peek_param(v)    g_value_get_param (v)
+#define g_marshal_value_peek_boxed(v)    g_value_get_boxed (v)
+#define g_marshal_value_peek_pointer(v)  g_value_get_pointer (v)
+#define g_marshal_value_peek_object(v)   g_value_get_object (v)
+#define g_marshal_value_peek_variant(v)  g_value_get_variant (v)
+#else /* !G_ENABLE_DEBUG */
+/* WARNING: This code accesses GValues directly, which is UNSUPPORTED API.
+ *          Do not access GValues directly in your code. Instead, use the
+ *          g_value_get_*() functions
+ */
+#define g_marshal_value_peek_boolean(v)  (v)->data[0].v_int
+#define g_marshal_value_peek_char(v)     (v)->data[0].v_int
+#define g_marshal_value_peek_uchar(v)    (v)->data[0].v_uint
+#define g_marshal_value_peek_int(v)      (v)->data[0].v_int
+#define g_marshal_value_peek_uint(v)     (v)->data[0].v_uint
+#define g_marshal_value_peek_long(v)     (v)->data[0].v_long
+#define g_marshal_value_peek_ulong(v)    (v)->data[0].v_ulong
+#define g_marshal_value_peek_int64(v)    (v)->data[0].v_int64
+#define g_marshal_value_peek_uint64(v)   (v)->data[0].v_uint64
+#define g_marshal_value_peek_enum(v)     (v)->data[0].v_long
+#define g_marshal_value_peek_flags(v)    (v)->data[0].v_ulong
+#define g_marshal_value_peek_float(v)    (v)->data[0].v_float
+#define g_marshal_value_peek_double(v)   (v)->data[0].v_double
+#define g_marshal_value_peek_string(v)   (v)->data[0].v_pointer
+#define g_marshal_value_peek_param(v)    (v)->data[0].v_pointer
+#define g_marshal_value_peek_boxed(v)    (v)->data[0].v_pointer
+#define g_marshal_value_peek_pointer(v)  (v)->data[0].v_pointer
+#define g_marshal_value_peek_object(v)   (v)->data[0].v_pointer
+#define g_marshal_value_peek_variant(v)  (v)->data[0].v_pointer
+#endif /* !G_ENABLE_DEBUG */
+
 typedef struct
 {
   GDBusArgInfo parent_struct;
@@ -151,6 +197,383 @@ _g_value_equal (const GValue *a, const GValue *b)
   return ret;
 }
 
+static void
+_g_dbus_codegen_marshal_BOOLEAN__OBJECT_STRING_UCHAR_UCHAR_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_UCHAR_UCHAR (
+    GClosure     *closure,
+    GValue       *return_value,
+    unsigned int  n_param_values,
+    const GValue *param_values,
+    void         *invocation_hint G_GNUC_UNUSED,
+    void         *marshal_data)
+{
+  typedef gboolean (*_GDbusCodegenMarshalBoolean_ObjectStringUcharUcharBooleanBooleanBooleanBooleanBooleanBooleanBooleanUcharUcharFunc)
+       (void *data1,
+        GDBusMethodInvocation *arg_method_invocation,
+        const gchar *arg_name,
+        guchar arg_hour,
+        guchar arg_minutes,
+        gboolean arg_day_0,
+        gboolean arg_day_1,
+        gboolean arg_day_2,
+        gboolean arg_day_3,
+        gboolean arg_day_4,
+        gboolean arg_day_5,
+        gboolean arg_day_6,
+        guchar arg_mode,
+        guchar arg_table,
+        void *data2);
+  _GDbusCodegenMarshalBoolean_ObjectStringUcharUcharBooleanBooleanBooleanBooleanBooleanBooleanBooleanUcharUcharFunc callback;
+  GCClosure *cc = (GCClosure*) closure;
+  void *data1, *data2;
+  gboolean v_return;
+
+  g_return_if_fail (return_value != NULL);
+  g_return_if_fail (n_param_values == 14);
+
+  if (G_CCLOSURE_SWAP_DATA (closure))
+    {
+      data1 = closure->data;
+      data2 = g_value_peek_pointer (param_values + 0);
+    }
+  else
+    {
+      data1 = g_value_peek_pointer (param_values + 0);
+      data2 = closure->data;
+    }
+
+  callback = (_GDbusCodegenMarshalBoolean_ObjectStringUcharUcharBooleanBooleanBooleanBooleanBooleanBooleanBooleanUcharUcharFunc)
+    (marshal_data ? marshal_data : cc->callback);
+
+  v_return =
+    callback (data1,
+              g_marshal_value_peek_object (param_values + 1),
+              g_marshal_value_peek_string (param_values + 2),
+              g_marshal_value_peek_uchar (param_values + 3),
+              g_marshal_value_peek_uchar (param_values + 4),
+              g_marshal_value_peek_boolean (param_values + 5),
+              g_marshal_value_peek_boolean (param_values + 6),
+              g_marshal_value_peek_boolean (param_values + 7),
+              g_marshal_value_peek_boolean (param_values + 8),
+              g_marshal_value_peek_boolean (param_values + 9),
+              g_marshal_value_peek_boolean (param_values + 10),
+              g_marshal_value_peek_boolean (param_values + 11),
+              g_marshal_value_peek_uchar (param_values + 12),
+              g_marshal_value_peek_uchar (param_values + 13),
+              data2);
+
+  g_value_set_boolean (return_value, v_return);
+}
+
+static void
+_g_dbus_codegen_marshal_BOOLEAN__OBJECT_UINT_STRING_UCHAR_UCHAR_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_UCHAR_UCHAR (
+    GClosure     *closure,
+    GValue       *return_value,
+    unsigned int  n_param_values,
+    const GValue *param_values,
+    void         *invocation_hint G_GNUC_UNUSED,
+    void         *marshal_data)
+{
+  typedef gboolean (*_GDbusCodegenMarshalBoolean_ObjectUintStringUcharUcharBooleanBooleanBooleanBooleanBooleanBooleanBooleanBooleanUcharUcharFunc)
+       (void *data1,
+        GDBusMethodInvocation *arg_method_invocation,
+        guint16 arg_id,
+        const gchar *arg_name,
+        guchar arg_hour,
+        guchar arg_minutes,
+        gboolean arg_day_0,
+        gboolean arg_day_1,
+        gboolean arg_day_2,
+        gboolean arg_day_3,
+        gboolean arg_day_4,
+        gboolean arg_day_5,
+        gboolean arg_day_6,
+        gboolean arg_active,
+        guchar arg_mode,
+        guchar arg_table,
+        void *data2);
+  _GDbusCodegenMarshalBoolean_ObjectUintStringUcharUcharBooleanBooleanBooleanBooleanBooleanBooleanBooleanBooleanUcharUcharFunc callback;
+  GCClosure *cc = (GCClosure*) closure;
+  void *data1, *data2;
+  gboolean v_return;
+
+  g_return_if_fail (return_value != NULL);
+  g_return_if_fail (n_param_values == 16);
+
+  if (G_CCLOSURE_SWAP_DATA (closure))
+    {
+      data1 = closure->data;
+      data2 = g_value_peek_pointer (param_values + 0);
+    }
+  else
+    {
+      data1 = g_value_peek_pointer (param_values + 0);
+      data2 = closure->data;
+    }
+
+  callback = (_GDbusCodegenMarshalBoolean_ObjectUintStringUcharUcharBooleanBooleanBooleanBooleanBooleanBooleanBooleanBooleanUcharUcharFunc)
+    (marshal_data ? marshal_data : cc->callback);
+
+  v_return =
+    callback (data1,
+              g_marshal_value_peek_object (param_values + 1),
+              g_marshal_value_peek_uint (param_values + 2),
+              g_marshal_value_peek_string (param_values + 3),
+              g_marshal_value_peek_uchar (param_values + 4),
+              g_marshal_value_peek_uchar (param_values + 5),
+              g_marshal_value_peek_boolean (param_values + 6),
+              g_marshal_value_peek_boolean (param_values + 7),
+              g_marshal_value_peek_boolean (param_values + 8),
+              g_marshal_value_peek_boolean (param_values + 9),
+              g_marshal_value_peek_boolean (param_values + 10),
+              g_marshal_value_peek_boolean (param_values + 11),
+              g_marshal_value_peek_boolean (param_values + 12),
+              g_marshal_value_peek_boolean (param_values + 13),
+              g_marshal_value_peek_uchar (param_values + 14),
+              g_marshal_value_peek_uchar (param_values + 15),
+              data2);
+
+  g_value_set_boolean (return_value, v_return);
+}
+
+static void
+_g_dbus_codegen_marshal_BOOLEAN__OBJECT_UINT_UCHAR (
+    GClosure     *closure,
+    GValue       *return_value,
+    unsigned int  n_param_values,
+    const GValue *param_values,
+    void         *invocation_hint G_GNUC_UNUSED,
+    void         *marshal_data)
+{
+  typedef gboolean (*_GDbusCodegenMarshalBoolean_ObjectUintUcharFunc)
+       (void *data1,
+        GDBusMethodInvocation *arg_method_invocation,
+        guint16 arg_id,
+        guchar arg_table,
+        void *data2);
+  _GDbusCodegenMarshalBoolean_ObjectUintUcharFunc callback;
+  GCClosure *cc = (GCClosure*) closure;
+  void *data1, *data2;
+  gboolean v_return;
+
+  g_return_if_fail (return_value != NULL);
+  g_return_if_fail (n_param_values == 4);
+
+  if (G_CCLOSURE_SWAP_DATA (closure))
+    {
+      data1 = closure->data;
+      data2 = g_value_peek_pointer (param_values + 0);
+    }
+  else
+    {
+      data1 = g_value_peek_pointer (param_values + 0);
+      data2 = closure->data;
+    }
+
+  callback = (_GDbusCodegenMarshalBoolean_ObjectUintUcharFunc)
+    (marshal_data ? marshal_data : cc->callback);
+
+  v_return =
+    callback (data1,
+              g_marshal_value_peek_object (param_values + 1),
+              g_marshal_value_peek_uint (param_values + 2),
+              g_marshal_value_peek_uchar (param_values + 3),
+              data2);
+
+  g_value_set_boolean (return_value, v_return);
+}
+
+static void
+_g_dbus_codegen_marshal_BOOLEAN__OBJECT_UINT_UCHAR_BOOLEAN (
+    GClosure     *closure,
+    GValue       *return_value,
+    unsigned int  n_param_values,
+    const GValue *param_values,
+    void         *invocation_hint G_GNUC_UNUSED,
+    void         *marshal_data)
+{
+  typedef gboolean (*_GDbusCodegenMarshalBoolean_ObjectUintUcharBooleanFunc)
+       (void *data1,
+        GDBusMethodInvocation *arg_method_invocation,
+        guint16 arg_id,
+        guchar arg_table,
+        gboolean arg_active,
+        void *data2);
+  _GDbusCodegenMarshalBoolean_ObjectUintUcharBooleanFunc callback;
+  GCClosure *cc = (GCClosure*) closure;
+  void *data1, *data2;
+  gboolean v_return;
+
+  g_return_if_fail (return_value != NULL);
+  g_return_if_fail (n_param_values == 5);
+
+  if (G_CCLOSURE_SWAP_DATA (closure))
+    {
+      data1 = closure->data;
+      data2 = g_value_peek_pointer (param_values + 0);
+    }
+  else
+    {
+      data1 = g_value_peek_pointer (param_values + 0);
+      data2 = closure->data;
+    }
+
+  callback = (_GDbusCodegenMarshalBoolean_ObjectUintUcharBooleanFunc)
+    (marshal_data ? marshal_data : cc->callback);
+
+  v_return =
+    callback (data1,
+              g_marshal_value_peek_object (param_values + 1),
+              g_marshal_value_peek_uint (param_values + 2),
+              g_marshal_value_peek_uchar (param_values + 3),
+              g_marshal_value_peek_boolean (param_values + 4),
+              data2);
+
+  g_value_set_boolean (return_value, v_return);
+}
+
+static void
+_g_dbus_codegen_marshal_BOOLEAN__OBJECT_UCHAR (
+    GClosure     *closure,
+    GValue       *return_value,
+    unsigned int  n_param_values,
+    const GValue *param_values,
+    void         *invocation_hint G_GNUC_UNUSED,
+    void         *marshal_data)
+{
+  typedef gboolean (*_GDbusCodegenMarshalBoolean_ObjectUcharFunc)
+       (void *data1,
+        GDBusMethodInvocation *arg_method_invocation,
+        guchar arg_table,
+        void *data2);
+  _GDbusCodegenMarshalBoolean_ObjectUcharFunc callback;
+  GCClosure *cc = (GCClosure*) closure;
+  void *data1, *data2;
+  gboolean v_return;
+
+  g_return_if_fail (return_value != NULL);
+  g_return_if_fail (n_param_values == 3);
+
+  if (G_CCLOSURE_SWAP_DATA (closure))
+    {
+      data1 = closure->data;
+      data2 = g_value_peek_pointer (param_values + 0);
+    }
+  else
+    {
+      data1 = g_value_peek_pointer (param_values + 0);
+      data2 = closure->data;
+    }
+
+  callback = (_GDbusCodegenMarshalBoolean_ObjectUcharFunc)
+    (marshal_data ? marshal_data : cc->callback);
+
+  v_return =
+    callback (data1,
+              g_marshal_value_peek_object (param_values + 1),
+              g_marshal_value_peek_uchar (param_values + 2),
+              data2);
+
+  g_value_set_boolean (return_value, v_return);
+}
+
+static void
+_g_dbus_codegen_marshal_BOOLEAN__OBJECT (
+    GClosure     *closure,
+    GValue       *return_value,
+    unsigned int  n_param_values,
+    const GValue *param_values,
+    void         *invocation_hint G_GNUC_UNUSED,
+    void         *marshal_data)
+{
+  typedef gboolean (*_GDbusCodegenMarshalBoolean_ObjectFunc)
+       (void *data1,
+        GDBusMethodInvocation *arg_method_invocation,
+        void *data2);
+  _GDbusCodegenMarshalBoolean_ObjectFunc callback;
+  GCClosure *cc = (GCClosure*) closure;
+  void *data1, *data2;
+  gboolean v_return;
+
+  g_return_if_fail (return_value != NULL);
+  g_return_if_fail (n_param_values == 2);
+
+  if (G_CCLOSURE_SWAP_DATA (closure))
+    {
+      data1 = closure->data;
+      data2 = g_value_peek_pointer (param_values + 0);
+    }
+  else
+    {
+      data1 = g_value_peek_pointer (param_values + 0);
+      data2 = closure->data;
+    }
+
+  callback = (_GDbusCodegenMarshalBoolean_ObjectFunc)
+    (marshal_data ? marshal_data : cc->callback);
+
+  v_return =
+    callback (data1,
+              g_marshal_value_peek_object (param_values + 1),
+              data2);
+
+  g_value_set_boolean (return_value, v_return);
+}
+
+static void
+_g_dbus_codegen_marshal_BOOLEAN__OBJECT_UCHAR_UCHAR_UCHAR_UCHAR_BOOLEAN_UCHAR (
+    GClosure     *closure,
+    GValue       *return_value,
+    unsigned int  n_param_values,
+    const GValue *param_values,
+    void         *invocation_hint G_GNUC_UNUSED,
+    void         *marshal_data)
+{
+  typedef gboolean (*_GDbusCodegenMarshalBoolean_ObjectUcharUcharUcharUcharBooleanUcharFunc)
+       (void *data1,
+        GDBusMethodInvocation *arg_method_invocation,
+        guchar arg_hour,
+        guchar arg_minutes,
+        guchar arg_day,
+        guchar arg_month,
+        gboolean arg_year,
+        guchar arg_mode,
+        void *data2);
+  _GDbusCodegenMarshalBoolean_ObjectUcharUcharUcharUcharBooleanUcharFunc callback;
+  GCClosure *cc = (GCClosure*) closure;
+  void *data1, *data2;
+  gboolean v_return;
+
+  g_return_if_fail (return_value != NULL);
+  g_return_if_fail (n_param_values == 8);
+
+  if (G_CCLOSURE_SWAP_DATA (closure))
+    {
+      data1 = closure->data;
+      data2 = g_value_peek_pointer (param_values + 0);
+    }
+  else
+    {
+      data1 = g_value_peek_pointer (param_values + 0);
+      data2 = closure->data;
+    }
+
+  callback = (_GDbusCodegenMarshalBoolean_ObjectUcharUcharUcharUcharBooleanUcharFunc)
+    (marshal_data ? marshal_data : cc->callback);
+
+  v_return =
+    callback (data1,
+              g_marshal_value_peek_object (param_values + 1),
+              g_marshal_value_peek_uchar (param_values + 2),
+              g_marshal_value_peek_uchar (param_values + 3),
+              g_marshal_value_peek_uchar (param_values + 4),
+              g_marshal_value_peek_uchar (param_values + 5),
+              g_marshal_value_peek_boolean (param_values + 6),
+              g_marshal_value_peek_uchar (param_values + 7),
+              data2);
+
+  g_value_set_boolean (return_value, v_return);
+}
+
 /* ------------------------------------------------------------------------
  * Code for interface io.github.kelvinnovais.Database
  * ------------------------------------------------------------------------
@@ -163,6 +586,15 @@ _g_value_equal (const GValue *a, const GValue *b)
  *
  * This section contains code for working with the <link linkend="gdbus-interface-io-github-kelvinnovais-Database.top_of_page">io.github.kelvinnovais.Database</link> D-Bus interface in C.
  */
+
+enum
+{
+  GAWAKE_SERVER__DATABASE_DATABASE_UPDATED,
+  GAWAKE_SERVER__DATABASE_RULE_CANCELED,
+  GAWAKE_SERVER__DATABASE_SCHEDULE_REQUESTED,
+};
+
+static unsigned GAWAKE_SERVER__DATABASE_SIGNALS[3] = { 0 };
 
 /* ---- Introspection data for io.github.kelvinnovais.Database ---- */
 
@@ -808,6 +1240,139 @@ static const _ExtendedGDBusMethodInfo _gawake_server_database_method_info_query_
   FALSE
 };
 
+static const _ExtendedGDBusMethodInfo _gawake_server_database_method_info_cancel_rule =
+{
+  {
+    -1,
+    (gchar *) "CancelRule",
+    NULL,
+    NULL,
+    NULL
+  },
+  "handle-cancel-rule",
+  FALSE
+};
+
+static const _ExtendedGDBusMethodInfo _gawake_server_database_method_info_schedule =
+{
+  {
+    -1,
+    (gchar *) "Schedule",
+    NULL,
+    NULL,
+    NULL
+  },
+  "handle-schedule",
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_custom_schedule_IN_ARG_hour =
+{
+  {
+    -1,
+    (gchar *) "hour",
+    (gchar *) "y",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_custom_schedule_IN_ARG_minutes =
+{
+  {
+    -1,
+    (gchar *) "minutes",
+    (gchar *) "y",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_custom_schedule_IN_ARG_day =
+{
+  {
+    -1,
+    (gchar *) "day",
+    (gchar *) "y",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_custom_schedule_IN_ARG_month =
+{
+  {
+    -1,
+    (gchar *) "month",
+    (gchar *) "y",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_custom_schedule_IN_ARG_year =
+{
+  {
+    -1,
+    (gchar *) "year",
+    (gchar *) "b",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_custom_schedule_IN_ARG_mode =
+{
+  {
+    -1,
+    (gchar *) "mode",
+    (gchar *) "y",
+    NULL
+  },
+  FALSE
+};
+
+static const GDBusArgInfo * const _gawake_server_database_method_info_custom_schedule_IN_ARG_pointers[] =
+{
+  &_gawake_server_database_method_info_custom_schedule_IN_ARG_hour.parent_struct,
+  &_gawake_server_database_method_info_custom_schedule_IN_ARG_minutes.parent_struct,
+  &_gawake_server_database_method_info_custom_schedule_IN_ARG_day.parent_struct,
+  &_gawake_server_database_method_info_custom_schedule_IN_ARG_month.parent_struct,
+  &_gawake_server_database_method_info_custom_schedule_IN_ARG_year.parent_struct,
+  &_gawake_server_database_method_info_custom_schedule_IN_ARG_mode.parent_struct,
+  NULL
+};
+
+static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_custom_schedule_OUT_ARG_success =
+{
+  {
+    -1,
+    (gchar *) "success",
+    (gchar *) "b",
+    NULL
+  },
+  FALSE
+};
+
+static const GDBusArgInfo * const _gawake_server_database_method_info_custom_schedule_OUT_ARG_pointers[] =
+{
+  &_gawake_server_database_method_info_custom_schedule_OUT_ARG_success.parent_struct,
+  NULL
+};
+
+static const _ExtendedGDBusMethodInfo _gawake_server_database_method_info_custom_schedule =
+{
+  {
+    -1,
+    (gchar *) "CustomSchedule",
+    (GDBusArgInfo **) &_gawake_server_database_method_info_custom_schedule_IN_ARG_pointers,
+    (GDBusArgInfo **) &_gawake_server_database_method_info_custom_schedule_OUT_ARG_pointers,
+    NULL
+  },
+  "handle-custom-schedule",
+  FALSE
+};
+
 static const GDBusMethodInfo * const _gawake_server_database_method_info_pointers[] =
 {
   &_gawake_server_database_method_info_add_rule.parent_struct,
@@ -816,6 +1381,50 @@ static const GDBusMethodInfo * const _gawake_server_database_method_info_pointer
   &_gawake_server_database_method_info_enable_disable_rule.parent_struct,
   &_gawake_server_database_method_info_query_rule.parent_struct,
   &_gawake_server_database_method_info_query_rules.parent_struct,
+  &_gawake_server_database_method_info_cancel_rule.parent_struct,
+  &_gawake_server_database_method_info_schedule.parent_struct,
+  &_gawake_server_database_method_info_custom_schedule.parent_struct,
+  NULL
+};
+
+static const _ExtendedGDBusSignalInfo _gawake_server_database_signal_info_database_updated =
+{
+  {
+    -1,
+    (gchar *) "DatabaseUpdated",
+    NULL,
+    NULL
+  },
+  "database-updated"
+};
+
+static const _ExtendedGDBusSignalInfo _gawake_server_database_signal_info_rule_canceled =
+{
+  {
+    -1,
+    (gchar *) "RuleCanceled",
+    NULL,
+    NULL
+  },
+  "rule-canceled"
+};
+
+static const _ExtendedGDBusSignalInfo _gawake_server_database_signal_info_schedule_requested =
+{
+  {
+    -1,
+    (gchar *) "ScheduleRequested",
+    NULL,
+    NULL
+  },
+  "schedule-requested"
+};
+
+static const GDBusSignalInfo * const _gawake_server_database_signal_info_pointers[] =
+{
+  &_gawake_server_database_signal_info_database_updated.parent_struct,
+  &_gawake_server_database_signal_info_rule_canceled.parent_struct,
+  &_gawake_server_database_signal_info_schedule_requested.parent_struct,
   NULL
 };
 
@@ -825,7 +1434,7 @@ static const _ExtendedGDBusInterfaceInfo _gawake_server_database_interface_info 
     -1,
     (gchar *) "io.github.kelvinnovais.Database",
     (GDBusMethodInfo **) &_gawake_server_database_method_info_pointers,
-    NULL,
+    (GDBusSignalInfo **) &_gawake_server_database_signal_info_pointers,
     NULL,
     NULL
   },
@@ -863,6 +1472,162 @@ gawake_server_database_override_properties (GObjectClass *klass G_GNUC_UNUSED, g
 }
 
 
+inline static void
+gawake_server_database_signal_marshal_database_updated (
+    GClosure     *closure,
+    GValue       *return_value,
+    unsigned int  n_param_values,
+    const GValue *param_values,
+    void         *invocation_hint,
+    void         *marshal_data)
+{
+  g_cclosure_marshal_VOID__VOID (closure,
+    return_value, n_param_values, param_values, invocation_hint, marshal_data);
+}
+
+inline static void
+gawake_server_database_signal_marshal_rule_canceled (
+    GClosure     *closure,
+    GValue       *return_value,
+    unsigned int  n_param_values,
+    const GValue *param_values,
+    void         *invocation_hint,
+    void         *marshal_data)
+{
+  g_cclosure_marshal_VOID__VOID (closure,
+    return_value, n_param_values, param_values, invocation_hint, marshal_data);
+}
+
+inline static void
+gawake_server_database_signal_marshal_schedule_requested (
+    GClosure     *closure,
+    GValue       *return_value,
+    unsigned int  n_param_values,
+    const GValue *param_values,
+    void         *invocation_hint,
+    void         *marshal_data)
+{
+  g_cclosure_marshal_VOID__VOID (closure,
+    return_value, n_param_values, param_values, invocation_hint, marshal_data);
+}
+
+inline static void
+gawake_server_database_method_marshal_add_rule (
+    GClosure     *closure,
+    GValue       *return_value,
+    unsigned int  n_param_values,
+    const GValue *param_values,
+    void         *invocation_hint,
+    void         *marshal_data)
+{
+  _g_dbus_codegen_marshal_BOOLEAN__OBJECT_STRING_UCHAR_UCHAR_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_UCHAR_UCHAR (closure,
+    return_value, n_param_values, param_values, invocation_hint, marshal_data);
+}
+
+inline static void
+gawake_server_database_method_marshal_edit_rule (
+    GClosure     *closure,
+    GValue       *return_value,
+    unsigned int  n_param_values,
+    const GValue *param_values,
+    void         *invocation_hint,
+    void         *marshal_data)
+{
+  _g_dbus_codegen_marshal_BOOLEAN__OBJECT_UINT_STRING_UCHAR_UCHAR_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_UCHAR_UCHAR (closure,
+    return_value, n_param_values, param_values, invocation_hint, marshal_data);
+}
+
+inline static void
+gawake_server_database_method_marshal_delete_rule (
+    GClosure     *closure,
+    GValue       *return_value,
+    unsigned int  n_param_values,
+    const GValue *param_values,
+    void         *invocation_hint,
+    void         *marshal_data)
+{
+  _g_dbus_codegen_marshal_BOOLEAN__OBJECT_UINT_UCHAR (closure,
+    return_value, n_param_values, param_values, invocation_hint, marshal_data);
+}
+
+inline static void
+gawake_server_database_method_marshal_enable_disable_rule (
+    GClosure     *closure,
+    GValue       *return_value,
+    unsigned int  n_param_values,
+    const GValue *param_values,
+    void         *invocation_hint,
+    void         *marshal_data)
+{
+  _g_dbus_codegen_marshal_BOOLEAN__OBJECT_UINT_UCHAR_BOOLEAN (closure,
+    return_value, n_param_values, param_values, invocation_hint, marshal_data);
+}
+
+inline static void
+gawake_server_database_method_marshal_query_rule (
+    GClosure     *closure,
+    GValue       *return_value,
+    unsigned int  n_param_values,
+    const GValue *param_values,
+    void         *invocation_hint,
+    void         *marshal_data)
+{
+  _g_dbus_codegen_marshal_BOOLEAN__OBJECT_UINT_UCHAR (closure,
+    return_value, n_param_values, param_values, invocation_hint, marshal_data);
+}
+
+inline static void
+gawake_server_database_method_marshal_query_rules (
+    GClosure     *closure,
+    GValue       *return_value,
+    unsigned int  n_param_values,
+    const GValue *param_values,
+    void         *invocation_hint,
+    void         *marshal_data)
+{
+  _g_dbus_codegen_marshal_BOOLEAN__OBJECT_UCHAR (closure,
+    return_value, n_param_values, param_values, invocation_hint, marshal_data);
+}
+
+inline static void
+gawake_server_database_method_marshal_cancel_rule (
+    GClosure     *closure,
+    GValue       *return_value,
+    unsigned int  n_param_values,
+    const GValue *param_values,
+    void         *invocation_hint,
+    void         *marshal_data)
+{
+  _g_dbus_codegen_marshal_BOOLEAN__OBJECT (closure,
+    return_value, n_param_values, param_values, invocation_hint, marshal_data);
+}
+
+inline static void
+gawake_server_database_method_marshal_schedule (
+    GClosure     *closure,
+    GValue       *return_value,
+    unsigned int  n_param_values,
+    const GValue *param_values,
+    void         *invocation_hint,
+    void         *marshal_data)
+{
+  _g_dbus_codegen_marshal_BOOLEAN__OBJECT (closure,
+    return_value, n_param_values, param_values, invocation_hint, marshal_data);
+}
+
+inline static void
+gawake_server_database_method_marshal_custom_schedule (
+    GClosure     *closure,
+    GValue       *return_value,
+    unsigned int  n_param_values,
+    const GValue *param_values,
+    void         *invocation_hint,
+    void         *marshal_data)
+{
+  _g_dbus_codegen_marshal_BOOLEAN__OBJECT_UCHAR_UCHAR_UCHAR_UCHAR_BOOLEAN_UCHAR (closure,
+    return_value, n_param_values, param_values, invocation_hint, marshal_data);
+}
+
 
 /**
  * GawakeServerDatabase:
@@ -874,11 +1639,17 @@ gawake_server_database_override_properties (GObjectClass *klass G_GNUC_UNUSED, g
  * GawakeServerDatabaseIface:
  * @parent_iface: The parent interface.
  * @handle_add_rule: Handler for the #GawakeServerDatabase::handle-add-rule signal.
+ * @handle_cancel_rule: Handler for the #GawakeServerDatabase::handle-cancel-rule signal.
+ * @handle_custom_schedule: Handler for the #GawakeServerDatabase::handle-custom-schedule signal.
  * @handle_delete_rule: Handler for the #GawakeServerDatabase::handle-delete-rule signal.
  * @handle_edit_rule: Handler for the #GawakeServerDatabase::handle-edit-rule signal.
  * @handle_enable_disable_rule: Handler for the #GawakeServerDatabase::handle-enable-disable-rule signal.
  * @handle_query_rule: Handler for the #GawakeServerDatabase::handle-query-rule signal.
  * @handle_query_rules: Handler for the #GawakeServerDatabase::handle-query-rules signal.
+ * @handle_schedule: Handler for the #GawakeServerDatabase::handle-schedule signal.
+ * @database_updated: Handler for the #GawakeServerDatabase::database-updated signal.
+ * @rule_canceled: Handler for the #GawakeServerDatabase::rule-canceled signal.
+ * @schedule_requested: Handler for the #GawakeServerDatabase::schedule-requested signal.
  *
  * Virtual table for the D-Bus interface <link linkend="gdbus-interface-io-github-kelvinnovais-Database.top_of_page">io.github.kelvinnovais.Database</link>.
  */
@@ -919,7 +1690,7 @@ gawake_server_database_default_init (GawakeServerDatabaseIface *iface)
     G_STRUCT_OFFSET (GawakeServerDatabaseIface, handle_add_rule),
     g_signal_accumulator_true_handled,
     NULL,
-    g_cclosure_marshal_generic,
+      gawake_server_database_method_marshal_add_rule,
     G_TYPE_BOOLEAN,
     13,
     G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING, G_TYPE_UCHAR, G_TYPE_UCHAR, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_UCHAR, G_TYPE_UCHAR);
@@ -955,7 +1726,7 @@ gawake_server_database_default_init (GawakeServerDatabaseIface *iface)
     G_STRUCT_OFFSET (GawakeServerDatabaseIface, handle_edit_rule),
     g_signal_accumulator_true_handled,
     NULL,
-    g_cclosure_marshal_generic,
+      gawake_server_database_method_marshal_edit_rule,
     G_TYPE_BOOLEAN,
     15,
     G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_UINT, G_TYPE_STRING, G_TYPE_UCHAR, G_TYPE_UCHAR, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_UCHAR, G_TYPE_UCHAR);
@@ -979,7 +1750,7 @@ gawake_server_database_default_init (GawakeServerDatabaseIface *iface)
     G_STRUCT_OFFSET (GawakeServerDatabaseIface, handle_delete_rule),
     g_signal_accumulator_true_handled,
     NULL,
-    g_cclosure_marshal_generic,
+      gawake_server_database_method_marshal_delete_rule,
     G_TYPE_BOOLEAN,
     3,
     G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_UINT, G_TYPE_UCHAR);
@@ -1004,7 +1775,7 @@ gawake_server_database_default_init (GawakeServerDatabaseIface *iface)
     G_STRUCT_OFFSET (GawakeServerDatabaseIface, handle_enable_disable_rule),
     g_signal_accumulator_true_handled,
     NULL,
-    g_cclosure_marshal_generic,
+      gawake_server_database_method_marshal_enable_disable_rule,
     G_TYPE_BOOLEAN,
     4,
     G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_UINT, G_TYPE_UCHAR, G_TYPE_BOOLEAN);
@@ -1028,7 +1799,7 @@ gawake_server_database_default_init (GawakeServerDatabaseIface *iface)
     G_STRUCT_OFFSET (GawakeServerDatabaseIface, handle_query_rule),
     g_signal_accumulator_true_handled,
     NULL,
-    g_cclosure_marshal_generic,
+      gawake_server_database_method_marshal_query_rule,
     G_TYPE_BOOLEAN,
     3,
     G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_UINT, G_TYPE_UCHAR);
@@ -1051,11 +1822,180 @@ gawake_server_database_default_init (GawakeServerDatabaseIface *iface)
     G_STRUCT_OFFSET (GawakeServerDatabaseIface, handle_query_rules),
     g_signal_accumulator_true_handled,
     NULL,
-    g_cclosure_marshal_generic,
+      gawake_server_database_method_marshal_query_rules,
     G_TYPE_BOOLEAN,
     2,
     G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_UCHAR);
 
+  /**
+   * GawakeServerDatabase::handle-cancel-rule:
+   * @object: A #GawakeServerDatabase.
+   * @invocation: A #GDBusMethodInvocation.
+   *
+   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-io-github-kelvinnovais-Database.CancelRule">CancelRule()</link> D-Bus method.
+   *
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call gawake_server_database_complete_cancel_rule() or e.g. g_dbus_method_invocation_return_error() on it) and no other signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   *
+   * Returns: %G_DBUS_METHOD_INVOCATION_HANDLED or %TRUE if the invocation was handled, %G_DBUS_METHOD_INVOCATION_UNHANDLED or %FALSE to let other signal handlers run.
+   */
+  g_signal_new ("handle-cancel-rule",
+    G_TYPE_FROM_INTERFACE (iface),
+    G_SIGNAL_RUN_LAST,
+    G_STRUCT_OFFSET (GawakeServerDatabaseIface, handle_cancel_rule),
+    g_signal_accumulator_true_handled,
+    NULL,
+      gawake_server_database_method_marshal_cancel_rule,
+    G_TYPE_BOOLEAN,
+    1,
+    G_TYPE_DBUS_METHOD_INVOCATION);
+
+  /**
+   * GawakeServerDatabase::handle-schedule:
+   * @object: A #GawakeServerDatabase.
+   * @invocation: A #GDBusMethodInvocation.
+   *
+   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-io-github-kelvinnovais-Database.Schedule">Schedule()</link> D-Bus method.
+   *
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call gawake_server_database_complete_schedule() or e.g. g_dbus_method_invocation_return_error() on it) and no other signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   *
+   * Returns: %G_DBUS_METHOD_INVOCATION_HANDLED or %TRUE if the invocation was handled, %G_DBUS_METHOD_INVOCATION_UNHANDLED or %FALSE to let other signal handlers run.
+   */
+  g_signal_new ("handle-schedule",
+    G_TYPE_FROM_INTERFACE (iface),
+    G_SIGNAL_RUN_LAST,
+    G_STRUCT_OFFSET (GawakeServerDatabaseIface, handle_schedule),
+    g_signal_accumulator_true_handled,
+    NULL,
+      gawake_server_database_method_marshal_schedule,
+    G_TYPE_BOOLEAN,
+    1,
+    G_TYPE_DBUS_METHOD_INVOCATION);
+
+  /**
+   * GawakeServerDatabase::handle-custom-schedule:
+   * @object: A #GawakeServerDatabase.
+   * @invocation: A #GDBusMethodInvocation.
+   * @arg_hour: Argument passed by remote caller.
+   * @arg_minutes: Argument passed by remote caller.
+   * @arg_day: Argument passed by remote caller.
+   * @arg_month: Argument passed by remote caller.
+   * @arg_year: Argument passed by remote caller.
+   * @arg_mode: Argument passed by remote caller.
+   *
+   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-io-github-kelvinnovais-Database.CustomSchedule">CustomSchedule()</link> D-Bus method.
+   *
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call gawake_server_database_complete_custom_schedule() or e.g. g_dbus_method_invocation_return_error() on it) and no other signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   *
+   * Returns: %G_DBUS_METHOD_INVOCATION_HANDLED or %TRUE if the invocation was handled, %G_DBUS_METHOD_INVOCATION_UNHANDLED or %FALSE to let other signal handlers run.
+   */
+  g_signal_new ("handle-custom-schedule",
+    G_TYPE_FROM_INTERFACE (iface),
+    G_SIGNAL_RUN_LAST,
+    G_STRUCT_OFFSET (GawakeServerDatabaseIface, handle_custom_schedule),
+    g_signal_accumulator_true_handled,
+    NULL,
+      gawake_server_database_method_marshal_custom_schedule,
+    G_TYPE_BOOLEAN,
+    7,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_UCHAR, G_TYPE_UCHAR, G_TYPE_UCHAR, G_TYPE_UCHAR, G_TYPE_BOOLEAN, G_TYPE_UCHAR);
+
+  /* GObject signals for received D-Bus signals: */
+  /**
+   * GawakeServerDatabase::database-updated:
+   * @object: A #GawakeServerDatabase.
+   *
+   * On the client-side, this signal is emitted whenever the D-Bus signal <link linkend="gdbus-signal-io-github-kelvinnovais-Database.DatabaseUpdated">"DatabaseUpdated"</link> is received.
+   *
+   * On the service-side, this signal can be used with e.g. g_signal_emit_by_name() to make the object emit the D-Bus signal.
+   */
+  GAWAKE_SERVER__DATABASE_SIGNALS[GAWAKE_SERVER__DATABASE_DATABASE_UPDATED] =
+    g_signal_new ("database-updated",
+      G_TYPE_FROM_INTERFACE (iface),
+      G_SIGNAL_RUN_LAST,
+      G_STRUCT_OFFSET (GawakeServerDatabaseIface, database_updated),
+      NULL,
+      NULL,
+      gawake_server_database_signal_marshal_database_updated,
+      G_TYPE_NONE,
+      0);
+
+  /**
+   * GawakeServerDatabase::rule-canceled:
+   * @object: A #GawakeServerDatabase.
+   *
+   * On the client-side, this signal is emitted whenever the D-Bus signal <link linkend="gdbus-signal-io-github-kelvinnovais-Database.RuleCanceled">"RuleCanceled"</link> is received.
+   *
+   * On the service-side, this signal can be used with e.g. g_signal_emit_by_name() to make the object emit the D-Bus signal.
+   */
+  GAWAKE_SERVER__DATABASE_SIGNALS[GAWAKE_SERVER__DATABASE_RULE_CANCELED] =
+    g_signal_new ("rule-canceled",
+      G_TYPE_FROM_INTERFACE (iface),
+      G_SIGNAL_RUN_LAST,
+      G_STRUCT_OFFSET (GawakeServerDatabaseIface, rule_canceled),
+      NULL,
+      NULL,
+      gawake_server_database_signal_marshal_rule_canceled,
+      G_TYPE_NONE,
+      0);
+
+  /**
+   * GawakeServerDatabase::schedule-requested:
+   * @object: A #GawakeServerDatabase.
+   *
+   * On the client-side, this signal is emitted whenever the D-Bus signal <link linkend="gdbus-signal-io-github-kelvinnovais-Database.ScheduleRequested">"ScheduleRequested"</link> is received.
+   *
+   * On the service-side, this signal can be used with e.g. g_signal_emit_by_name() to make the object emit the D-Bus signal.
+   */
+  GAWAKE_SERVER__DATABASE_SIGNALS[GAWAKE_SERVER__DATABASE_SCHEDULE_REQUESTED] =
+    g_signal_new ("schedule-requested",
+      G_TYPE_FROM_INTERFACE (iface),
+      G_SIGNAL_RUN_LAST,
+      G_STRUCT_OFFSET (GawakeServerDatabaseIface, schedule_requested),
+      NULL,
+      NULL,
+      gawake_server_database_signal_marshal_schedule_requested,
+      G_TYPE_NONE,
+      0);
+
+}
+
+/**
+ * gawake_server_database_emit_database_updated:
+ * @object: A #GawakeServerDatabase.
+ *
+ * Emits the <link linkend="gdbus-signal-io-github-kelvinnovais-Database.DatabaseUpdated">"DatabaseUpdated"</link> D-Bus signal.
+ */
+void
+gawake_server_database_emit_database_updated (
+    GawakeServerDatabase *object)
+{
+  g_signal_emit (object, GAWAKE_SERVER__DATABASE_SIGNALS[GAWAKE_SERVER__DATABASE_DATABASE_UPDATED], 0);
+}
+
+/**
+ * gawake_server_database_emit_rule_canceled:
+ * @object: A #GawakeServerDatabase.
+ *
+ * Emits the <link linkend="gdbus-signal-io-github-kelvinnovais-Database.RuleCanceled">"RuleCanceled"</link> D-Bus signal.
+ */
+void
+gawake_server_database_emit_rule_canceled (
+    GawakeServerDatabase *object)
+{
+  g_signal_emit (object, GAWAKE_SERVER__DATABASE_SIGNALS[GAWAKE_SERVER__DATABASE_RULE_CANCELED], 0);
+}
+
+/**
+ * gawake_server_database_emit_schedule_requested:
+ * @object: A #GawakeServerDatabase.
+ *
+ * Emits the <link linkend="gdbus-signal-io-github-kelvinnovais-Database.ScheduleRequested">"ScheduleRequested"</link> D-Bus signal.
+ */
+void
+gawake_server_database_emit_schedule_requested (
+    GawakeServerDatabase *object)
+{
+  g_signal_emit (object, GAWAKE_SERVER__DATABASE_SIGNALS[GAWAKE_SERVER__DATABASE_SCHEDULE_REQUESTED], 0);
 }
 
 /**
@@ -1863,6 +2803,324 @@ _out:
 }
 
 /**
+ * gawake_server_database_call_cancel_rule:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @cancellable: (nullable): A #GCancellable or %NULL.
+ * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
+ * @user_data: User data to pass to @callback.
+ *
+ * Asynchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.CancelRule">CancelRule()</link> D-Bus method on @proxy.
+ * When the operation is finished, @callback will be invoked in the thread-default main loop of the thread you are calling this method from (see g_main_context_push_thread_default()).
+ * You can then call gawake_server_database_call_cancel_rule_finish() to get the result of the operation.
+ *
+ * See gawake_server_database_call_cancel_rule_sync() for the synchronous, blocking version of this method.
+ */
+void
+gawake_server_database_call_cancel_rule (
+    GawakeServerDatabase *proxy,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data)
+{
+  g_dbus_proxy_call (G_DBUS_PROXY (proxy),
+    "CancelRule",
+    g_variant_new ("()"),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    callback,
+    user_data);
+}
+
+/**
+ * gawake_server_database_call_cancel_rule_finish:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to gawake_server_database_call_cancel_rule().
+ * @error: Return location for error or %NULL.
+ *
+ * Finishes an operation started with gawake_server_database_call_cancel_rule().
+ *
+ * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
+ */
+gboolean
+gawake_server_database_call_cancel_rule_finish (
+    GawakeServerDatabase *proxy,
+    GAsyncResult *res,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (proxy), res, error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "()");
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * gawake_server_database_call_cancel_rule_sync:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @cancellable: (nullable): A #GCancellable or %NULL.
+ * @error: Return location for error or %NULL.
+ *
+ * Synchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.CancelRule">CancelRule()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
+ *
+ * See gawake_server_database_call_cancel_rule() for the asynchronous version of this method.
+ *
+ * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
+ */
+gboolean
+gawake_server_database_call_cancel_rule_sync (
+    GawakeServerDatabase *proxy,
+    GCancellable *cancellable,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
+    "CancelRule",
+    g_variant_new ("()"),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "()");
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * gawake_server_database_call_schedule:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @cancellable: (nullable): A #GCancellable or %NULL.
+ * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
+ * @user_data: User data to pass to @callback.
+ *
+ * Asynchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.Schedule">Schedule()</link> D-Bus method on @proxy.
+ * When the operation is finished, @callback will be invoked in the thread-default main loop of the thread you are calling this method from (see g_main_context_push_thread_default()).
+ * You can then call gawake_server_database_call_schedule_finish() to get the result of the operation.
+ *
+ * See gawake_server_database_call_schedule_sync() for the synchronous, blocking version of this method.
+ */
+void
+gawake_server_database_call_schedule (
+    GawakeServerDatabase *proxy,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data)
+{
+  g_dbus_proxy_call (G_DBUS_PROXY (proxy),
+    "Schedule",
+    g_variant_new ("()"),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    callback,
+    user_data);
+}
+
+/**
+ * gawake_server_database_call_schedule_finish:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to gawake_server_database_call_schedule().
+ * @error: Return location for error or %NULL.
+ *
+ * Finishes an operation started with gawake_server_database_call_schedule().
+ *
+ * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
+ */
+gboolean
+gawake_server_database_call_schedule_finish (
+    GawakeServerDatabase *proxy,
+    GAsyncResult *res,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (proxy), res, error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "()");
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * gawake_server_database_call_schedule_sync:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @cancellable: (nullable): A #GCancellable or %NULL.
+ * @error: Return location for error or %NULL.
+ *
+ * Synchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.Schedule">Schedule()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
+ *
+ * See gawake_server_database_call_schedule() for the asynchronous version of this method.
+ *
+ * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
+ */
+gboolean
+gawake_server_database_call_schedule_sync (
+    GawakeServerDatabase *proxy,
+    GCancellable *cancellable,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
+    "Schedule",
+    g_variant_new ("()"),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "()");
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * gawake_server_database_call_custom_schedule:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @arg_hour: Argument to pass with the method invocation.
+ * @arg_minutes: Argument to pass with the method invocation.
+ * @arg_day: Argument to pass with the method invocation.
+ * @arg_month: Argument to pass with the method invocation.
+ * @arg_year: Argument to pass with the method invocation.
+ * @arg_mode: Argument to pass with the method invocation.
+ * @cancellable: (nullable): A #GCancellable or %NULL.
+ * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
+ * @user_data: User data to pass to @callback.
+ *
+ * Asynchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.CustomSchedule">CustomSchedule()</link> D-Bus method on @proxy.
+ * When the operation is finished, @callback will be invoked in the thread-default main loop of the thread you are calling this method from (see g_main_context_push_thread_default()).
+ * You can then call gawake_server_database_call_custom_schedule_finish() to get the result of the operation.
+ *
+ * See gawake_server_database_call_custom_schedule_sync() for the synchronous, blocking version of this method.
+ */
+void
+gawake_server_database_call_custom_schedule (
+    GawakeServerDatabase *proxy,
+    guchar arg_hour,
+    guchar arg_minutes,
+    guchar arg_day,
+    guchar arg_month,
+    gboolean arg_year,
+    guchar arg_mode,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data)
+{
+  g_dbus_proxy_call (G_DBUS_PROXY (proxy),
+    "CustomSchedule",
+    g_variant_new ("(yyyyby)",
+                   arg_hour,
+                   arg_minutes,
+                   arg_day,
+                   arg_month,
+                   arg_year,
+                   arg_mode),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    callback,
+    user_data);
+}
+
+/**
+ * gawake_server_database_call_custom_schedule_finish:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @out_success: (out) (optional): Return location for return parameter or %NULL to ignore.
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to gawake_server_database_call_custom_schedule().
+ * @error: Return location for error or %NULL.
+ *
+ * Finishes an operation started with gawake_server_database_call_custom_schedule().
+ *
+ * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
+ */
+gboolean
+gawake_server_database_call_custom_schedule_finish (
+    GawakeServerDatabase *proxy,
+    gboolean *out_success,
+    GAsyncResult *res,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (proxy), res, error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(b)",
+                 out_success);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * gawake_server_database_call_custom_schedule_sync:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @arg_hour: Argument to pass with the method invocation.
+ * @arg_minutes: Argument to pass with the method invocation.
+ * @arg_day: Argument to pass with the method invocation.
+ * @arg_month: Argument to pass with the method invocation.
+ * @arg_year: Argument to pass with the method invocation.
+ * @arg_mode: Argument to pass with the method invocation.
+ * @out_success: (out) (optional): Return location for return parameter or %NULL to ignore.
+ * @cancellable: (nullable): A #GCancellable or %NULL.
+ * @error: Return location for error or %NULL.
+ *
+ * Synchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.CustomSchedule">CustomSchedule()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
+ *
+ * See gawake_server_database_call_custom_schedule() for the asynchronous version of this method.
+ *
+ * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
+ */
+gboolean
+gawake_server_database_call_custom_schedule_sync (
+    GawakeServerDatabase *proxy,
+    guchar arg_hour,
+    guchar arg_minutes,
+    guchar arg_day,
+    guchar arg_month,
+    gboolean arg_year,
+    guchar arg_mode,
+    gboolean *out_success,
+    GCancellable *cancellable,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
+    "CustomSchedule",
+    g_variant_new ("(yyyyby)",
+                   arg_hour,
+                   arg_minutes,
+                   arg_day,
+                   arg_month,
+                   arg_year,
+                   arg_mode),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(b)",
+                 out_success);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
  * gawake_server_database_complete_add_rule:
  * @object: A #GawakeServerDatabase.
  * @invocation: (transfer full): A #GDBusMethodInvocation.
@@ -1991,6 +3249,63 @@ gawake_server_database_complete_query_rules (
   g_dbus_method_invocation_return_value (invocation,
     g_variant_new ("(@a(qsyybbbbbbbbyy)b)",
                    rules,
+                   success));
+}
+
+/**
+ * gawake_server_database_complete_cancel_rule:
+ * @object: A #GawakeServerDatabase.
+ * @invocation: (transfer full): A #GDBusMethodInvocation.
+ *
+ * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-io-github-kelvinnovais-Database.CancelRule">CancelRule()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
+ *
+ * This method will free @invocation, you cannot use it afterwards.
+ */
+void
+gawake_server_database_complete_cancel_rule (
+    GawakeServerDatabase *object G_GNUC_UNUSED,
+    GDBusMethodInvocation *invocation)
+{
+  g_dbus_method_invocation_return_value (invocation,
+    g_variant_new ("()"));
+}
+
+/**
+ * gawake_server_database_complete_schedule:
+ * @object: A #GawakeServerDatabase.
+ * @invocation: (transfer full): A #GDBusMethodInvocation.
+ *
+ * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-io-github-kelvinnovais-Database.Schedule">Schedule()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
+ *
+ * This method will free @invocation, you cannot use it afterwards.
+ */
+void
+gawake_server_database_complete_schedule (
+    GawakeServerDatabase *object G_GNUC_UNUSED,
+    GDBusMethodInvocation *invocation)
+{
+  g_dbus_method_invocation_return_value (invocation,
+    g_variant_new ("()"));
+}
+
+/**
+ * gawake_server_database_complete_custom_schedule:
+ * @object: A #GawakeServerDatabase.
+ * @invocation: (transfer full): A #GDBusMethodInvocation.
+ * @success: Parameter to return.
+ *
+ * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-io-github-kelvinnovais-Database.CustomSchedule">CustomSchedule()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
+ *
+ * This method will free @invocation, you cannot use it afterwards.
+ */
+void
+gawake_server_database_complete_custom_schedule (
+    GawakeServerDatabase *object G_GNUC_UNUSED,
+    GDBusMethodInvocation *invocation,
+    gboolean success)
+{
+  g_dbus_method_invocation_return_value (invocation,
+    g_variant_new ("(b)",
                    success));
 }
 
@@ -2549,6 +3864,72 @@ gawake_server_database_skeleton_dbus_interface_flush (GDBusInterfaceSkeleton *_s
 {
 }
 
+static void
+_gawake_server_database_on_signal_database_updated (
+    GawakeServerDatabase *object)
+{
+  GawakeServerDatabaseSkeleton *skeleton = GAWAKE_SERVER_DATABASE_SKELETON (object);
+
+  GList      *connections, *l;
+  GVariant   *signal_variant;
+  connections = g_dbus_interface_skeleton_get_connections (G_DBUS_INTERFACE_SKELETON (skeleton));
+
+  signal_variant = g_variant_ref_sink (g_variant_new ("()"));
+  for (l = connections; l != NULL; l = l->next)
+    {
+      GDBusConnection *connection = l->data;
+      g_dbus_connection_emit_signal (connection,
+        NULL, g_dbus_interface_skeleton_get_object_path (G_DBUS_INTERFACE_SKELETON (skeleton)), "io.github.kelvinnovais.Database", "DatabaseUpdated",
+        signal_variant, NULL);
+    }
+  g_variant_unref (signal_variant);
+  g_list_free_full (connections, g_object_unref);
+}
+
+static void
+_gawake_server_database_on_signal_rule_canceled (
+    GawakeServerDatabase *object)
+{
+  GawakeServerDatabaseSkeleton *skeleton = GAWAKE_SERVER_DATABASE_SKELETON (object);
+
+  GList      *connections, *l;
+  GVariant   *signal_variant;
+  connections = g_dbus_interface_skeleton_get_connections (G_DBUS_INTERFACE_SKELETON (skeleton));
+
+  signal_variant = g_variant_ref_sink (g_variant_new ("()"));
+  for (l = connections; l != NULL; l = l->next)
+    {
+      GDBusConnection *connection = l->data;
+      g_dbus_connection_emit_signal (connection,
+        NULL, g_dbus_interface_skeleton_get_object_path (G_DBUS_INTERFACE_SKELETON (skeleton)), "io.github.kelvinnovais.Database", "RuleCanceled",
+        signal_variant, NULL);
+    }
+  g_variant_unref (signal_variant);
+  g_list_free_full (connections, g_object_unref);
+}
+
+static void
+_gawake_server_database_on_signal_schedule_requested (
+    GawakeServerDatabase *object)
+{
+  GawakeServerDatabaseSkeleton *skeleton = GAWAKE_SERVER_DATABASE_SKELETON (object);
+
+  GList      *connections, *l;
+  GVariant   *signal_variant;
+  connections = g_dbus_interface_skeleton_get_connections (G_DBUS_INTERFACE_SKELETON (skeleton));
+
+  signal_variant = g_variant_ref_sink (g_variant_new ("()"));
+  for (l = connections; l != NULL; l = l->next)
+    {
+      GDBusConnection *connection = l->data;
+      g_dbus_connection_emit_signal (connection,
+        NULL, g_dbus_interface_skeleton_get_object_path (G_DBUS_INTERFACE_SKELETON (skeleton)), "io.github.kelvinnovais.Database", "ScheduleRequested",
+        signal_variant, NULL);
+    }
+  g_variant_unref (signal_variant);
+  g_list_free_full (connections, g_object_unref);
+}
+
 static void gawake_server_database_skeleton_iface_init (GawakeServerDatabaseIface *iface);
 #if GLIB_VERSION_MAX_ALLOWED >= GLIB_VERSION_2_38
 G_DEFINE_TYPE_WITH_CODE (GawakeServerDatabaseSkeleton, gawake_server_database_skeleton, G_TYPE_DBUS_INTERFACE_SKELETON,
@@ -2606,8 +3987,11 @@ gawake_server_database_skeleton_class_init (GawakeServerDatabaseSkeletonClass *k
 }
 
 static void
-gawake_server_database_skeleton_iface_init (GawakeServerDatabaseIface *iface G_GNUC_UNUSED)
+gawake_server_database_skeleton_iface_init (GawakeServerDatabaseIface *iface)
 {
+  iface->database_updated = _gawake_server_database_on_signal_database_updated;
+  iface->rule_canceled = _gawake_server_database_on_signal_rule_canceled;
+  iface->schedule_requested = _gawake_server_database_on_signal_schedule_requested;
 }
 
 /**

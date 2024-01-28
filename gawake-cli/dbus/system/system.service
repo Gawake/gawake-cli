@@ -16,6 +16,7 @@ ExecStart=/opt/gawake/bin/gawake-dbus-server
 RemoveIPC=true
 # RootDirectory= # TODO
 WorkingDirectory=/var/lib/gawake
+ReadWritePaths=/var/lib/gawake
 User=gawake
 Group=gawake
 RestrictRealtime=yes

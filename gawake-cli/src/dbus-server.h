@@ -30,6 +30,7 @@ struct _GawakeServerDatabaseIface
 {
   GTypeInterface parent_iface;
 
+
   gboolean (*handle_add_rule) (
     GawakeServerDatabase *object,
     GDBusMethodInvocation *invocation,
@@ -45,6 +46,20 @@ struct _GawakeServerDatabaseIface
     gboolean arg_day_6,
     guchar arg_mode,
     guchar arg_table);
+
+  gboolean (*handle_cancel_rule) (
+    GawakeServerDatabase *object,
+    GDBusMethodInvocation *invocation);
+
+  gboolean (*handle_custom_schedule) (
+    GawakeServerDatabase *object,
+    GDBusMethodInvocation *invocation,
+    guchar arg_hour,
+    guchar arg_minutes,
+    guchar arg_day,
+    guchar arg_month,
+    gboolean arg_year,
+    guchar arg_mode);
 
   gboolean (*handle_delete_rule) (
     GawakeServerDatabase *object,
@@ -88,6 +103,19 @@ struct _GawakeServerDatabaseIface
     GDBusMethodInvocation *invocation,
     guchar arg_table);
 
+  gboolean (*handle_schedule) (
+    GawakeServerDatabase *object,
+    GDBusMethodInvocation *invocation);
+
+  void (*database_updated) (
+    GawakeServerDatabase *object);
+
+  void (*rule_canceled) (
+    GawakeServerDatabase *object);
+
+  void (*schedule_requested) (
+    GawakeServerDatabase *object);
+
 };
 
 GType gawake_server_database_get_type (void) G_GNUC_CONST;
@@ -128,6 +156,31 @@ void gawake_server_database_complete_query_rules (
     GDBusMethodInvocation *invocation,
     GVariant *rules,
     gboolean success);
+
+void gawake_server_database_complete_cancel_rule (
+    GawakeServerDatabase *object,
+    GDBusMethodInvocation *invocation);
+
+void gawake_server_database_complete_schedule (
+    GawakeServerDatabase *object,
+    GDBusMethodInvocation *invocation);
+
+void gawake_server_database_complete_custom_schedule (
+    GawakeServerDatabase *object,
+    GDBusMethodInvocation *invocation,
+    gboolean success);
+
+
+
+/* D-Bus signal emissions functions: */
+void gawake_server_database_emit_database_updated (
+    GawakeServerDatabase *object);
+
+void gawake_server_database_emit_rule_canceled (
+    GawakeServerDatabase *object);
+
+void gawake_server_database_emit_schedule_requested (
+    GawakeServerDatabase *object);
 
 
 
@@ -308,6 +361,68 @@ gboolean gawake_server_database_call_query_rules_sync (
     GawakeServerDatabase *proxy,
     guchar arg_table,
     GVariant **out_rules,
+    gboolean *out_success,
+    GCancellable *cancellable,
+    GError **error);
+
+void gawake_server_database_call_cancel_rule (
+    GawakeServerDatabase *proxy,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data);
+
+gboolean gawake_server_database_call_cancel_rule_finish (
+    GawakeServerDatabase *proxy,
+    GAsyncResult *res,
+    GError **error);
+
+gboolean gawake_server_database_call_cancel_rule_sync (
+    GawakeServerDatabase *proxy,
+    GCancellable *cancellable,
+    GError **error);
+
+void gawake_server_database_call_schedule (
+    GawakeServerDatabase *proxy,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data);
+
+gboolean gawake_server_database_call_schedule_finish (
+    GawakeServerDatabase *proxy,
+    GAsyncResult *res,
+    GError **error);
+
+gboolean gawake_server_database_call_schedule_sync (
+    GawakeServerDatabase *proxy,
+    GCancellable *cancellable,
+    GError **error);
+
+void gawake_server_database_call_custom_schedule (
+    GawakeServerDatabase *proxy,
+    guchar arg_hour,
+    guchar arg_minutes,
+    guchar arg_day,
+    guchar arg_month,
+    gboolean arg_year,
+    guchar arg_mode,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data);
+
+gboolean gawake_server_database_call_custom_schedule_finish (
+    GawakeServerDatabase *proxy,
+    gboolean *out_success,
+    GAsyncResult *res,
+    GError **error);
+
+gboolean gawake_server_database_call_custom_schedule_sync (
+    GawakeServerDatabase *proxy,
+    guchar arg_hour,
+    guchar arg_minutes,
+    guchar arg_day,
+    guchar arg_month,
+    gboolean arg_year,
+    guchar arg_mode,
     gboolean *out_success,
     GCancellable *cancellable,
     GError **error);

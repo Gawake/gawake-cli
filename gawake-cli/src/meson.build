@@ -12,7 +12,8 @@ gawaked_sources = files(
 	'scheduler.c',
 	'get-time.c',
 	'week-day.c',
-	'debugger.c'
+	'debugger.c',
+	'dbus-server.c'
 )
 
 gawake_cli_sources = files(

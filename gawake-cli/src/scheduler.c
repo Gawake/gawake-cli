@@ -32,6 +32,7 @@
 #include "get-time.h"
 #include "week-day.h"
 #include "debugger.h"
+#include "dbus-server.h"
 
 static void *dbus_listener (void *args);
 static void *timed_checker (void *args);
@@ -41,6 +42,8 @@ static int query_upcoming_on_rule (gboolean use_default_mode);
 static void sync_time (void);
 static void notify_user (int ret);
 static double time_remaining (void);
+static void on_database_updated_signal (void);
+static void on_rule_canceled_signal (void);
 
 /*
  * These are static (and private to this file) variables.
@@ -50,7 +53,7 @@ static double time_remaining (void);
  *
  * These variables shouldn't be used on other files.
  */
-static volatile gboolean database_updated = FALSE, canceled = FALSE;
+static volatile gboolean canceled = FALSE;
 static UpcomingOffRule upcoming_off_rule;
 static RtcwakeArgs *rtcwake_args;
 
@@ -104,13 +107,34 @@ int scheduler (RtcwakeArgs *rtcwake_args_ptr)
 static void *dbus_listener (void *args)
 {
   DEBUG_PRINT (("Started dbus_listener thread"));
+  GawakeServerDatabase *proxy;
+  GError *error = NULL;
+
+  proxy = gawake_server_database_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,         // bus_type
+                                                         G_DBUS_PROXY_FLAGS_NONE,   // flags
+                                                         "io.github.kelvinnovais.GawakeServer",  // name
+                                                         "/io/github/kelvinnovais/GawakeServer", //object_path
+                                                         NULL,                      // cancellable
+                                                         &error);                   // error
+
+  // TODO return error on failure
+  if (error != NULL)
+    {
+      fprintf (stderr, "Unable to get proxy: %s\n", error->message);
+      g_error_free (error);
+      return NULL;
+    }
 
   // Database updated
-  sleep (50);
+  g_signal_connect (proxy, "database-updated", G_CALLBACK (on_database_updated_signal), NULL);
 
   // Immediate schedule (check if it's a custom schedule or a signal to trigger next rule): call pthread_kill()
 
   // Cancel schedule
+  g_signal_connect (proxy, "rule-canceled", G_CALLBACK (on_rule_canceled_signal), NULL);
+
+  GMainLoop *loop = g_main_loop_new (NULL, FALSE);
+  g_main_loop_run (loop);
 
   return NULL;
 }
@@ -142,15 +166,6 @@ static void *timed_checker (void *args)
         {
           DEBUG_PRINT (("Querying turn off rule because day changed"));
           query_upcoming_off_rule ();
-        }
-
-      if (database_updated)
-        {
-          DEBUG_PRINT (("Querying turn off rule because database updated"));
-          query_upcoming_off_rule ();
-          pthread_mutex_lock (&booleans_mutex);
-          database_updated = FALSE;
-          pthread_mutex_unlock (&booleans_mutex);
         }
 
       // Calculate time until the upcoming off rule, if the rule was found and Gawake is enabled
@@ -203,6 +218,7 @@ static void *timed_checker (void *args)
     {
       // Sleep 1 minute to get another rule, and go back to main loop
       sleep (60);
+      canceled = FALSE;
       query_upcoming_off_rule ();
       DEBUG_PRINT_TIME (("Returning to timed_checker main loop"));
       goto TIMED_CHECKER_LOOP;
@@ -525,8 +541,10 @@ static int query_upcoming_on_rule (gboolean use_default_mode)
            */
           snprintf (query,
                     ALLOC,
-                    "SELECT id, strftime('%%Y%%m%%d', 'now', '%s', '+%d day'), strftime('%%H%%M', time) "\
-                    "FROM rules_turnon WHERE %s = 1 ORDER BY time(time) ASC LIMIT 1;",
+                    "SELECT id, strftime('%%Y%%m%%d', 'now', '%s', '+%d day'), strftime('%%H%%M', rule_time) "\
+                    "FROM rules_turnon "\
+                    "WHERE %s = 1 AND active = 1 "\
+                    "ORDER BY time(rule_time) ASC LIMIT 1;",
                     is_localtime ? "localtime" : "utc",
                     i,
                     DAYS[wday_num]);
@@ -737,6 +755,18 @@ static double time_remaining (void)
     diff = 0;
 
   return diff;
+}
+
+static void on_database_updated_signal (void)
+{
+  DEBUG_PRINT (("Querying turn off rule because database updated"));
+  query_upcoming_off_rule ();
+}
+
+static void on_rule_canceled_signal (void)
+{
+  DEBUG_PRINT (("Rule canceled by signal"));
+  canceled = TRUE;
 }
 
 /*

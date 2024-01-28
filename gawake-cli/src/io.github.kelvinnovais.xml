@@ -1,5 +1,6 @@
 <node>
   <interface name="io.github.kelvinnovais.Database">
+    <!-- METHODS -->
     <!-- For the methods, data types described on "struct Rules" at gawake_types.h -->
 
     <!-- Since the first methods are simple, and there isn't a big amount of data, -->
@@ -64,7 +65,6 @@
       <arg name="success" direction="out" type="b"/>
     </method>
 
-
     <method name="QueryRules">
       <arg name="table" direction="in" type="y" />
 
@@ -72,16 +72,29 @@
       <arg name="success" direction="out" type="b"/>
     </method>
 
-    <!-- <signal name="Notification"> -->
-    <!--   <arg name="icon_blob" type="ay"/> -->
-    <!--   <arg name="height" type="i"/> -->
-    <!--   <arg name="messages" type="as"/> -->
-    <!-- </signal> -->
+    <method name="CancelRule" />
 
-    <!-- TODO should I remove it?-->
-    <!-- <property name="Verbose" type="b" access="readwrite"/> -->
+    <method name="Schedule" />
+
+    <method name="CustomSchedule">
+      <arg name="hour" direction="in" type="y" />
+      <arg name="minutes" direction="in" type="y" />
+      <arg name="day" direction="in" type="y" />
+      <arg name="month" direction="in" type="y" />
+      <arg name="year" direction="in" type="b" />
+      <arg name="mode" direction="in" type="y" />
+
+      <arg name="success" direction="out" type="b"/>
+    </method>
+
+    <!-- SIGNALS -->
+    <signal name="DatabaseUpdated" />
+    <signal name="RuleCanceled" />
+    <signal name="ScheduleRequested" />
   </interface>
 </node>
 
 <!-- Documentation available by running man "gdbus-codegen" -->
 <!-- or at https://manpages.ubuntu.com/manpages/focal/en/man1/gdbus-codegen.1.html -->
+
+<!-- Some help: https://stackoverflow.com/questions/37185735/sample-program-for-gdbus-signals -->

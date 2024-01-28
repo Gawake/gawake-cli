@@ -87,7 +87,7 @@ on_name_acquired (GDBusConnection *connection,
 
   if (error != NULL)
     {
-      g_fprintf (stderr, "Couldn't export interface skeleton: %s\n", error -> message);
+      g_fprintf (stderr, "Couldn't export interface skeleton: %s\n", error->message);
       g_error_free (error);
     }
 
@@ -163,6 +163,9 @@ on_handle_add_rule (GawakeServerDatabase    *interface,
   // Call the function to add rule, passing the struct pointer
   success = add_rule (&rule);
 
+  if (success)
+    gawake_server_database_emit_database_updated (interface);
+
   gawake_server_database_complete_add_rule (interface, invocation, success);
 
   return TRUE;
@@ -222,6 +225,9 @@ on_handle_edit_rule (GawakeServerDatabase    *interface,
   // Call the edit function, passing the struct pointer
   success = edit_rule (&rule);
 
+  if (success)
+    gawake_server_database_emit_database_updated (interface);
+
   gawake_server_database_complete_edit_rule (interface, invocation, success);
 
   return TRUE;
@@ -243,6 +249,9 @@ on_handle_delete_rule (GawakeServerDatabase    *interface,
 #endif
 
   success = delete_rule (id, table);
+
+  if (success)
+    gawake_server_database_emit_database_updated (interface);
 
   gawake_server_database_complete_delete_rule (interface, invocation, success);
 
@@ -268,6 +277,9 @@ on_handle_enable_disable_rule (GawakeServerDatabase    *interface,
 #endif
 
   success = enable_disable_rule (id, table, active);
+
+  if (success)
+    gawake_server_database_emit_database_updated (interface);
 
   gawake_server_database_complete_enable_disable_rule (interface, invocation, success);
 
@@ -417,7 +429,7 @@ static gint check_user (void)
   uid_t gawake_uid;
   gid_t gawake_gid;
 
-  struct passwd *p;  // TODO free ?
+  struct passwd *p;
 
   // Query gawake user information
   if ((p = getpwnam ("gawake")) == NULL)
@@ -427,8 +439,8 @@ static gint check_user (void)
     }
   else
     {
-      gawake_uid = p -> pw_uid;
-      gawake_gid = p -> pw_gid;
+      gawake_uid = p->pw_uid;
+      gawake_gid = p->pw_gid;
     }
 
   // Compare results

@@ -58,7 +58,7 @@ struct _GawakeServerDatabaseIface
     guchar arg_minutes,
     guchar arg_day,
     guchar arg_month,
-    gboolean arg_year,
+    guchar arg_year,
     guchar arg_mode);
 
   gboolean (*handle_delete_rule) (
@@ -403,7 +403,7 @@ void gawake_server_database_call_custom_schedule (
     guchar arg_minutes,
     guchar arg_day,
     guchar arg_month,
-    gboolean arg_year,
+    guchar arg_year,
     guchar arg_mode,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
@@ -421,7 +421,7 @@ gboolean gawake_server_database_call_custom_schedule_sync (
     guchar arg_minutes,
     guchar arg_day,
     guchar arg_month,
-    gboolean arg_year,
+    guchar arg_year,
     guchar arg_mode,
     gboolean *out_success,
     GCancellable *cancellable,

@@ -23,6 +23,7 @@
 #include <stdlib.h>
 
 #include "database-connection.h"
+#include "validate-rtcwake-args.h"
 
 static sqlite3 *db = NULL;
 
@@ -486,3 +487,37 @@ gboolean query_rules (const Table table, gRule **rules, guint16 *rowcount)
   return TRUE;
 }
 
+gboolean custom_schedule (const guint8 hour,
+                          const guint8 minutes,
+                          const guint8 day,
+                          const guint8 month,
+                          const guint8 year,
+                          const guint8 mode)
+{
+  gchar *sql = 0;
+  sql = (gchar *) g_malloc (ALLOC);
+  if (sql == NULL)
+    return FALSE;
+
+  RtcwakeArgs rtcwake_args = {
+    .hour = hour,
+    .minutes = minutes,
+    .day = day,
+    .month = month,
+    .year = year,
+    .mode = (Mode) mode,
+  };
+
+  if (validade_rtcwake_args (&rtcwake_args) == -1)
+    return FALSE;
+
+  g_snprintf (sql, ALLOC, "INSERT INTO custom_schedule "\
+              "(hour, minutes, day, month, year, mode) "\
+              "VALUES (%d, %d, %d, %d, %d, %d);",
+              hour, minutes, day, month, year, mode);
+
+  gboolean ret = run_sql (sql);
+  g_free (sql);
+
+  return ret;
+}

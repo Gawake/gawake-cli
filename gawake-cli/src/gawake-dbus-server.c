@@ -78,6 +78,7 @@ on_name_acquired (GDBusConnection *connection,
   g_signal_connect (interface, "handle-enable-disable-rule", G_CALLBACK (on_handle_enable_disable_rule), NULL);
   g_signal_connect (interface, "handle-query-rule", G_CALLBACK (on_handle_query_rule), NULL);
   g_signal_connect (interface, "handle-query-rules", G_CALLBACK (on_handle_query_rules), NULL);
+  g_signal_connect (interface, "handle-custom-schedule", G_CALLBACK (on_handle_custom_schedule), NULL);
 
   error = NULL;
   g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (interface),
@@ -418,6 +419,36 @@ on_handle_query_rules (GawakeServerDatabase    *interface,
 
   rules = g_variant_ref_sink (rules);
   g_variant_unref (rules);
+
+  return TRUE;
+}
+
+static gboolean
+on_handle_custom_schedule (GawakeServerDatabase    *interface,
+                           GDBusMethodInvocation   *invocation,
+                           const guint8            hour,
+                           const guint8            minutes,
+                           const guint8            day,
+                           const guint8            month,
+                           const guint8            year,
+                           const guint8            mode,
+                           gpointer                user_data)
+{
+ gboolean success;
+
+#if PREPROCESSOR_DEBUG
+  g_print ("RECEIVED:\n");
+  g_print ("[HH:MM] %d:%d\n", hour, minutes);
+  g_print ("[DD/MM/YYYY] %02d/%02d/%d\n", day, month, year);
+  g_print ("Mode: %d\n\n", mode);
+#endif
+
+  success = custom_schedule (hour, minutes, day, month, year, mode);
+
+  if (success)
+    gawake_server_database_emit_schedule_requested (interface);
+
+  gawake_server_database_complete_custom_schedule (interface, invocation, success);
 
   return TRUE;
 }

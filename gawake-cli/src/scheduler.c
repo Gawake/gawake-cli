@@ -22,28 +22,8 @@
 // but that notification should happen today.
 // In this case the device is active across days
 
-#include <stdlib.h>
-#include <sqlite3.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <pthread.h>
-
 #include "scheduler.h"
-#include "get-time.h"
-#include "week-day.h"
-#include "debugger.h"
-#include "dbus-server.h"
-
-static void *dbus_listener (void *args);
-static void *timed_checker (void *args);
-static int day_changed (void);
-static int query_upcoming_off_rule (void);  // TODO treat on fail (?)
-static int query_upcoming_on_rule (gboolean use_default_mode);
-static void sync_time (void);
-static void notify_user (int ret);
-static double time_remaining (void);
-static void on_database_updated_signal (void);
-static void on_rule_canceled_signal (void);
+#include "_include/scheduler_private.h"
 
 /*
  * These are static (and private to this file) variables.
@@ -128,7 +108,8 @@ static void *dbus_listener (void *args)
   // Database updated
   g_signal_connect (proxy, "database-updated", G_CALLBACK (on_database_updated_signal), NULL);
 
-  // Immediate schedule (check if it's a custom schedule or a signal to trigger next rule): call pthread_kill()
+  // Immediate schedule
+  g_signal_connect (proxy, "schedule-requested", G_CALLBACK (on_schedule_requested), NULL);
 
   // Cancel schedule
   g_signal_connect (proxy, "rule-canceled", G_CALLBACK (on_rule_canceled_signal), NULL);
@@ -357,6 +338,9 @@ static int query_upcoming_off_rule (void)
         {
           pthread_mutex_lock (&upcoming_off_rule_mutex);
 
+          // Set "rule found?" to true
+          upcoming_off_rule.found = TRUE;
+
           // Hour and minutes
           // TODO sqlite3_column_text16 has correct data type for sscanf, but returned data is wrong
           sscanf (sqlite3_column_text (stmt, 0), "%02d%02d", &hour, &minutes);
@@ -394,11 +378,6 @@ static int query_upcoming_off_rule (void)
     }
   sqlite3_finalize (stmt);
 
-  // Set "rule found?" to true
-  pthread_mutex_lock (&upcoming_off_rule_mutex);
-  upcoming_off_rule.found = TRUE;
-  pthread_mutex_unlock (&upcoming_off_rule_mutex);
-
   DEBUG_PRINT (("Upcoming off rule fields:\n"\
                 "\tFound: %d\n\tHour: %02d\n\tMinutes: %02d\n\tMode: %d\n\tNotification time: %d s",
                 upcoming_off_rule.found, upcoming_off_rule.hour, upcoming_off_rule.minutes,
@@ -419,13 +398,17 @@ static int query_upcoming_on_rule (gboolean use_default_mode)
   // Index(0 to 6) matches tm_wday; these strings refer to SQLite columns name
   char query[ALLOC], buffer[BUFFER_ALLOC], date[9];
 
+  pthread_mutex_lock (&rtcwake_args_mutex);
+  rtcwake_args->found = FALSE;
+  pthread_mutex_unlock (&rtcwake_args_mutex);
+
   // OPEN DATABASE
   rc = sqlite3_open_v2 (DB_PATH, &db, SQLITE_OPEN_READONLY, NULL);
   if (rc != SQLITE_OK)
     {
       DEBUG_PRINT_CONTEX;
       fprintf (stderr, "Couldn't open database: %s\n", sqlite3_errmsg (db));
-      return EXIT_FAILURE;
+      return RTCWAKE_ARGS_FAILURE;
     }
 
   // GET THE DATABASE CONFIG
@@ -440,7 +423,7 @@ static int query_upcoming_on_rule (gboolean use_default_mode)
       DEBUG_PRINT_CONTEX;
       fprintf (stderr, "ERROR: Failed getting config information\n");
       sqlite3_close (db);
-      return EXIT_FAILURE;
+      return RTCWAKE_ARGS_FAILURE;
     }
   while ((rc = sqlite3_step (stmt)) == SQLITE_ROW)
     {
@@ -463,7 +446,7 @@ static int query_upcoming_on_rule (gboolean use_default_mode)
       DEBUG_PRINT_CONTEX;
       fprintf (stderr, "ERROR (failed getting config information): %s\n", sqlite3_errmsg (db));
       sqlite3_close (db);
-      return EXIT_FAILURE;
+      return RTCWAKE_ARGS_FAILURE;
     }
   sqlite3_finalize (stmt);
 
@@ -493,7 +476,7 @@ static int query_upcoming_on_rule (gboolean use_default_mode)
       DEBUG_PRINT_CONTEX;
       fprintf (stderr, "ERROR: Failed while querying rules to make schedule for today\n");
       sqlite3_close (db);
-      return EXIT_FAILURE;
+      return RTCWAKE_ARGS_FAILURE;
     }
 
   // Get all rules today, ordered by time; the first rule that has a bigger time than now is a valid
@@ -514,7 +497,7 @@ static int query_upcoming_on_rule (gboolean use_default_mode)
         DEBUG_PRINT_CONTEX;
         fprintf (stderr, "ERROR (failed scheduling for today): %s\n", sqlite3_errmsg (db));
         sqlite3_close (db);
-        return EXIT_FAILURE;
+        return RTCWAKE_ARGS_FAILURE;
       }
   sqlite3_finalize (stmt);
 
@@ -531,7 +514,7 @@ static int query_upcoming_on_rule (gboolean use_default_mode)
               DEBUG_PRINT_CONTEX;
               fprintf (stderr, "ERROR: Failed to get schedule for for tomorrow or later (on wday function)\n");
               sqlite3_close (db);
-              return EXIT_FAILURE;
+              return RTCWAKE_ARGS_FAILURE;
             }
 
           /*
@@ -554,7 +537,7 @@ static int query_upcoming_on_rule (gboolean use_default_mode)
             {
               DEBUG_PRINT_CONTEX;
               fprintf (stderr, "ERROR: Failed scheduling for after\n");
-              return EXIT_FAILURE;
+              return RTCWAKE_ARGS_FAILURE;
             }
           while ((rc = sqlite3_step (stmt)) == SQLITE_ROW)
             {
@@ -570,7 +553,7 @@ static int query_upcoming_on_rule (gboolean use_default_mode)
               DEBUG_PRINT_CONTEX;
               fprintf (stderr, "ERROR (failed scheduling for after): %s\n", sqlite3_errmsg (db));
               sqlite3_close (db);
-              return EXIT_FAILURE;
+              return RTCWAKE_ARGS_FAILURE;
             }
           sqlite3_finalize (stmt);
 
@@ -583,10 +566,7 @@ static int query_upcoming_on_rule (gboolean use_default_mode)
   if (id_match < 0)
     {
       fprintf (stdout, "WARNING: Any turn on rule found.\n");
-      pthread_mutex_lock (&rtcwake_args_mutex);
-      rtcwake_args->found = FALSE;
-      pthread_mutex_unlock (&rtcwake_args_mutex);
-      return ON_RULE_NOT_FOUND;
+      return RTCWAKE_ARGS_NOT_FOUND;
     }
 
   // ELSE, RETURN PARAMETERS
@@ -616,91 +596,119 @@ static int query_upcoming_on_rule (gboolean use_default_mode)
                 rtcwake_args->day, rtcwake_args->month, rtcwake_args->year,
                 rtcwake_args->mode));
 
-  if (validade_rtcwake_args () == INVALID_ON_RULE_ATTRIBUTES)
-    return INVALID_ON_RULE_ATTRIBUTES;
+  if (validade_rtcwake_args (rtcwake_args) == -1)
+    return INVALID_RTCWAKE_ARGS;
   else
-    return EXIT_SUCCESS;
+    return RTCWAKE_ARGS_SUCESS;
 }
 
-int validade_rtcwake_args (void)
+static int query_custom_schedule (void)
 {
-  DEBUG_PRINT (("Validating rtcwake_args..."));
+  int rc;
+  struct sqlite3_stmt *stmt;
+  sqlite3 *db;
+  char query[ALLOC];
 
   pthread_mutex_lock (&rtcwake_args_mutex);
-
-  gboolean hour, minutes, date, year, mode;
-  hour = minutes = date = year  = mode = FALSE;
-  int ret;
-  struct tm *timeinfo;
-
-  // Hour
-  if (rtcwake_args->hour >= 0 && rtcwake_args->hour <= 23)
-    hour = TRUE;
-
-  // Minutes
-  switch (rtcwake_args->minutes)
-    {
-    case M_00:
-    case M_10:
-    case M_20:
-    case M_30:
-    case M_40:
-    case M_50:
-      minutes = TRUE;
-      break;
-
-    default:
-      minutes = FALSE;
-    }
-
-  // Date
-  struct tm input = {
-    .tm_mday = rtcwake_args->day,
-    .tm_mon = rtcwake_args->month - 1,
-    .tm_year = rtcwake_args->year - 1900,
-  };
-  time_t generated_time = mktime (&input);
-  timeinfo = localtime (&generated_time);
-  if (generated_time == -1
-      || rtcwake_args->day != timeinfo->tm_mday
-      || rtcwake_args->month != timeinfo->tm_mon + 1
-      || rtcwake_args->year != timeinfo->tm_year + 1900)
-    date = FALSE;
-  else
-    date = TRUE;
-
-  // Year (must be this year or at most the next, only)
-  get_time_tm (&timeinfo);
-  if (rtcwake_args->year > (timeinfo->tm_year + 1900 + 1))
-    year = FALSE;
-  else
-    year = TRUE;
-
-  switch (rtcwake_args->mode)
-    {
-    case MEM:
-    case DISK:
-    case OFF:
-      mode = TRUE;
-      break;
-
-    default:
-      mode = FALSE;
-    }
-
-  if (hour && minutes && year && mode)
-    ret = VALID_ON_RULE_ATTRIBUTES;
-  else
-    ret = INVALID_ON_RULE_ATTRIBUTES;
-
+  rtcwake_args->found = FALSE;
   pthread_mutex_unlock (&rtcwake_args_mutex);
 
-  DEBUG_PRINT (("RtcwakeArgs validation:\n"\
-                "\tHour: %d\n\tMinutes: %d\n\tDate: %d\n\tYear: %d\n"\
-                "\tMode: %d\n\tthis_year: %d\n\t--> Passed: %d",
-                hour, minutes, date, year, mode, timeinfo->tm_year + 1900, ret));
+  // OPEN DATABASE
+  rc = sqlite3_open_v2 (DB_PATH, &db, SQLITE_OPEN_READONLY, NULL);
+  if (rc != SQLITE_OK)
+    {
+      DEBUG_PRINT_CONTEX;
+      fprintf (stderr, "Couldn't open database: %s\n", sqlite3_errmsg (db));
+      return RTCWAKE_ARGS_FAILURE;
+    }
 
-  return ret;
+  // GET THE DATABASE CONFIG
+  rc = sqlite3_prepare_v2 (db,
+                           "SELECT shutdown_fail "\
+                           "FROM config WHERE id = 1;",
+                           -1,
+                           &stmt,
+                           NULL);
+  if (rc != SQLITE_OK)
+    {
+      DEBUG_PRINT_CONTEX;
+      fprintf (stderr, "ERROR: Failed getting config information\n");
+      sqlite3_close (db);
+      return RTCWAKE_ARGS_FAILURE;
+    }
+  while ((rc = sqlite3_step (stmt)) == SQLITE_ROW)
+    {
+      pthread_mutex_lock (&rtcwake_args_mutex);
+      rtcwake_args->shutdown_fail = sqlite3_column_int (stmt, 0);
+      pthread_mutex_unlock (&rtcwake_args_mutex);
+    }
+  if (rc != SQLITE_DONE)
+    {
+      DEBUG_PRINT_CONTEX;
+      fprintf (stderr, "ERROR (failed getting config information): %s\n", sqlite3_errmsg (db));
+      sqlite3_close (db);
+      return RTCWAKE_ARGS_FAILURE;
+    }
+  sqlite3_finalize (stmt);
+
+  // Create an SQL statement to get the custom rule
+  snprintf (query,
+            ALLOC,
+            "SELECT hour, minutes, day, month, year, mode "\
+            "FROM custom_schedule "\
+            "LIMIT = 1;");
+
+  rc = sqlite3_prepare_v2 (db, query, -1, &stmt, NULL);
+  if (rc != SQLITE_OK)
+    {
+      DEBUG_PRINT_CONTEX;
+      fprintf (stderr, "ERROR: Failed while querying rules to make schedule for today\n"\
+               "SQL: %s\n", query);
+      sqlite3_close (db);
+      return RTCWAKE_ARGS_FAILURE;
+    }
+
+  // Get values
+  while ((rc = sqlite3_step (stmt)) == SQLITE_ROW)
+    {
+      pthread_mutex_lock (&rtcwake_args_mutex);
+
+      rtcwake_args->hour = sqlite3_column_int (stmt, 0);
+      rtcwake_args->minutes = (Minutes) sqlite3_column_int (stmt, 1);
+
+      rtcwake_args->year = sqlite3_column_int (stmt, 2);
+      rtcwake_args->month = sqlite3_column_int (stmt, 3);
+      rtcwake_args->day = sqlite3_column_int (stmt, 4);
+      rtcwake_args->mode = sqlite3_column_int (stmt, 5);
+
+      pthread_mutex_unlock (&rtcwake_args_mutex);
+    }
+  if (rc != SQLITE_DONE && rc != SQLITE_ROW)
+    {
+      DEBUG_PRINT_CONTEX;
+      fprintf (stderr, "ERROR (failed scheduling for today): %s\n", sqlite3_errmsg (db));
+      sqlite3_close (db);
+      return RTCWAKE_ARGS_FAILURE;
+    }
+  sqlite3_finalize (stmt);
+
+  pthread_mutex_lock (&rtcwake_args_mutex);
+  rtcwake_args->found = TRUE;
+  pthread_mutex_unlock (&rtcwake_args_mutex);
+
+  DEBUG_PRINT (("RtcwakeArgs fields:\n"\
+                "\tFound: %d\n\tShutdown: %d"\
+                "\n\t[HH:MM] %02d:%02d\n\t[DD/MM/YYYY] %02d/%02d/%d"\
+                "\n\tMode: %d",
+                rtcwake_args->found, rtcwake_args->shutdown_fail,
+                rtcwake_args->hour, rtcwake_args->minutes,
+                rtcwake_args->day, rtcwake_args->month, rtcwake_args->year,
+                rtcwake_args->mode));
+
+  if (validade_rtcwake_args (rtcwake_args) == -1)
+    return INVALID_RTCWAKE_ARGS;
+  else
+    return RTCWAKE_ARGS_SUCESS;
 }
 
 static void sync_time (void)
@@ -727,15 +735,15 @@ static void notify_user (int ret)
   // TODO make graphical calls
   switch (ret)
     {
-    case EXIT_SUCCESS:
+    case RTCWAKE_ARGS_SUCESS:
       DEBUG_PRINT_TIME (("Normal notification"));
       break;
 
-    case ON_RULE_NOT_FOUND:
+    case RTCWAKE_ARGS_NOT_FOUND:
       DEBUG_PRINT_TIME (("Turn on rule not found notification"));
       break;
 
-    case INVALID_ON_RULE_ATTRIBUTES:
+    case INVALID_RTCWAKE_ARGS:
       DEBUG_PRINT_TIME (("Invalid turn on rule attributes notification"));
       break;
 
@@ -767,6 +775,24 @@ static void on_rule_canceled_signal (void)
 {
   DEBUG_PRINT (("Rule canceled by signal"));
   canceled = TRUE;
+}
+
+static void on_schedule_requested (void)
+{
+  int ret = query_custom_schedule ();
+
+  if (ret == RTCWAKE_ARGS_FAILURE && rtcwake_args->shutdown_fail == TRUE)
+    {
+      // On failure, notify user and shutdown
+      rtcwake_args->run_shutdown = TRUE;
+      notify_user (ret);
+      // TODO finalize threads
+    }
+  else
+    {
+      // Just notify user and do nothing
+      notify_user (ret);
+    }
 }
 
 /*

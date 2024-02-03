@@ -4,6 +4,8 @@ gawake_dbus_server_sources = files(
 	'dbus-server.c',
 	'database-connection.c',
 	'gawake-types.c',
+	'validate-rtcwake-args.c',
+	'get-time.c'
 )
 
 gawaked_sources = files(
@@ -13,7 +15,8 @@ gawaked_sources = files(
 	'get-time.c',
 	'week-day.c',
 	'debugger.c',
-	'dbus-server.c'
+	'dbus-server.c',
+	'validate-rtcwake-args.c'
 )
 
 gawake_cli_sources = files(

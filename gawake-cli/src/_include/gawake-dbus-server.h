@@ -85,6 +85,17 @@ on_handle_query_rules (GawakeServerDatabase    *interface,
                        const guint8            table,
                        gpointer                user_data);
 
+static gboolean
+on_handle_custom_schedule (GawakeServerDatabase    *interface,
+                           GDBusMethodInvocation   *invocation,
+                           guint8            hour,
+                           const guint8            minutes,
+                           const guint8            day,
+                           const guint8            month,
+                           const guint8            year,
+                           const guint8            mode,
+                           gpointer                user_data);
+
 static gint check_user (void);
 
 static void exit_handler (int sig);

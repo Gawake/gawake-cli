@@ -89,4 +89,18 @@ typedef struct
   Table table;                   // y
 } gRule;
 
+typedef struct {
+  gboolean found;
+  gboolean shutdown_fail;   // This variable is independent of turnon_rules table
+  gboolean run_shutdown;
+  int hour;
+  Minutes minutes;
+  int day;
+  int month;
+  int year;
+  Mode mode;
+} RtcwakeArgs;
+
+#define RtcwakeArgs_s sizeof (RtcwakeArgs)
+
 #endif /* GAWAKE_TYPES_H_ */

@@ -1,4 +1,4 @@
-CREATE TABLE rules_turnon (
+CREATE TABLE IF NOT EXISTS rules_turnon (
 	id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	rule_name   TEXT NOT NULL,
 	rule_time   TEXT NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE rules_turnon (
 	active      INTEGER NOT NULL
 );
 
-CREATE TABLE rules_turnoff (
+CREATE TABLE IF NOT EXISTS rules_turnoff (
 	id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	rule_name   TEXT NOT NULL,
 	rule_time   TEXT NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE rules_turnoff (
 	mode        INTEGER NOT NULL
 );
 
-CREATE TABLE config (
+CREATE TABLE IF NOT EXISTS config (
 	id                      INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	status                  INTEGER NOT NULL,
 	cli_version             TEXT,
@@ -42,3 +42,20 @@ CREATE TABLE config (
 
 INSERT INTO config (status, cli_version, localtime, default_mode, boot_time, notification_time, shutdown_fail)
 VALUES (1, '1.0.0', 1, 2, 120, 5, 0);
+
+CREATE TABLE IF NOT EXISTS custom_schedule (
+	id             INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	hour           INTEGER NOT NULL,
+	minutes        INTEGER NOT NULL,
+	day            INTEGER NOT NULL,
+	month          INTEGER NOT NULL,
+	year           INTEGER NOT NULL,
+	mode           INTEGER NOT NULL,
+	-- If this custom schedule was performed with a countdown
+	countdown      INTEGER NOT NULL,
+	-- If failed on last run
+	failed_last    INTEGER
+);
+
+INSERT INTO custom_rule (hour, minutes, day, month, year, mode, countdown, failed_last)
+VALUES (0, 0, 0, 0, 0, 0, 0, 0);

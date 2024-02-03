@@ -86,7 +86,7 @@ int validade_rtcwake_args (RtcwakeArgs *rtcwake_args)
       mode = FALSE;
     }
 
-  if (hour && minutes && year && mode)
+  if (hour && minutes && date && year && mode)
     ret = 1;    // valid
   else
     ret = -1;   // invalid

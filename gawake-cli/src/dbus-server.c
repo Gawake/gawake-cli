@@ -520,7 +520,7 @@ _g_dbus_codegen_marshal_BOOLEAN__OBJECT (
 }
 
 static void
-_g_dbus_codegen_marshal_BOOLEAN__OBJECT_UCHAR_UCHAR_UCHAR_UCHAR_UCHAR_UCHAR (
+_g_dbus_codegen_marshal_BOOLEAN__OBJECT_UCHAR_UCHAR_UCHAR_UCHAR_UINT_UCHAR (
     GClosure     *closure,
     GValue       *return_value,
     unsigned int  n_param_values,
@@ -528,17 +528,17 @@ _g_dbus_codegen_marshal_BOOLEAN__OBJECT_UCHAR_UCHAR_UCHAR_UCHAR_UCHAR_UCHAR (
     void         *invocation_hint G_GNUC_UNUSED,
     void         *marshal_data)
 {
-  typedef gboolean (*_GDbusCodegenMarshalBoolean_ObjectUcharUcharUcharUcharUcharUcharFunc)
+  typedef gboolean (*_GDbusCodegenMarshalBoolean_ObjectUcharUcharUcharUcharUintUcharFunc)
        (void *data1,
         GDBusMethodInvocation *arg_method_invocation,
         guchar arg_hour,
         guchar arg_minutes,
         guchar arg_day,
         guchar arg_month,
-        guchar arg_year,
+        guint16 arg_year,
         guchar arg_mode,
         void *data2);
-  _GDbusCodegenMarshalBoolean_ObjectUcharUcharUcharUcharUcharUcharFunc callback;
+  _GDbusCodegenMarshalBoolean_ObjectUcharUcharUcharUcharUintUcharFunc callback;
   GCClosure *cc = (GCClosure*) closure;
   void *data1, *data2;
   gboolean v_return;
@@ -557,7 +557,7 @@ _g_dbus_codegen_marshal_BOOLEAN__OBJECT_UCHAR_UCHAR_UCHAR_UCHAR_UCHAR_UCHAR (
       data2 = closure->data;
     }
 
-  callback = (_GDbusCodegenMarshalBoolean_ObjectUcharUcharUcharUcharUcharUcharFunc)
+  callback = (_GDbusCodegenMarshalBoolean_ObjectUcharUcharUcharUcharUintUcharFunc)
     (marshal_data ? marshal_data : cc->callback);
 
   v_return =
@@ -567,7 +567,7 @@ _g_dbus_codegen_marshal_BOOLEAN__OBJECT_UCHAR_UCHAR_UCHAR_UCHAR_UCHAR_UCHAR (
               g_marshal_value_peek_uchar (param_values + 3),
               g_marshal_value_peek_uchar (param_values + 4),
               g_marshal_value_peek_uchar (param_values + 5),
-              g_marshal_value_peek_uchar (param_values + 6),
+              g_marshal_value_peek_uint (param_values + 6),
               g_marshal_value_peek_uchar (param_values + 7),
               data2);
 
@@ -1315,7 +1315,7 @@ static const _ExtendedGDBusArgInfo _gawake_server_database_method_info_custom_sc
   {
     -1,
     (gchar *) "year",
-    (gchar *) "y",
+    (gchar *) "q",
     NULL
   },
   FALSE
@@ -1624,7 +1624,7 @@ gawake_server_database_method_marshal_custom_schedule (
     void         *invocation_hint,
     void         *marshal_data)
 {
-  _g_dbus_codegen_marshal_BOOLEAN__OBJECT_UCHAR_UCHAR_UCHAR_UCHAR_UCHAR_UCHAR (closure,
+  _g_dbus_codegen_marshal_BOOLEAN__OBJECT_UCHAR_UCHAR_UCHAR_UCHAR_UINT_UCHAR (closure,
     return_value, n_param_values, param_values, invocation_hint, marshal_data);
 }
 
@@ -1897,7 +1897,7 @@ gawake_server_database_default_init (GawakeServerDatabaseIface *iface)
       gawake_server_database_method_marshal_custom_schedule,
     G_TYPE_BOOLEAN,
     7,
-    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_UCHAR, G_TYPE_UCHAR, G_TYPE_UCHAR, G_TYPE_UCHAR, G_TYPE_UCHAR, G_TYPE_UCHAR);
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_UCHAR, G_TYPE_UCHAR, G_TYPE_UCHAR, G_TYPE_UCHAR, G_TYPE_UINT, G_TYPE_UCHAR);
 
   /* GObject signals for received D-Bus signals: */
   /**
@@ -3012,7 +3012,7 @@ gawake_server_database_call_custom_schedule (
     guchar arg_minutes,
     guchar arg_day,
     guchar arg_month,
-    guchar arg_year,
+    guint16 arg_year,
     guchar arg_mode,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
@@ -3020,7 +3020,7 @@ gawake_server_database_call_custom_schedule (
 {
   g_dbus_proxy_call (G_DBUS_PROXY (proxy),
     "CustomSchedule",
-    g_variant_new ("(yyyyyy)",
+    g_variant_new ("(yyyyqy)",
                    arg_hour,
                    arg_minutes,
                    arg_day,
@@ -3090,7 +3090,7 @@ gawake_server_database_call_custom_schedule_sync (
     guchar arg_minutes,
     guchar arg_day,
     guchar arg_month,
-    guchar arg_year,
+    guint16 arg_year,
     guchar arg_mode,
     gboolean *out_success,
     GCancellable *cancellable,
@@ -3099,7 +3099,7 @@ gawake_server_database_call_custom_schedule_sync (
   GVariant *_ret;
   _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
     "CustomSchedule",
-    g_variant_new ("(yyyyyy)",
+    g_variant_new ("(yyyyqy)",
                    arg_hour,
                    arg_minutes,
                    arg_day,

@@ -29,7 +29,7 @@ gboolean custom_schedule (const guint8 hour,
                           const guint8 minutes,
                           const guint8 day,
                           const guint8 month,
-                          const guint8 year,
+                          const guint16 year,
                           const guint8 mode);
 
 /* TODO config database

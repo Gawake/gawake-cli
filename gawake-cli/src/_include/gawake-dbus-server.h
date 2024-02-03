@@ -92,7 +92,7 @@ on_handle_custom_schedule (GawakeServerDatabase    *interface,
                            const guint8            minutes,
                            const guint8            day,
                            const guint8            month,
-                           const guint8            year,
+                           const guint16           year,
                            const guint8            mode,
                            gpointer                user_data);
 

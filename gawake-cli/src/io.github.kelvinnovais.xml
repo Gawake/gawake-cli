@@ -81,7 +81,7 @@
       <arg name="minutes" direction="in" type="y" />
       <arg name="day" direction="in" type="y" />
       <arg name="month" direction="in" type="y" />
-      <arg name="year" direction="in" type="y" />
+      <arg name="year" direction="in" type="q" />
       <arg name="mode" direction="in" type="y" />
 
       <arg name="success" direction="out" type="b"/>

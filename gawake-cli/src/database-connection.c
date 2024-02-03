@@ -18,6 +18,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+// TODO https://stackoverflow.com/questions/29112878/how-do-i-printf-a-uint16-t
+
 #include <sqlite3.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -491,7 +493,7 @@ gboolean custom_schedule (const guint8 hour,
                           const guint8 minutes,
                           const guint8 day,
                           const guint8 month,
-                          const guint8 year,
+                          const guint16 year,
                           const guint8 mode)
 {
   gchar *sql = 0;
@@ -511,9 +513,9 @@ gboolean custom_schedule (const guint8 hour,
   if (validade_rtcwake_args (&rtcwake_args) == -1)
     return FALSE;
 
-  g_snprintf (sql, ALLOC, "INSERT INTO custom_schedule "\
-              "(hour, minutes, day, month, year, mode) "\
-              "VALUES (%d, %d, %d, %d, %d, %d);",
+  g_snprintf (sql, ALLOC, "UPDATE custom_schedule "\
+              "SET hour = %d, minutes = %d, day = %d, month = %d, year = %d, mode = %d "\
+              "WHERE id = 1;",
               hour, minutes, day, month, year, mode);
 
   gboolean ret = run_sql (sql);

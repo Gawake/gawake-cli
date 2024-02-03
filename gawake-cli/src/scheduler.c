@@ -36,13 +36,14 @@
 static volatile gboolean canceled = FALSE;
 static UpcomingOffRule upcoming_off_rule;
 static RtcwakeArgs *rtcwake_args;
+static GMainLoop *loop;
 
+static pthread_t timed_checker_thread, dbus_listener_thread;
 static pthread_mutex_t upcoming_off_rule_mutex, rtcwake_args_mutex, booleans_mutex;
 
 int scheduler (RtcwakeArgs *rtcwake_args_ptr)
 {
   rtcwake_args = rtcwake_args_ptr;
-  pthread_t timed_checker_thread, dbus_listener_thread;
 
   pthread_mutex_init (&upcoming_off_rule_mutex, NULL);
   pthread_mutex_init (&rtcwake_args_mutex, NULL);
@@ -109,12 +110,12 @@ static void *dbus_listener (void *args)
   g_signal_connect (proxy, "database-updated", G_CALLBACK (on_database_updated_signal), NULL);
 
   // Immediate schedule
-  g_signal_connect (proxy, "schedule-requested", G_CALLBACK (on_schedule_requested), NULL);
+  g_signal_connect (proxy, "schedule-requested", G_CALLBACK (on_schedule_requested_signal), NULL);
 
   // Cancel schedule
   g_signal_connect (proxy, "rule-canceled", G_CALLBACK (on_rule_canceled_signal), NULL);
 
-  GMainLoop *loop = g_main_loop_new (NULL, FALSE);
+  loop = g_main_loop_new (NULL, FALSE);
   g_main_loop_run (loop);
 
   return NULL;
@@ -122,18 +123,22 @@ static void *dbus_listener (void *args)
 
 /* Thread 2: periodically make a check:
  * -> if there's a turn off upcoming rule, calculate how much time lacks to
- * to run that rule; also notify the user;
+ * to run that rule; also notify the user at the right time;
  *
  * -> if there's NOT a turn off for today, check if there's a new one when the
- * day changes or the database is updated
+ * day changes (I'm considering the  possibility of the device be active across days)
  */
 static void *timed_checker (void *args)
 {
   DEBUG_PRINT (("Started timed_checker thread"));
-  double tr;
+  double time_remaining;
 
-  // Check rules for today, however, keep track of which day is today:
-  // I'm considering the  possibility of the device be active across days)
+  int set_cancel_ret = pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
+  // TODO handle errors
+  if (set_cancel_ret != 0)
+    fprintf (stderr, "pthread_setcancelstate\n");
+
+  // Check rules for today
   query_upcoming_off_rule ();
 
   sync_time ();
@@ -152,14 +157,14 @@ static void *timed_checker (void *args)
       // Calculate time until the upcoming off rule, if the rule was found and Gawake is enabled
       if (upcoming_off_rule.found && upcoming_off_rule.gawake_status)
         {
-          tr = time_remaining ();
-          DEBUG_PRINT (("Missing time: %f s", tr));
+          time_remaining = get_time_remaining ();
+          DEBUG_PRINT (("Missing time: %f s", time_remaining));
 
           /*
            * If the time missing is lesser than the delay + notification +
            *  minimum sync time, exit the loop to emit notification
            */
-          if (tr <= (CHECK_DELAY + upcoming_off_rule.notification_time + 60))
+          if (time_remaining <= (CHECK_DELAY + upcoming_off_rule.notification_time + 60))
             break;
         }
 
@@ -172,20 +177,20 @@ static void *timed_checker (void *args)
 
   // If querying rule failed, and the user wants to shutdown in this exception,
   // set this action to true
-  if  (ret != EXIT_SUCCESS && rtcwake_args->shutdown_fail == 1)
+  if  (ret != EXIT_SUCCESS && rtcwake_args->shutdown_fail == TRUE)
     rtcwake_args->run_shutdown = TRUE;
   else
     rtcwake_args->run_shutdown = FALSE;
 
   // Wait until notification time - Note #1
-  if ((tr - upcoming_off_rule.notification_time) > 0)
-    sleep (tr - upcoming_off_rule.notification_time);
+  if ((time_remaining - upcoming_off_rule.notification_time) > 0)
+    sleep (time_remaining - upcoming_off_rule.notification_time);
 
   // Emit custom notification according to the returned value
   notify_user (ret);
 
   // Wait until time the rule must be triggered
-  sleep (time_remaining ());
+  sleep (get_time_remaining ());
 
   /*
    * IF
@@ -195,7 +200,7 @@ static void *timed_checker (void *args)
    * then return to the main loop
    */
   if (canceled ||
-      (ret != EXIT_SUCCESS && rtcwake_args->run_shutdown == FALSE))
+      (ret != RTCWAKE_ARGS_SUCESS && rtcwake_args->run_shutdown == FALSE))
     {
       // Sleep 1 minute to get another rule, and go back to main loop
       sleep (60);
@@ -206,7 +211,7 @@ static void *timed_checker (void *args)
     }
 
   // ELSE, continue to schedule
-  // TODO
+  finalize_dbus_listener ();
   DEBUG_PRINT_TIME (("Scheduling"));
 
   return NULL;
@@ -482,8 +487,8 @@ static int query_upcoming_on_rule (gboolean use_default_mode)
   // Get all rules today, ordered by time; the first rule that has a bigger time than now is a valid
   while ((rc = sqlite3_step (stmt)) == SQLITE_ROW)
     {
-      int id =        sqlite3_column_int (stmt, 0);
-      ruletime =      sqlite3_column_int (stmt, 1);
+      int id = sqlite3_column_int (stmt, 0);
+      ruletime = sqlite3_column_int (stmt, 1);
       if (now < ruletime)
         {
           id_match = id;
@@ -656,7 +661,7 @@ static int query_custom_schedule (void)
             ALLOC,
             "SELECT hour, minutes, day, month, year, mode "\
             "FROM custom_schedule "\
-            "LIMIT = 1;");
+            "WHERE id = 1;");
 
   rc = sqlite3_prepare_v2 (db, query, -1, &stmt, NULL);
   if (rc != SQLITE_OK)
@@ -676,9 +681,9 @@ static int query_custom_schedule (void)
       rtcwake_args->hour = sqlite3_column_int (stmt, 0);
       rtcwake_args->minutes = (Minutes) sqlite3_column_int (stmt, 1);
 
-      rtcwake_args->year = sqlite3_column_int (stmt, 2);
+      rtcwake_args->day = sqlite3_column_int (stmt, 2);
       rtcwake_args->month = sqlite3_column_int (stmt, 3);
-      rtcwake_args->day = sqlite3_column_int (stmt, 4);
+      rtcwake_args->year = sqlite3_column_int (stmt, 4);
       rtcwake_args->mode = sqlite3_column_int (stmt, 5);
 
       pthread_mutex_unlock (&rtcwake_args_mutex);
@@ -752,7 +757,7 @@ static void notify_user (int ret)
     }
 }
 
-static double time_remaining (void)
+static double get_time_remaining (void)
 {
   double diff;
   time_t now;
@@ -777,29 +782,65 @@ static void on_rule_canceled_signal (void)
   canceled = TRUE;
 }
 
-static void on_schedule_requested (void)
+static void on_schedule_requested_signal (void)
 {
+  DEBUG_PRINT_TIME (("Custom schedule requested"));
   int ret = query_custom_schedule ();
 
-  if (ret == RTCWAKE_ARGS_FAILURE && rtcwake_args->shutdown_fail == TRUE)
+  // On failure and "shutdown on failure" enabled, shutdown instead
+  if (ret != RTCWAKE_ARGS_SUCESS && rtcwake_args->shutdown_fail == TRUE)
     {
-      // On failure, notify user and shutdown
+      DEBUG_PRINT (("Custom rule failed, shutdowing instead"));
+
+      // Set action to shutdown
       rtcwake_args->run_shutdown = TRUE;
-      notify_user (ret);
+
       // TODO finalize threads
+      finalize_timed_checker ();
+      finalize_dbus_listener ();
     }
+  // On failure and "shutdown on failure" enabled, just notify the user
+  else if (ret != RTCWAKE_ARGS_SUCESS && rtcwake_args->shutdown_fail == FALSE)
+    {
+      DEBUG_PRINT (("Custom rule failed, notifying user"));
+
+      notify_user (ret);
+    }
+  // On success
   else
     {
-      // Just notify user and do nothing
-      notify_user (ret);
+      // TODO finalize threads
+      finalize_timed_checker ();
+      finalize_dbus_listener ();
     }
+}
+
+static void finalize_dbus_listener (void)
+{
+  DEBUG_PRINT_TIME (("Finalizing dbus_listener thread..."));
+  g_main_loop_quit (loop);
+  DEBUG_PRINT_TIME (("dbus_listener thread finilized"));
+}
+
+static void finalize_timed_checker (void)
+{
+  DEBUG_PRINT_TIME (("Finalizing timed_checker thread..."));
+  int ret = pthread_cancel (timed_checker_thread);
+  // TODO handle return
+  if (ret != 0)
+    {
+      DEBUG_PRINT_CONTEX;
+      fprintf (stderr, "Failed when finilizing timed_checker thread");
+    }
+
+  DEBUG_PRINT_TIME (("timed_checker thread finilized"));
 }
 
 /*
  * Note #1: if the scheduler is triggered late, but even though it can get a rule
  * to be executed in the current loop lap, there will be the possibility that the
  * remaining time to emit the notification can be lesser than the one set by the user;
- * in this case, the difftime on time_remaining () will return a negative number.
+ * in this case, the difftime on get_time_remaining () will return a negative number.
  * For this kind of exception, the sleep will be skip and the notification emitted
  * late.
  */

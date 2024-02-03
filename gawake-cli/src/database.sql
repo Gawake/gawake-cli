@@ -52,10 +52,8 @@ CREATE TABLE IF NOT EXISTS custom_schedule (
 	year           INTEGER NOT NULL,
 	mode           INTEGER NOT NULL,
 	-- If this custom schedule was performed with a countdown
-	countdown      INTEGER NOT NULL,
-	-- If failed on last run
-	failed_last    INTEGER
+	countdown      INTEGER NOT NULL
 );
 
-INSERT INTO custom_rule (hour, minutes, day, month, year, mode, countdown, failed_last)
-VALUES (0, 0, 0, 0, 0, 0, 0, 0);
+INSERT INTO custom_rule (hour, minutes, day, month, year, mode, countdown)
+VALUES (0, 0, 0, 0, 0, 0, 0);

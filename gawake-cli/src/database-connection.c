@@ -439,7 +439,7 @@ gboolean query_rules (const Table table, gRule **rules, guint16 *rowcount)
       (*rules)[counter].name = (gchar *) g_malloc (size + 1);
       if ((*rules)[counter].name == NULL)
         {
-          g_fprintf(stderr, "ERROR: Failed to allocate memory\n");
+          g_fprintf (stderr, "ERROR: Failed to allocate memory\n");
           return FALSE;
         }
 

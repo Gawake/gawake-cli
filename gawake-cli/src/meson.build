@@ -16,7 +16,8 @@ gawaked_sources = files(
 	'week-day.c',
 	'debugger.c',
 	'dbus-server.c',
-	'validate-rtcwake-args.c'
+	'validate-rtcwake-args.c',
+	'privileges.c'
 )
 
 gawake_cli_sources = files(

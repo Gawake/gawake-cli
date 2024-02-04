@@ -5,9 +5,12 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/wait.h>
+#include <sys/prctl.h>
 #include <inttypes.h>
 
 #include "../gawake-types.h"
 #include "../scheduler.h"
+#include "../privileges.h"
+#include "../validate-rtcwake-args.h"
 
 #endif /* __GAWAKED_H_ */

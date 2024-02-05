@@ -488,5 +488,5 @@ static void exit_handler (int sig)
   g_main_loop_quit (loop);
   g_bus_unown_name (owner_id);
   close_database ();
-  exit (0);
+  exit (EXIT_SUCCESS);
 }

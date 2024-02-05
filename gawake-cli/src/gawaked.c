@@ -25,12 +25,14 @@
 
 // if pid == 0, it's the child process
 
+// PID: Process ID
+static pid_t pid;
+
 int main (void)
 {
   // FORK OFF THE PARENT PROCESS
-  // PID: Process ID
   // SID: Session ID
-  pid_t pid, sid;
+  pid_t sid;
 
   // Init privileges utility (get gawake uid/gid)
   if (init_privileges ())
@@ -39,6 +41,9 @@ int main (void)
   // (Temporarily) drop privileges
   if (drop_privileges () == EXIT_FAILURE)
     exit (EXIT_FAILURE);
+
+  // Signal for systemd
+  signal (SIGTERM, exit_handler);
 
   /* pid = fork (); */
 
@@ -157,13 +162,41 @@ int main (void)
   else if (pid > 0)
     {
       // Parent process
+      int exit_status;
 
       // Close write file descriptor
       close (fd[1]);
 
       // Wait for child process
-      wait (NULL);
+      wait (&exit_status);
 
+      // Check the return of the child process
+      if (WIFEXITED (exit_status))
+        {
+          // if the child exited normally, get its return code
+          int return_value = WEXITSTATUS (exit_status);
+          DEBUG_PRINT (("scheduler child return value: %d", return_value));
+
+          if (return_value != EXIT_SUCCESS)
+            {
+              DEBUG_PRINT_CONTEX;
+              fprintf (stderr, "ERROR: scheduler child process exited with code: %d; "\
+                       "terminating parent process\n", return_value);
+              close (fd[0]);
+              exit (EXIT_FAILURE);
+            }
+        }
+      else
+        {
+          // child didn't exited normally
+          DEBUG_PRINT_CONTEX;
+          fprintf (stderr, "ERROR: scheduler child process exited unsuccessfully; "\
+                   "terminating parent process\n");
+          close (fd[0]);
+          exit (EXIT_FAILURE);
+        }
+
+      // Read values returned from child
       if (read (fd[0], &rtcwake_args, RtcwakeArgs_s) == -1)
         {
           DEBUG_PRINT_CONTEX;
@@ -182,7 +215,6 @@ int main (void)
               rtcwake_args.mode));
 
       // Being paranoic for security, re-check the parameters;
-      // It's needed anyway in case of the child process was abnormally ended
       if (validade_rtcwake_args (&rtcwake_args) == -1)
         {
           DEBUG_PRINT_CONTEX;
@@ -205,4 +237,14 @@ int main (void)
   /* close (STDERR_FILENO); */
 
   return EXIT_SUCCESS;
+}
+
+static void exit_handler (int sig)
+{
+  // Terminate child process first (notice that it just sends a signal and doesn't wait)
+  kill (pid, SIGTERM);
+
+  DEBUG_PRINT (("gawaked process terminated by SIGTERM"));
+
+  exit (EXIT_SUCCESS);
 }

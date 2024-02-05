@@ -43,6 +43,8 @@ static pthread_mutex_t upcoming_off_rule_mutex, rtcwake_args_mutex, booleans_mut
 
 int scheduler (RtcwakeArgs *rtcwake_args_ptr)
 {
+  signal (SIGTERM, exit_handler);
+
   rtcwake_args = rtcwake_args_ptr;
 
   pthread_mutex_init (&upcoming_off_rule_mutex, NULL);
@@ -795,7 +797,6 @@ static void on_schedule_requested_signal (void)
       // Set action to shutdown
       rtcwake_args->run_shutdown = TRUE;
 
-      // TODO finalize threads
       finalize_timed_checker ();
       finalize_dbus_listener ();
     }
@@ -809,7 +810,6 @@ static void on_schedule_requested_signal (void)
   // On success
   else
     {
-      // TODO finalize threads
       finalize_timed_checker ();
       finalize_dbus_listener ();
     }
@@ -834,6 +834,16 @@ static void finalize_timed_checker (void)
     }
 
   DEBUG_PRINT_TIME (("timed_checker thread finilized"));
+}
+
+static void exit_handler (int sig)
+{
+  finalize_timed_checker ();
+  finalize_dbus_listener ();
+
+  DEBUG_PRINT (("scheduler process terminated by SIGTERM"));
+
+  exit (EXIT_FAILURE);
 }
 
 /*

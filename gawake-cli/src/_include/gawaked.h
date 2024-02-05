@@ -13,4 +13,6 @@
 #include "../privileges.h"
 #include "../validate-rtcwake-args.h"
 
+static void exit_handler (int sig);
+
 #endif /* __GAWAKED_H_ */

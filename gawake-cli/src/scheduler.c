@@ -465,7 +465,7 @@ static int query_upcoming_on_rule (gboolean use_default_mode)
   // HHMM as an integer, leading zeros doesn't matter
   now = atoi (buffer);
 
-  fprintf (stdout, "Trying to get schedule for today\n");
+  DEBUG_PRINT (("Trying to get schedule for today\n"));
 
   // Create an SQL statement to get today's active rules time; tm_wday = number of the week
   snprintf (query,
@@ -511,7 +511,7 @@ static int query_upcoming_on_rule (gboolean use_default_mode)
   // IF IT WASN'T POSSIBLE TO SCHEDULE FOR TODAY, TRY ON THE NEXT DAYS
   if (id_match < 0)
     {
-      fprintf (stdout, "Any time matched. Trying to schedule for tomorrow or later\n");
+      DEBUG_PRINT (("Any time matched. Trying to schedule for tomorrow or later\n"));
       // search for a matching rule within a week
       for (int i = 1; i <= 7; i++)
         {
@@ -572,7 +572,7 @@ static int query_upcoming_on_rule (gboolean use_default_mode)
   // IF ANY RULE WAS FOUND, SEND RETURN AS RULE NOT FOUND
   if (id_match < 0)
     {
-      fprintf (stdout, "WARNING: Any turn on rule found.\n");
+      fprintf (stderr, "WARNING: Any turn on rule found.\n");
       return RTCWAKE_ARGS_NOT_FOUND;
     }
 

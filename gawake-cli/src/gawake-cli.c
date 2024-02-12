@@ -422,6 +422,7 @@ void invalid_value (void)
  * when the user enter an invalid input, the variable keeps equal to 0;
  * but if  a previous value was assigned, that value is kept.
  */
+// FIXME infinite loop  when Crtl + D
 void get_int (gint *ptr, gint digits, gint min, gint max, gint repeat)
 {
   gchar user_input[digits];    // Number of digits the user input must have
@@ -643,8 +644,11 @@ gint add_remove_rule (void) {
       return EXIT_FAILURE;
     }
 
-  query_rules (T_ON);
-  query_rules (T_OFF);
+  if (query_rules (T_ON))
+    return EXIT_FAILURE;
+
+  if (query_rules (T_OFF))
+    return EXIT_FAILURE;
 
   printf ("Select a table (1/2) ");
   get_int (&table, 2, 1, 2, 0);
@@ -674,8 +678,6 @@ gint add_remove_rule (void) {
       printf ("Invalid action\n");
       return EXIT_FAILURE;
     }
-
-
 
   g_free (rule.name);
   return EXIT_SUCCESS;
@@ -975,5 +977,3 @@ __attribute__((__noreturn__)) void exit_handler (gint sig)
  *
  * rtcwake manpage: https://www.man7.org/linux/man-pages/man8/rtcwake.8.html
  */
-
-

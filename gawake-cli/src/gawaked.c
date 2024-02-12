@@ -81,6 +81,13 @@ int main (void)
   /*     exit (EXIT_FAILURE); */
   /*   } */
 
+  // CLOSE FILE DESCRIPTORS
+  close (STDIN_FILENO);
+#if PREPROCESSOR_DEBUG == 0
+  close (STDOUT_FILENO);
+  close (STDERR_FILENO);
+#endif
+
   // CALL scheduler
   int fd[2];          // fd[0]: read; fd[1]: write
   if (pipe (fd) == -1)
@@ -204,12 +211,14 @@ int main (void)
           close (fd[0]);
           exit (EXIT_FAILURE);
         }
+      // close pipe, as it won't be used anymore
+      close (fd[0]);
 
       DEBUG_PRINT (("RtcwakeArgs fields read from pipe by gawaked process:\n"\
               "\tFound: %d\n\tShutdown: %d"\
               "\n\t(HH:MM) %02d:%02d (DD/MM/YYYY) %02d/%02d/%d"\
               "\n\tMode: %d",
-              rtcwake_args.found, rtcwake_args.shutdown_fail,
+              rtcwake_args.found, rtcwake_args.run_shutdown,
               rtcwake_args.hour, rtcwake_args.minutes,
               rtcwake_args.day, rtcwake_args.month, rtcwake_args.year,
               rtcwake_args.mode));
@@ -219,22 +228,47 @@ int main (void)
         {
           DEBUG_PRINT_CONTEX;
           fprintf (stderr, "ERROR: failed on rtcwake arguments validation\n");
-          close (fd[0]);
           exit (EXIT_FAILURE);
         }
 
+      // Run shutdown if it's the case
+      if (rtcwake_args.run_shutdown)
+        {
+          DEBUG_PRINT (("Shutdown"));
+          system (SHUTDOWN);
+          exit (EXIT_SUCCESS);
+        }
+
+      // Prepare command
+      char *command;
+      command = (char *) malloc (COMMAND_LENGTH * sizeof (char));
+      if (command == NULL)
+        {
+          DEBUG_PRINT_CONTEX;
+          fprintf (stderr, "ERROR: couldn't allocate memory\n");
+          exit (EXIT_FAILURE);
+        }
+      snprintf (command,
+                COMMAND_LENGTH,
+                COMMAND_BEGINNING COMMAND_ARGUMENTS
+                COMMAND_TIMESTAMP "%d%02d%02d%02d%02d00"
+                COMMAND_MODE "%s",
+                rtcwake_args.year, rtcwake_args.month, rtcwake_args.day, rtcwake_args.hour, rtcwake_args.minutes,
+#if PREPROCESSOR_DEBUG
+                // Set mode to "on" if this is a developing/debug version
+                "on");
+#else
+                MODE[rtcwake_args.mode]);
+#endif
+
+      DEBUG_PRINT (("Command: %s\nLength: %ld", command, COMMAND_LENGTH));
+
       raise_privileges ();
-      // TODO run command
+      system (command);
       drop_privileges_permanently ();
 
-      close (fd[0]);
+      free (command);
     }
-
-
-  // CLOSE FILE DESCRIPTORS
-  /* close (STDIN_FILENO); */
-  /* close (STDOUT_FILENO); */
-  /* close (STDERR_FILENO); */
 
   return EXIT_SUCCESS;
 }

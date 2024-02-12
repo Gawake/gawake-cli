@@ -37,7 +37,7 @@ gint connect_dbus_client (void)
                                                          NULL,                      // cancellable
                                                          &error);                   // error
 
-  // TODO message if server is not available
+  // FIXME exit if server is not available
 
   if (error != NULL)
     {

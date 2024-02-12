@@ -20,15 +20,17 @@
 
 #include "gawake-types.h"
 
-const char TABLE[2][14] = {
+// TODO variables as pointers, no need to free
+
+const char *TABLE[] = {
   "rules_turnon",
   "rules_turnoff"
 };
 
-const char MODE[3][5] = {
+const char *MODE[] = {
   "mem",
   "disk",
   "off"
 };
 
-const char DAYS[7][4] = {"sun", "mon", "tue", "wed", "thu", "fri", "sat"};
+const char *DAYS[] = {"sun", "mon", "tue", "wed", "thu", "fri", "sat"};

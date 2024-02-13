@@ -286,16 +286,16 @@ void get_user_input (gRule *rule, Table table)
   do
     {
       printf ("Enter the rule name (can't be null) ---> ");
-      fgets (rule -> name, RULE_NAME_LENGTH, stdin);
+      fgets (rule->name, RULE_NAME_LENGTH, stdin);
 
       // Checks if the previous string contains a '\n' character at the end;
       // if not, the character is on the buffvalueer and must be cleaned
-      if (strchr (rule -> name, '\n') == NULL)
+      if (strchr (rule->name, '\n') == NULL)
         clear_buffer ();
-    } while (rule -> name[0] == '\n');
+    } while (rule->name[0] == '\n');
 
   // Removing the new line character
-  pch = strstr (rule -> name, "\n");
+  pch = strstr (rule->name, "\n");
   if (pch != NULL)
     strncpy (pch, "\0", 1);
 
@@ -305,7 +305,7 @@ void get_user_input (gRule *rule, Table table)
   printf ("%-30s", "[Hour] (from 00 to 23) ");
   gint hour;
   get_int (&hour, 3, 0, 23, 1);
-  rule -> hour = (guint8) hour;
+  rule->hour = (guint8) hour;
 
   // Minutes
   printf ("%-30s", "[Minutes] (00, 15, 30 or 45) ");
@@ -318,32 +318,32 @@ void get_user_input (gRule *rule, Table table)
       switch (minutes)
         {
         case M_00:
-          rule -> minutes = M_00;
+          rule->minutes = M_00;
           invalid = FALSE;
           break;
 
         case M_10:
-          rule -> minutes = M_10;
+          rule->minutes = M_10;
           invalid = FALSE;
           break;
 
         case M_20:
-          rule -> minutes = M_20;
+          rule->minutes = M_20;
           invalid = FALSE;
           break;
 
         case M_30:
-          rule -> minutes = M_30;
+          rule->minutes = M_30;
           invalid = FALSE;
           break;
 
         case M_40:
-          rule -> minutes = M_40;
+          rule->minutes = M_40;
           invalid = FALSE;
           break;
 
         case M_50:
-          rule -> minutes = M_50;
+          rule->minutes = M_50;
           invalid = FALSE;
           break;
 
@@ -358,11 +358,11 @@ void get_user_input (gRule *rule, Table table)
   // For each day of the week, receive the user input
   for (gint i = 0; i < 7; i++) {
     printf ("%-10s", DAYS_NAMES[i]);
-    get_int (&(rule -> days[i]), 2, 0, 1, 1);
+    get_int (&(rule->days[i]), 2, 0, 1, 1);
   }
 
   // ACTIVE
-  rule -> active = TRUE; // when adding a rule, it's always active
+  rule->active = TRUE; // when adding a rule, it's always active
 
   // MODE (only for turn off rules)
   if (table == T_OFF)
@@ -377,15 +377,15 @@ void get_user_input (gRule *rule, Table table)
       switch (mode)
         {
         case MEM:
-          rule -> mode = MEM;
+          rule->mode = MEM;
           break;
 
         case DISK:
-          rule -> mode = DISK;
+          rule->mode = DISK;
           break;
 
         case OFF:
-          rule -> mode = OFF;
+          rule->mode = OFF;
           break;
 
         default:
@@ -395,11 +395,11 @@ void get_user_input (gRule *rule, Table table)
   else
     {
        // Just pass a valid value
-       rule -> mode = MEM;
+       rule->mode = MEM;
     }
 
   // TABLE
-  rule -> table = table;
+  rule->table = table;
 
   pch = NULL;
 }
@@ -433,7 +433,8 @@ void get_int (gint *ptr, gint digits, gint min, gint max, gint repeat)
       printf ("--> ");
 
       // IF the fgets AND the sscanf are successful...
-      if ((fgets(user_input, sizeof(user_input), stdin)) && (sscanf(user_input, "%d", &val) == 1))
+      if ((fgets (user_input, sizeof (user_input), stdin))
+          && (sscanf (user_input, "%d", &val) == 1))
         {
           // ...check if the value is in the range and finishes the loop
           if (val >= min && val <= max)
@@ -441,9 +442,9 @@ void get_int (gint *ptr, gint digits, gint min, gint max, gint repeat)
         }
 
       // BUT, IF the user's input is longer than expected, invalidate the value
-      if(strchr(user_input, '\n') == NULL)
+      if(strchr (user_input, '\n') == NULL)
         {
-          if (getchar() != '\n')
+          if (getchar () != '\n')
             {
               clear_buffer ();
               invalid = TRUE;
@@ -456,181 +457,6 @@ void get_int (gint *ptr, gint digits, gint min, gint max, gint repeat)
 
   *ptr = val;
 }
-
-#if 0
-// Print Turn on and Turn off tables
-int print_table(void __attribute__((__unused__)) *NotUsed,
-                int __attribute__((__unused__)) argc,
-                char **argv,
-                char __attribute__((__unused__)) **azColName) {
-  printf ("%s\n", argv[0]);
-  return EXIT_SUCCESS;
-}
-
-// Print config table
-int print_config(void __attribute__((__unused__)) *NotUsed,
-                 int __attribute__((__unused__)) argc,
-                 char **argv,
-                 char __attribute__((__unused__)) **azColName) {
-  NotUsed = 0;
-  const char *LABELS[] = {"Gawake status: ", "Commands: ", "Use localtime: ", "rtcwake options: ", "Default mode: ", "For help/more information."};
-  int val = 0;
-  // Print the 0 and 1 as disabled or enabled, for the 3 first options
-  for (int i = 0; i < 3; i++) {
-    sscanf(argv[i], "%d", &val);
-    if (val == 1)
-      printf ("[%i] %-19s%s\n", i+1, LABELS[i], ANSI_COLOR_GREEN "Enabled" ANSI_COLOR_RESET);
-    else
-      printf ("[%i] %-19s%s\n", i+1, LABELS[i], ANSI_COLOR_YELLOW "Disabled" ANSI_COLOR_RESET);
-  }
-  // Print the other options
-  printf ("[%i] %-19s%s\n", 4, LABELS[3], argv[3]);
-  printf ("[%i] %-19s%s\n", 5, LABELS[4], argv[4]);
-  printf ("[%i] %-19s\n", 6, LABELS[5]);
-
-  return EXIT_SUCCESS;
-}
-#endif
-
-#if 0
-int config (void) {
-  int rc, option = 0, number, alloc = 129;
-  struct sqlite3_stmt *stmt;
-
-
-  char *sql = 0, *string = 0;
-  string = (char *) calloc(1, alloc);
-  sql = (char *) calloc(1, 2*alloc);
-  // Exit if memory allocation fails
-  if (sql == NULL || string == NULL) {
-    fprintf(stderr, ANSI_COLOR_YELLOW "WARNING: couldn't allocate memory, try again.\n" ANSI_COLOR_RESET);
-    return EXIT_FAILURE;
-  }
-
-  const char *PRINT_CONFIG = "SELECT status, commands, localtime, options, def_mode FROM config";
-  char *err_msg = 0;
-
-  // Print information about time
-  // Computer time
-  struct tm *timeinfo;
-  get_time(&timeinfo);
-  printf ("Time information:\n%-35s %d-%02d-%02d %02d:%02d:%02d\n",
-         "Current local time and date:",
-         timeinfo -> tm_year + 1900, timeinfo -> tm_mon + 1, timeinfo -> tm_mday, timeinfo -> tm_hour, timeinfo -> tm_min, timeinfo -> tm_sec);
-
-  // Database time (localtime and utc)
-  rc = sqlite3_prepare_v2(*db, "SELECT datetime('now', 'utc'), datetime('now', 'localtime') LIMIT 1;", -1, &stmt, NULL);
-  if (rc != SQLITE_OK) {
-    fprintf(stderr, ANSI_COLOR_RED "ERROR: Failed gettig database times\n" ANSI_COLOR_RESET);
-    return EXIT_FAILURE;
-  }
-  while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-    char buff[20];
-    snprintf(buff, 20, "%s", sqlite3_column_text(stmt, 0));
-    printf ("%-35s %s\n", "Database time (using utc):", buff);
-    snprintf(buff, 20, "%s", sqlite3_column_text(stmt, 1));
-    printf ("%-35s %s\n\n", "Database time (using localtime):", buff);
-  }
-  if (rc != SQLITE_DONE) {
-    fprintf(stderr, ANSI_COLOR_RED "ERROR: Failed gettig database times (%s)\n" ANSI_COLOR_RESET, sqlite3_errmsg(*db));
-    issue();
-    return EXIT_FAILURE;
-  }
-  sqlite3_finalize(stmt);
-
-  // Get and print the config table
-  rc = sqlite3_exec(*db, PRINT_CONFIG, print_config, 0, &err_msg);
-  sqlite_exec_err(rc, &err_msg);
-  // On success, allow user to change its values
-  if (rc == SQLITE_OK) {
-    printf ("To change a value, choose an option (1/2/3/4/5/6/enter to skip) ");
-    get_int(&option, 2, 0, 6, 0);
-
-    // If selected option 6 (for help), print it and continue
-    if (option == 6) {
-      printf ("\n[HELP]:\n- Gawake status: enable or disable Gawake functionality\n- Commands: the commands you set will only run if this option is enabled\n"\
-             "- Use localtime: if disabled, Gawake will use utc instead\n- rtcwake options: you can append the rtcwake command with some other argumments\n"\
-             "- Default mode: the mode your computer will sleep when you call \"gawake-cli -c ...\"\n");
-      printf ("To change a value, choose an option (1/2/3/4/5/enter to skip) ");
-      option = 0;
-      get_int(&option, 2, 0, 5, 0);
-    }
-
-    // If the user wants to change a value, continue
-    if (option != 0) {
-      // The three first options have a common input: get 0 or 1 for them
-      if (option < 4) {
-        printf ("Enter the new value (0/1) ");
-        get_int(&number, 2, 0, 1, 1);
-      }
-      switch (option) {
-      case 1: // STATUS
-        snprintf(sql, alloc, "UPDATE config SET status = %d;", number);
-        break;
-      case 2: // COMMANDS
-        // Print warning and ask confirmation only if commands are going to be enabled
-        if (number == 1)
-          printf( ANSI_COLOR_YELLOW "WARNING: All commands are executed as root. Keep in mind:\n"\
-                  "- It's your responsibility which commands you'll run;\n- Any verification is done;"\
-                  "\n- Set the right permissions if you're going to run a script.\n" ANSI_COLOR_RESET);
-
-        if (number == 0 || confirm())
-          snprintf(sql, alloc, "UPDATE config SET commands = %d;", number);
-        else
-          return EXIT_SUCCESS;
-        break;
-      case 3: // DATABASE TIME
-        snprintf(sql, alloc, "UPDATE config SET status = %d;", number);
-        break;
-      case 4: // RTCWAKE OPTIONS
-        // Print warnings, get confirmation; if it's yes, receive the user input (string) and concatenate to the SQL statement
-        printf ( ANSI_COLOR_YELLOW "ATTENTION: BE CAREFUL while changing the options. Check the rtcwake documentation. "\
-                "DO NOT append the options with commands. Any verification is done.\n" ANSI_COLOR_RESET);
-        if (confirm()) {
-          printf ( "rtcwake manpage: <https://www.man7.org/linux/man-pages/man8/rtcwake.8.html>"\
-                  "\nGawake already use \"--date\" and \"-m, --mode\", do not use them.\nGawake default options value: \"-a\"\nEnter the options ---> ");
-          strcat(sql, "UPDATE config SET options = '");
-          fgets(string, alloc, stdin);
-          // Checks if the previous string contains a '\n' character at the end; if not, the character is on the buffer and must be cleaned
-          if (strchr(string, '\n') == NULL)
-            clear_buffer ();
-          char *pch;
-          pch = strstr(string, "\n"); // Remove new line character
-          if (pch != NULL)
-            strncpy(pch, "\0", 1);
-          strcat(sql, string);
-          strcat(sql, "';");
-        }
-        break;
-      case 5:
-        {
-          const char *MODES[] = {"off", "disk", "mem", "standby", "freeze", "no", "on", "disable"};
-          printf ("Select a mode:\n");
-          for (int i = 0; i < 8; i++)
-            printf ("[%i]\t%s\n", i, MODES[i]);
-
-          get_int(&number, 2, 0, 7, 1);
-          snprintf(sql, alloc, "UPDATE config SET def_mode = '%s';", MODES[number]);
-        }
-        break;
-      }
-
-      // Insert data, handle errors
-      raise_priv();
-      rc = sqlite3_exec(*db, sql, NULL, 0, &err_msg);
-      drop_priv();
-      if (rc == SQLITE_OK)
-        printf (ANSI_COLOR_GREEN "Successfully done!\n" ANSI_COLOR_RESET);
-      sqlite_exec_err(rc, &err_msg);
-    }
-  }
-
-  // Free allocated memory
-  free(sql);
-  free(string);
-  return EXIT_SUCCESS;
-}
-#endif
 
 // Add or remove a rule
 gint add_remove_rule (void) {
@@ -683,116 +509,6 @@ gint add_remove_rule (void) {
   return EXIT_SUCCESS;
 }
 
-#if 0
-  // SQL statements
-  const char *PRINT_TURNON =  "SELECT PRINTF(\"│ %-03i │ %-16.16s│ %s │  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│ %-40.40s│\", "\
-                              "id, rule_name, time, sun, mon, tue, wed, thu, fri, sat, command) AS t_on FROM rules_turnon;";
-  const char *PRINT_TURNOFF = "SELECT PRINTF(\"│ %-03i │ %-16.16s│ %s │  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│  %-3i│ %-30.30s│ %-8s│\", "\
-                              "id, rule_name, time, sun, mon, tue, wed, thu, fri, sat, command, mode) AS t_off FROM rules_turnoff;";
-
-  // Print turn on/off tables, and handle with possible errors:
-  // [1] Turn on table
-  printf ( ANSI_COLOR_GREEN "[1] TURN ON RULES\n"\
-          "┌─────┬─────────────────┬──────────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────────────────────────────────────────┐"\
-          "\n│ %-4s│ %-16s│   Time   │ Sun │ Mon │ Tue │ Wed │ Thu │ Fri │ Sat │ %-40s│\n" ANSI_COLOR_RESET, "ID", "Name", "Command");
-  rc = sqlite3_exec(*db, PRINT_TURNON, print_table, 0, &err_msg);
-  sqlite_exec_err(rc, &err_msg);
-  if (rc != SQLITE_OK)
-    return EXIT_FAILURE;
-  printf ("└─────┴─────────────────┴──────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────────────────────────────────────────┘\n");
-
-  // [2] Turn off table
-  printf ( ANSI_COLOR_YELLOW "[2] TURN OFF RULES\n"\
-          "┌─────┬─────────────────┬──────────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬───────────────────────────────┬─────────┐"\
-          "\n│ %-4s│ %-16s│   Time   │ Sun │ Mon │ Tue │ Wed │ Thu │ Fri │ Sat │ %-30s│ %-8s│\n" ANSI_COLOR_RESET, "ID", "Name", "Command", "Mode");
-  rc = sqlite3_exec(*db, PRINT_TURNOFF, print_table, 0, &err_msg);
-  sqlite_exec_err(rc, &err_msg);
-  if (rc != SQLITE_OK)
-    return EXIT_FAILURE;
-  printf ("└─────┴─────────────────┴──────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴───────────────────────────────┴─────────┘\n");
-
-  printf ("Select a table (1/2/enter to skip) ");
-  get_int(&table, 2, 0, 2, 0);
-  if (table == 1 || table == 2) {
-    int alloc = 512;
-    sql = (char *) calloc(1, alloc);
-    // Exit if memory allocation fails
-    if (sql == NULL) {
-      fprintf(stderr, ANSI_COLOR_YELLOW "WARNING: couldn't allocate memory, try again.\n" ANSI_COLOR_RESET);
-      return EXIT_FAILURE;
-    }
-    printf ("Choose an option:\n[1] Add rule\n[2] Remove rule\n[3] Edit rule\n");
-    get_int(&option, 2, 1, 3, 1);
-    // If is option 2 or 3, get the ID
-    if (option != 1) {
-      printf ("Enter the ID: ");
-      get_int(&id, 5, 1, 9999, 1); // ID between 1 and 9999
-      if (table == 1)
-        snprintf(sql, alloc, "SELECT id FROM rules_turnon WHERE id = %d;", id);
-      else
-        snprintf(sql, alloc, "SELECT id FROM rules_turnoff WHERE id = %d;", id);
-
-      // Id the ID doesn't exist, leave
-      if (  sqlite3_prepare_v2(*db, sql, -1, &selectstmt, NULL) == SQLITE_OK
-            && sqlite3_step(selectstmt) != SQLITE_ROW) {
-        printf (ANSI_COLOR_YELLOW "ID not found!\n" ANSI_COLOR_RESET);
-        printf ("Nothing done.\n");
-        free(sql);
-        sqlite3_finalize(selectstmt);
-        return EXIT_FAILURE;
-      }
-    }
-    switch (option) {
-    case 1:
-      get_user_input(&rule, table);
-      if (table == 1) // rules_turnon
-        snprintf(sql, alloc,  "INSERT INTO rules_turnon (rule_name, time, sun, mon, tue, wed, thu, fri, sat, command) "\
-                 "VALUES ('%s', '%02d:%02d:%02d', %d, %d, %d, %d, %d, %d, %d, '%s');",
-                 rule.rule_name,
-                 rule.time[0], rule.time[1], rule.time[2], rule.days[0], rule.days[1], rule.days[2], rule.days[3], rule.days[4], rule.days[5], rule.days[6],
-                 rule.command);
-      else // rules_turnoff
-        snprintf(sql, alloc,  "INSERT INTO rules_turnoff (rule_name, time, sun, mon, tue, wed, thu, fri, sat, command, mode) "\
-                 "VALUES ('%s', '%02d:%02d:%02d', %d, %d, %d, %d, %d, %d, %d, '%s', '%s');",
-                 rule.rule_name,
-                 rule.time[0], rule.time[1], rule.time[2], rule.days[0], rule.days[1], rule.days[2], rule.days[3], rule.days[4], rule.days[5], rule.days[6],
-                 rule.command, rule.mode);
-      break;
-    case 2:
-      if (table == 1) // rules_turnon
-        snprintf(sql, alloc, "DELETE FROM rules_turnon WHERE id = %d;", id);
-      else // rules_turnoff
-        snprintf(sql, alloc, "DELETE FROM rules_turnoff WHERE id = %d;", id);
-      break;
-    case 3:
-      get_user_input(&rule, table);
-      if (table == 1) // rules_turnon
-        snprintf(sql, alloc, "UPDATE rules_turnon SET rule_name = '%s', time = '%02d:%02d:%02d', sun = %d, mon = %d, tue = %d, wed = %d, thu = %d, fri = %d, sat = %d, "\
-                 "command = '%s' WHERE id = %d;",
-                 rule.rule_name, rule.time[0], rule.time[1], rule.time[2], rule.days[0], rule.days[1], rule.days[2], rule.days[3], rule.days[4], rule.days[5], rule.days[6],
-                 rule.command, id);
-      else // rules_turnoff
-        snprintf(sql, alloc, "UPDATE rules_turnoff SET rule_name = '%s', time = '%02d:%02d:%02d', sun = %d, mon = %d, tue = %d, wed = %d, thu = %d, fri = %d, sat = %d, "\
-                 "command = '%s', mode = '%s' WHERE id = %d;",
-                 rule.rule_name, rule.time[0], rule.time[1], rule.time[2], rule.days[0], rule.days[1], rule.days[2], rule.days[3], rule.days[4], rule.days[5], rule.days[6],
-                 rule.command, rule.mode, id);
-      break;
-    }
-    // Execute SQLite command
-    raise_priv();
-    rc = sqlite3_exec(*db, sql, NULL, 0, &err_msg);
-    drop_priv();
-    // Print success or fail
-    if (rc == SQLITE_OK)
-      printf (ANSI_COLOR_GREEN "Successfully done!\n" ANSI_COLOR_RESET);
-    sqlite_exec_err(rc, &err_msg);
-
-    free(sql);
-  }
-  return EXIT_SUCCESS;
-}
-#endif
-
 // Get user's confirmation as 'y'; if confirmed, returns 1
 gint confirm (void)
 {
@@ -813,130 +529,6 @@ gint confirm (void)
   else
     return 0;
 }
-
-#if 0
-/*
- * DESCRIPTION:
- * The time is gotten in  HHMMSS format, and then converted to integer;
- * Time comparison can simply be done as numbers: e.g. 205500 < 233000.
- * Week days follows struct tm wday: 0 to 6, sun to sat
- */
-int schedule(sqlite3 **db) {
-  int rc, now, db_time = 1, id_match = -1, alloc = 192;
-
-  struct tm *timeinfo;                        // Default structure, see documentation
-  struct sqlite3_stmt *stmt;
-
-  char time[7];
-  const char *DB_TIMES[] = {"utc", "localtime"};
-  const char *DAYS[] = {"sun", "mon", "tue", "wed", "thu", "fri", "sat"};       // Index(0 to 6) matches tm_wday; the string refers to SQLite column name
-  char query[alloc], rtcwake_cmd[FORMATTED_CMD_LEN], buff[7], date[9], mode[8], options[alloc];
-
-  // GET THE DATABASE TIME: 0 FOR UTC AND 1 FOR LOCALTIME
-  if (sqlite3_prepare_v2(*db, "SELECT localtime, def_mode, options FROM config WHERE id = 1;", -1, &stmt, NULL) != SQLITE_OK) {
-    fprintf(stderr, ANSI_COLOR_RED "ERROR: Failed getting config information\n" ANSI_COLOR_RESET);
-    issue();
-    return EXIT_FAILURE;
-  }
-  while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-    db_time = sqlite3_column_int(stmt, 0);                                      // from the database: 0 = utc, 1 = localtime
-    snprintf(mode, 8, "%s", sqlite3_column_text(stmt, 1));                      // default mode, since this schedule doesn't come from a turn off rule
-    snprintf(options, 129, "%s", sqlite3_column_text(stmt, 2));                 // rtcwake options
-  }
-  if (rc != SQLITE_DONE) {
-    fprintf(stderr, ANSI_COLOR_RED "ERROR (failed getting config information): %s\n" ANSI_COLOR_RESET, sqlite3_errmsg(*db));
-    issue();
-    return EXIT_FAILURE;
-  }
-  sqlite3_finalize(stmt);
-
-  // GET THE CURRENT TIME
-  get_time(&timeinfo);          // hour, minutes and seconds as integer members
-  snprintf(buff, 7, "%02d%02d%02d", timeinfo -> tm_hour, timeinfo -> tm_min, timeinfo -> tm_sec); // Concatenate: HHMMSS as a string
-  now = atoi(buff);             // HHMMSS as an integer, leading zeros don't care
-
-  // TRY TO SCHEDULE FOR TODAY
-  printf ("[SCHEDULER] ---> Trying to schedule for today...\n");
-  // Create an SQL statement to get today's active rules time; tm_wday = number of the week
-  snprintf(query, alloc, "SELECT id, strftime('%%H%%M%%S', time), strftime('%%Y%%m%%d', 'now', '%s') FROM rules_turnon WHERE %s = 1 ORDER BY time(time) ASC;",
-           DB_TIMES[db_time], DAYS[timeinfo -> tm_wday]);
-  rc = sqlite3_prepare_v2(*db, query, -1, &stmt, NULL);
-  if (rc != SQLITE_OK) {
-    fprintf(stderr, ANSI_COLOR_RED "ERROR: Failed scheduling for today\n" ANSI_COLOR_RESET);
-    issue();
-    return EXIT_FAILURE;
-  }
-  // Get all rules today, ordered by time; the first rule that has a bigger time than now is a valid
-  while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-    int id              = sqlite3_column_int(stmt, 0);
-    int ruletime        = sqlite3_column_int(stmt, 1);
-    if (now < ruletime) {
-      id_match = id;
-      snprintf(date, 9, "%s", sqlite3_column_text(stmt, 2));          // YYYYMMDD
-      snprintf(time, 7, "%s", sqlite3_column_text(stmt, 1));          // HHMMSS
-      break;
-    }
-  }
-  if (rc != SQLITE_DONE && rc != SQLITE_ROW) {
-    fprintf(stderr, ANSI_COLOR_RED "ERROR (failed scheduling for today): %s\n" ANSI_COLOR_RESET, sqlite3_errmsg(*db));
-    issue();
-    return EXIT_FAILURE;
-  }
-  sqlite3_finalize(stmt);
-
-  // IF IT WASN'T POSSIBLE TO SCHEDULE FOR TODAY, TRY ON THE NEXT DAYS
-  if (id_match < 0) {
-    printf("[SCHEDULER] ---> Any time matched. Trying to schedule for tomorrow or later...\n");
-    // search for a matching rule within a week
-    for (int i = 1; i <= 7; i++) {
-      int wday_num = wday(timeinfo -> tm_wday + i);
-      if (wday_num == -1) {
-        fprintf(stderr, ANSI_COLOR_RED "ERROR: Failed scheduling for after (on wday function)\n" ANSI_COLOR_RESET);
-        issue();
-        return EXIT_FAILURE;
-      }
-      // The first rule after today is a valid match;
-      // also calculate the day: now + number of day until the matching rule, represented by the index i of the loop
-      snprintf(query, alloc,  "SELECT id, strftime('%%Y%%m%%d', 'now', '%s', '+%d day'), strftime('%%H%%M%%S', time) FROM rules_turnon WHERE %s = 1 ORDER BY time(time) ASC LIMIT 1;",
-                DB_TIMES[db_time], i, DAYS[wday_num]);
-      rc = sqlite3_prepare_v2(*db, query, -1, &stmt, NULL);
-      if (rc != SQLITE_OK) {
-        fprintf(stderr, ANSI_COLOR_RED "ERROR: Failed scheduling for after\n" ANSI_COLOR_RESET);
-        return EXIT_FAILURE;
-      }
-      while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-        id_match = sqlite3_column_int(stmt, 0);
-        snprintf(date, 9, "%s", sqlite3_column_text(stmt, 1));        // YYYYMMDD
-        snprintf(time, 7, "%s", sqlite3_column_text(stmt, 2));        // HHMMSS
-      }
-      if (rc != SQLITE_DONE) {
-        fprintf(stderr, ANSI_COLOR_RED "ERROR (failed scheduling for after): %s\n" ANSI_COLOR_RESET, sqlite3_errmsg(*db));
-        issue();
-        return EXIT_FAILURE;
-      }
-      sqlite3_finalize(stmt);
-      if (id_match >= 0) {
-        break;
-      }
-    }
-  }
-
-  // IF ANY RULE WAS FOUND, RETURN
-  if (id_match < 0) {
-    printf(ANSI_COLOR_YELLOW "WARNING: Any turn on rule found. Schedule failed!\n" ANSI_COLOR_RESET);
-    return EXIT_SUCCESS;
-  }
-  // ELSE, SCHEDULE
-  sqlite3_close(*db);
-  printf ("Match on turn on rule with ID [%d]\n", id_match);
-  snprintf(rtcwake_cmd, FORMATTED_CMD_LEN, "rtcwake --date %s%s %s -m %s", date, time, options, mode);
-  printf (ANSI_COLOR_GREEN "Running rtcwake: %s\n" ANSI_COLOR_RESET, rtcwake_cmd);
-  raise_priv();
-  system(rtcwake_cmd);
-  drop_priv();                // If the command fails, for any reason
-  exit(EXIT_SUCCESS);
-}
-#endif
 
 void usage (void)
 {
@@ -961,13 +553,6 @@ __attribute__((__noreturn__)) void exit_handler (gint sig)
   close_dbus_client ();
   exit (EXIT_FAILURE);
 }
-
-// Prints the issue URL and related instructions
-/* void issue (void) */
-/* { */
-/*   printf (RED ("If it continues, consider reporting the bug "\ */
-/*           "<https://github.com/KelvinNovais/Gawake/issues>\n")); */
-/* } */
 
 /* REFERENCES:
  * [1] https://stackoverflow.com/questions/42318747/how-do-i-limit-my-user-input

@@ -9,7 +9,7 @@ Type=dbus
 BusName=io.github.kelvinnovais.GawakeServer
 ExecStart=/opt/gawake/bin/gawake-dbus-server
 
-# Scurity options
+# Security options
 # https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html
 # https://www.redhat.com/sysadmin/mastering-systemd
 

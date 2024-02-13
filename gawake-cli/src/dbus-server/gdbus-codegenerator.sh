@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# Note: the variable ${MESON_SOURCE_ROOT} access ".../Gawake/gawake-cli/"
+cd "${MESON_SOURCE_ROOT}/src/dbus-server/"
+gdbus-codegen 	--generate-c-code dbus-server\
+		--c-namespace GawakeServer\
+		--interface-prefix io.github.kelvinnovais.\
+		io.github.kelvinnovais.xml

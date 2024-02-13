@@ -1,31 +1,10 @@
-# SOURCES
-gawake_dbus_server_sources = files(
-	'gawake-dbus-server.c',
-	'dbus-server.c',
-	'database-connection.c',
-	'gawake-types.c',
-	'validate-rtcwake-args.c',
-	'get-time.c'
-)
+# SOURCES DIRECTORIES
+subdir('dbus-server')
+subdir('utils')
 
-gawaked_sources = files(
-	'gawaked.c',
-	'gawake-types.c',
-	'scheduler.c',
-	'get-time.c',
-	'week-day.c',
-	'debugger.c',
-	'dbus-server.c',
-	'validate-rtcwake-args.c',
-	'privileges.c'
-)
-
-gawake_cli_sources = files(
-	'gawake-cli.c',
-	'gawake-types.c',
-	'dbus-server.c',
-	'dbus-client.c'
-)
+subdir('gawaked')
+subdir('gawake-cli')
+subdir('gawake-dbus-server')
 
 # DEPENDENCIES
 sqlite = dependency('sqlite3')
@@ -54,28 +33,25 @@ gawake_cli_dependencies = [
 ]
 
 # INCLUDE DIRECTORIES
-incdir = include_directories('_include')
+# incdir = include_directories('_include')
 
 # EXECUTABLES
 executable(
 	'gawake-dbus-server',
 	gawake_dbus_server_sources,
 	dependencies: gawake_dbus_server_dependencies,
-	c_args: '-DPREPROCESSOR_DEBUG=1',
-	include_directories: incdir
+	c_args: '-DPREPROCESSOR_DEBUG=1'
 )
 
 executable(
 	'gawaked',
 	gawaked_sources,
 	dependencies: gawaked_dependencies,
-	c_args: '-DPREPROCESSOR_DEBUG=1',
-	include_directories: incdir
+	c_args: '-DPREPROCESSOR_DEBUG=1'
 )
 
 executable(
 	'gawake-cli',
 	gawake_cli_sources,
-	dependencies: gawake_cli_dependencies,
-	include_directories: incdir
+	dependencies: gawake_cli_dependencies
 )

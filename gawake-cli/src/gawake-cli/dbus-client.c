@@ -22,8 +22,8 @@
 #include <stdlib.h>
 
 #include "dbus-client.h"
-#include "dbus-server.h"
-#include "colors.h"
+#include "../dbus-server/dbus-server.h"
+#include "../utils/colors.h"
 
 static GawakeServerDatabase *proxy;
 static GError *error = NULL;

@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-const char* print_timestamp (void);
+const char *print_timestamp (void);
 
 /*
  * Prints "** DEBUG" magenta colored;
@@ -16,7 +16,7 @@ const char* print_timestamp (void);
 #if PREPROCESSOR_DEBUG
 # define DEBUG_PRINT(x) printf ("\x1b[35m** DEBUG:\x1b[0m %s:%d:%s(): ", \
                                 __FILE__, __LINE__, __func__); \
-                        printf x; printf ("\n\n")
+                                printf x; printf ("\n\n")
 #else
 # define DEBUG_PRINT(x) /* Don't do anything in release builds */
 #endif

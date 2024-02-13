@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #include "database-connection.h"
-#include "validate-rtcwake-args.h"
+#include "../utils/validate-rtcwake-args.h"
 
 static sqlite3 *db = NULL;
 

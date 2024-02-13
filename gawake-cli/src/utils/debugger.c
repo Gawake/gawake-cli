@@ -18,13 +18,14 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+#include "debugger.h"
 #include "get-time.h"
 #include <time.h>
 
 // Defining a size that's big enough to receive the timesatmp without compilation problems
 #define TIMESTAMP_ALLOC 26
 
-const char* print_timestamp (void)
+const char *print_timestamp (void)
 {
   static struct tm * timeinfo;
   static char timestamp[TIMESTAMP_ALLOC];

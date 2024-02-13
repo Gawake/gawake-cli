@@ -3,7 +3,7 @@
 
 #include <time.h>
 
-#include "gawake-types.h"
+#include "../utils/gawake-types.h"
 
 // Structure for the upcoming turn off rule
 typedef struct {

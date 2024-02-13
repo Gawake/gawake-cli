@@ -8,10 +8,11 @@
 #include <sys/wait.h>
 #include <sys/prctl.h>
 
-#include "../gawake-types.h"
-#include "../scheduler.h"
-#include "../privileges.h"
-#include "../validate-rtcwake-args.h"
+#include "../utils/gawake-types.h"
+#include "../utils/validate-rtcwake-args.h"
+
+#include "scheduler.h"
+#include "privileges.h"
 
 #define SHUTDOWN "shutdown --poweroff now"
 

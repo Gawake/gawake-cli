@@ -12,9 +12,9 @@
 
 #include <sys/wait.h>       // Child process
 
-#include "../gawake-types.h"
-#include "../dbus-client.h"
-#include "../colors.h"
+#include "../utils/gawake-types.h"
+#include "dbus-client.h"
+#include "../utils/colors.h"
 
 void menu (void);
 void info (void);

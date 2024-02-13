@@ -23,7 +23,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#include "_include/gawake-cli.h"
+#include "main.h"
 #include "dbus-client.h"
 
 gint main (gint argc, gchar **argv)

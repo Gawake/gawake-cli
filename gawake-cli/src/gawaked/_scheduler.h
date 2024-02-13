@@ -7,11 +7,13 @@
 #include <unistd.h>
 #include <pthread.h>
 
-#include "../get-time.h"
-#include "../week-day.h"
-#include "../debugger.h"
-#include "../dbus-server.h"
-#include "../validate-rtcwake-args.h"
+#include "week-day.h"
+
+#include "../utils/get-time.h"
+#include "../utils/debugger.h"
+#include "../utils/validate-rtcwake-args.h"
+
+#include "../dbus-server/dbus-server.h"
 
 // Threads
 static void *dbus_listener (void *args);

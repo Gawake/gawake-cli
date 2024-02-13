@@ -9,9 +9,9 @@
 #include <pwd.h>
 #include <signal.h>
 
-#include "../dbus-server.h"
-#include "../gawake-types.h"
-#include "../database-connection.h"
+#include "../dbus-server/dbus-server.h"
+#include "../utils/gawake-types.h"
+#include "database-connection.h"
 
 static void on_name_acquired (GDBusConnection *connection,
                               const gchar *name,

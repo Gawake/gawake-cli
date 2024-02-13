@@ -23,7 +23,7 @@
 // In this case the device is active across days
 
 #include "scheduler.h"
-#include "_include/scheduler_private.h"
+#include "_scheduler.h"
 
 /*
  * These are static (and private to this file) variables.

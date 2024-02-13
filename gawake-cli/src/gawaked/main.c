@@ -20,8 +20,8 @@
 
 // TODO add sigterm
 
-#include "_include/gawaked.h"
-#include "debugger.h"
+#include "main.h"
+#include "../utils/debugger.h"
 
 // if pid == 0, it's the child process
 

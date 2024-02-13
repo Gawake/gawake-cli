@@ -26,7 +26,7 @@
 #include <sys/types.h>
 
 #include "privileges.h"
-#include "debugger.h"
+#include "../utils/debugger.h"
 
 // Remember the effective and real UIDs
 static uid_t gawake_uid, gawake_gid;

@@ -1,7 +1,7 @@
 #ifndef DBUS_CLIENT_H_
 #define DBUS_CLIENT_H_
 
-#include "gawake-types.h"
+#include "../utils/gawake-types.h"
 
 gint connect_dbus_client (void);
 void close_dbus_client (void);

@@ -1,6 +1,4 @@
-// main file for gawake-cli
-
-/* gawake-cli.c
+/* main.c
  *
  * Gawake. A Linux software to make your PC wake up on a scheduled time.
  * It makes the rtcwake command easier.
@@ -23,6 +21,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+// main file for gawake-cli
+
 #include "main.h"
 #include "dbus-client.h"
 
@@ -30,10 +30,7 @@ gint main (gint argc, gchar **argv)
 {
   // If can't connect to the D-Bus client, exit
   if (connect_dbus_client ())
-    {
-      fprintf (stderr, RED("ERROR: can't connect to the D-Bus server\n"));
-      return EXIT_FAILURE;
-    }
+    return EXIT_FAILURE;
 
   // Receiving arguments (reference [4])
   gint cflag = 0, mflag = 0, sflag = 0;
@@ -109,7 +106,7 @@ gint main (gint argc, gchar **argv)
     {
       if (mflag)
         {
-          printf ("Mode not supported without timestamp (option '-c')\n");
+          printf ("Mode is only supported with a timestamp (option '-c')\n");
           return EXIT_FAILURE;
         }
       /* TODO call dbus client */
@@ -288,6 +285,10 @@ void get_user_input (gRule *rule, Table table)
       printf ("Enter the rule name (can't be null) ---> ");
       fgets (rule->name, RULE_NAME_LENGTH, stdin);
 
+      // Exit if user enters Ctrl D
+      if (feof (stdin))
+        exit_handler (SIGINT);
+
       // Checks if the previous string contains a '\n' character at the end;
       // if not, the character is on the buffvalueer and must be cleaned
       if (strchr (rule->name, '\n') == NULL)
@@ -422,7 +423,6 @@ void invalid_value (void)
  * when the user enter an invalid input, the variable keeps equal to 0;
  * but if  a previous value was assigned, that value is kept.
  */
-// FIXME infinite loop  when Crtl + D
 void get_int (gint *ptr, gint digits, gint min, gint max, gint repeat)
 {
   gchar user_input[digits];    // Number of digits the user input must have
@@ -432,7 +432,7 @@ void get_int (gint *ptr, gint digits, gint min, gint max, gint repeat)
     {
       printf ("--> ");
 
-      // IF the fgets AND the sscanf are successful...
+      // If the fgets AND the sscanf are successful...
       if ((fgets (user_input, sizeof (user_input), stdin))
           && (sscanf (user_input, "%d", &val) == 1))
         {
@@ -441,7 +441,11 @@ void get_int (gint *ptr, gint digits, gint min, gint max, gint repeat)
             invalid = FALSE;
         }
 
-      // BUT, IF the user's input is longer than expected, invalidate the value
+      // Exit if user enters Ctrl D
+      if (feof (stdin))
+        exit_handler (SIGINT);
+
+      // If the user's input is longer than expected, invalidate the value
       if(strchr (user_input, '\n') == NULL)
         {
           if (getchar () != '\n')
@@ -466,7 +470,7 @@ gint add_remove_rule (void) {
   rule.name = (gchar *) g_malloc (RULE_NAME_LENGTH);
   if (rule.name == NULL)
     {
-      fprintf (stderr, "Couldn't allocate memory\n");
+      fprintf (stderr, RED ("Couldn't allocate memory\n"));
       return EXIT_FAILURE;
     }
 

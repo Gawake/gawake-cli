@@ -21,18 +21,6 @@
  */
 #include <glib.h>
 
-// TODO not used yet
-typedef enum
-{
-  SUNDAY,
-  MONDAY,
-  TUESDAY,
-  WEDNESDAY,
-  THURSDAY,
-  FRIDAY,
-  SATURDAY
-} Week;
-
 // ATTENTION: enum and gchar[] must be synced
 typedef enum
 {

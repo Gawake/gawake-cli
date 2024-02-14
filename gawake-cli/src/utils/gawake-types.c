@@ -20,8 +20,6 @@
 
 #include "gawake-types.h"
 
-// TODO variables as pointers, no need to free
-
 const char *TABLE[] = {
   "rules_turnon",
   "rules_turnoff"

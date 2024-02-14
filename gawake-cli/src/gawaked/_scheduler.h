@@ -22,7 +22,7 @@ static void finalize_dbus_listener (void);
 static void finalize_timed_checker (void);
 
 // Database calls
-static int query_upcoming_off_rule (void);  // TODO treat on fail (?)
+static int query_upcoming_off_rule (void);
 static int query_upcoming_on_rule (gboolean use_default_mode);
 static int query_custom_schedule (void);
 

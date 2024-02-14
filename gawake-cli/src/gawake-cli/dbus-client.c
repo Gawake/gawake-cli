@@ -25,7 +25,7 @@
 #include "../dbus-server/dbus-server.h"
 #include "../utils/colors.h"
 
-static GawakeServerDatabase *proxy;
+static GawakeServerDatabase *proxy = NULL;
 static GError *error = NULL;
 
 gint connect_dbus_client (void)
@@ -37,15 +37,12 @@ gint connect_dbus_client (void)
                                                          NULL,                      // cancellable
                                                          &error);                   // error
 
-  // FIXME exit if server is not available
-
   if (error != NULL)
     {
-      fprintf (stderr, "Unable to get proxy: %s\n", error->message);
+      fprintf (stderr, RED ("Unable to get proxy: %s\n"), error->message);
       g_error_free (error);
       return EXIT_FAILURE;
     }
-  else
     return EXIT_SUCCESS;
 }
 
@@ -87,7 +84,7 @@ gint add_rule (gRule *rule)
     }
   else
     {
-      fprintf (stderr, "Couldn't add rule\n");
+      fprintf (stderr, RED ("Couldn't add rule\n"));
       return EXIT_FAILURE;
     }
 }
@@ -110,7 +107,7 @@ gint delete_rule (guint16 id, Table table)
     }
   else
     {
-      fprintf (stderr, "Couldn't delete rule\n");
+      fprintf (stderr, RED ("Couldn't delete rule\n"));
       return EXIT_FAILURE;
     }
 }
@@ -134,7 +131,7 @@ gint enable_disable_rule (guint16 id, Table table, gboolean active)
     }
   else
     {
-      fprintf (stderr, "Couldn't change rule state\n");
+      fprintf (stderr, RED ("Couldn't change rule state\n"));
       return EXIT_FAILURE;
     }
 }
@@ -148,14 +145,14 @@ static void print_header (const Table table)
   if (table == T_ON)
     {
       printf (GREEN ("[1] TURN ON RULES\n"\
-          "┌─────┬─────────────────┬──────────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬────────┐"\
-          "\n│ %-4s│ %-16s│   Time   │ Sun │ Mon │ Tue │ Wed │ Thu │ Fri │ Sat │ %-7s│"), "ID", "Name", "Active");
+          "┌─────┬─────────────────┬────────────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬────────┐"\
+          "\n│ %-4s│ %-16s│    Time    │ Sun │ Mon │ Tue │ Wed │ Thu │ Fri │ Sat │ %-7s│"), "ID", "Name", "Active");
     }
   else
     {
       printf (YELLOW ("[2] TURN OFF RULES\n"\
-          "┌─────┬─────────────────┬──────────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬────────┬─────────┐"\
-          "\n│ %-4s│ %-16s│   Time   │ Sun │ Mon │ Tue │ Wed │ Thu │ Fri │ Sat │ %-7s│ %-8s│"), "ID", "Name", "Active", "Mode");
+          "┌─────┬─────────────────┬────────────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬────────┬─────────┐"\
+          "\n│ %-4s│ %-16s│    Time    │ Sun │ Mon │ Tue │ Wed │ Thu │ Fri │ Sat │ %-7s│ %-8s│"), "ID", "Name", "Active", "Mode");
     }
 }
 
@@ -163,14 +160,14 @@ static void print_row (const gRule *rule, const Table table)
 {
   if (table == T_ON)
     {
-      printf ("\n│ %03d │ %-16.15s│  %02d%02u00  │  %d  │  %d  │  %d  │  %d  │  %d  │  %d  │  %d  │   %-5d│",
+      printf ("\n│ %03d │ %-16.15s│  %02d:%02d:00  │  %d  │  %d  │  %d  │  %d  │  %d  │  %d  │  %d  │   %-5d│",
                rule->id, rule->name, rule->hour, rule->minutes,
                rule->days[0], rule->days[1], rule->days[2], rule->days[3], rule->days[4], rule->days[5], rule->days[6],
                rule->active);
     }
   else
     {
-      printf ("\n│ %03d │ %-16.15s│  %02d%02u00  │  %d  │  %d  │  %d  │  %d  │  %d  │  %d  │  %d  │   %-5d│ %-8s│",
+      printf ("\n│ %03d │ %-16.15s│  %02d:%02d:00  │  %d  │  %d  │  %d  │  %d  │  %d  │  %d  │  %d  │   %-5d│ %-8s│",
                rule->id, rule->name, rule->hour, rule->minutes,
                rule->days[0], rule->days[1], rule->days[2], rule->days[3], rule->days[4], rule->days[5], rule->days[6],
                rule->active, MODE[rule->mode]);
@@ -181,11 +178,11 @@ static void print_bottom (const Table table)
 {
   if (table == T_ON)
     {
-      printf ("\n└─────┴─────────────────┴──────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴────────┘\n\n");
+      printf ("\n└─────┴─────────────────┴────────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴────────┘\n\n");
     }
   else
     {
-      printf ("\n└─────┴─────────────────┴──────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴────────┴─────────┘\n");
+      printf ("\n└─────┴─────────────────┴────────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴────────┴─────────┘\n");
     }
 }
 
@@ -242,16 +239,20 @@ gint query_rules (const Table table)
     } // if success
   else
     {
-      fprintf (stderr, "Couldn't query rules\n");
+      fprintf (stderr, RED ("Couldn't query rules\n"));
     } // else failure
 
   // Free allocated memory
   g_free (parse.name);
-  rules = g_variant_ref_sink (rules);
-  g_variant_unref (rules);
 
   if (success)
-    return EXIT_SUCCESS;
+    {
+      // Only "free" these variables on success (which means they were allocated)
+      rules = g_variant_ref_sink (rules);
+      g_variant_unref (rules);
+
+      return EXIT_SUCCESS;
+    }
   else
     return EXIT_FAILURE;
 }

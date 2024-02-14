@@ -6,5 +6,6 @@ gawake_dbus_server_sources = files(
 
 	'../utils/gawake-types.c',
 	'../utils/validate-rtcwake-args.c',
-	'../utils/get-time.c'
+	'../utils/get-time.c',
+	'../utils/debugger.c'
 )

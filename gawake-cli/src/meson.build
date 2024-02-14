@@ -32,26 +32,23 @@ gawake_cli_dependencies = [
 	gio_unix
 ]
 
-# INCLUDE DIRECTORIES
-# incdir = include_directories('_include')
-
 # EXECUTABLES
 executable(
-	'gawake-dbus-server',
+	'gawake-dbus-server.out',
 	gawake_dbus_server_sources,
 	dependencies: gawake_dbus_server_dependencies,
 	c_args: '-DPREPROCESSOR_DEBUG=1'
 )
 
 executable(
-	'gawaked',
+	'gawaked.out',
 	gawaked_sources,
 	dependencies: gawaked_dependencies,
 	c_args: '-DPREPROCESSOR_DEBUG=1'
 )
 
 executable(
-	'gawake-cli',
+	'gawake-cli.out',
 	gawake_cli_sources,
 	dependencies: gawake_cli_dependencies
 )

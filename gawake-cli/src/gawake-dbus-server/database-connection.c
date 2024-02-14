@@ -18,14 +18,14 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-// TODO https://stackoverflow.com/questions/29112878/how-do-i-printf-a-uint16-t
-
 #include <sqlite3.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "database-connection.h"
+
 #include "../utils/validate-rtcwake-args.h"
+#include "../utils/debugger.h"
 
 static sqlite3 *db = NULL;
 
@@ -38,6 +38,7 @@ gint connect_database (void)
 
   if (rc != SQLITE_OK)
     {
+      DEBUG_PRINT_CONTEX;
       g_fprintf (stderr, "Can't open database: %s\n", sqlite3_errmsg (db));
       sqlite3_close (db);
       return EXIT_FAILURE;
@@ -69,7 +70,7 @@ static gint validate_rule (const gRule *rule)
   gboolean name = !(strlen (rule->name) >= RULE_NAME_LENGTH);     // (>=) do not include null terminator
 
   // hour [00,23]
-  gboolean hour = (rule->hour <= 23);     // Due to the data type, it is always >= 0
+  gboolean hour = rule->hour <= 23;     // Due to the data type, it is always >= 0
 
   // minutes according to enum predefined values
   gboolean minutes = (rule->minutes == M_00
@@ -84,15 +85,9 @@ static gint validate_rule (const gRule *rule)
 
   gboolean table = (rule->table == T_ON || rule->table == T_OFF);
 
-#if PREPROCESSOR_DEBUG
-  g_print ("VALIDATION:\n");
-  g_print ("Name: %d\n", name);
-  g_print ("\tName length: %lu\n", strlen (rule->name));
-  g_print ("Hour: %d\n", hour);
-  g_print ("Minutes: %d\n", minutes);
-  g_print ("Mode: %d\n", mode);
-  g_print ("Table: %d\n\n", table);
-#endif
+  DEBUG_PRINT (("VALIDATION:\nName: %d\n\tName length: %lu\n"\
+                "Hour: %d\nMinutes: %d\nMode: %d\nTable: %d",
+                name, strlen (rule->name), hour, minutes, mode, table));
 
   if (name && hour && minutes && mode && table)
     return EXIT_SUCCESS;
@@ -117,9 +112,7 @@ static gboolean run_sql (const gchar *sql)
   gint rc;
   gchar *err_msg = 0;
 
-#if PREPROCESSOR_DEBUG
-  g_print ("Generated SQL:\n\t%s\n\n", sql);
-#endif
+  DEBUG_PRINT (("Generated SQL:\n\t%s", sql));
 
   rc = sqlite3_exec(db, sql, NULL, 0, &err_msg);
   if (rc != SQLITE_OK)
@@ -143,30 +136,32 @@ gboolean add_rule (const gRule *rule)
   if (sql == NULL)
     return FALSE;
 
-  switch (rule -> table)
+  switch (rule->table)
     {
     case T_ON:
-      g_snprintf (sql, ALLOC, "INSERT INTO rules_turnon "\
-                  "(rule_name, rule_time, sun, mon, tue, wed, thu, fri, sat, active) "\
-                  "VALUES ('%s', '%02d:%02u:00', %d, %d, %d, %d, %d, %d, %d, %d);",
-                  rule -> name,
-                  rule -> hour,
-                  rule -> minutes,
-                  rule -> days[0], rule -> days[1], rule -> days[2], rule -> days[3],
-                  rule -> days[4], rule -> days[5], rule -> days[6],
-                  rule -> active);
+      sqlite3_snprintf (ALLOC, sql,
+                        "INSERT INTO rules_turnon "\
+                        "(rule_name, rule_time, sun, mon, tue, wed, thu, fri, sat, active) "\
+                        "VALUES ('%s', '%02d:%02u:00', %d, %d, %d, %d, %d, %d, %d, %d);",
+                        rule->name,
+                        rule->hour,
+                        rule->minutes,
+                        rule->days[0], rule->days[1], rule->days[2], rule->days[3],
+                        rule->days[4], rule->days[5], rule->days[6],
+                        rule->active);
       break;
     case T_OFF:
-      g_snprintf (sql, ALLOC, "INSERT INTO rules_turnoff "\
-                  "(rule_name, rule_time, sun, mon, tue, wed, thu, fri, sat, active, mode) "\
-                  "VALUES ('%s', '%02d:%02u:00', %d, %d, %d, %d, %d, %d, %d, %d, %u);",
-                  rule -> name,
-                  rule -> hour,
-                  rule -> minutes,
-                  rule -> days[0], rule -> days[1], rule -> days[2], rule -> days[3],
-                  rule -> days[4], rule -> days[5], rule -> days[6],
-                  rule -> active,
-                  rule -> mode);
+      sqlite3_snprintf (ALLOC, sql,
+                        "INSERT INTO rules_turnoff "\
+                        "(rule_name, rule_time, sun, mon, tue, wed, thu, fri, sat, active, mode) "\
+                        "VALUES ('%s', '%02d:%02u:00', %d, %d, %d, %d, %d, %d, %d, %d, %u);",
+                        rule->name,
+                        rule->hour,
+                        rule->minutes,
+                        rule->days[0], rule->days[1], rule->days[2], rule->days[3],
+                        rule->days[4], rule->days[5], rule->days[6],
+                        rule->active,
+                        rule->mode);
       break;
     default:
       g_free (sql);
@@ -189,34 +184,36 @@ gboolean edit_rule (const gRule *rule)
   if (sql == NULL)
     return FALSE;
 
-  switch (rule -> table)
+  switch (rule->table)
     {
     case T_ON:
-      g_snprintf (sql, ALLOC, "UPDATE rules_turnon SET "\
-                  "rule_name = '%s', rule_time = '%02d:%02d:00', "\
-                  "sun = %d, mon = %d, tue = %d, wed = %d, thu = %d, fri = %d, sat = %d, "\
-                  "active = %d WHERE id = %d;",
-                  rule -> name,
-                  rule -> hour,
-                  rule -> minutes,
-                  rule -> days[0], rule -> days[1], rule -> days[2], rule -> days[3],
-                  rule -> days[4], rule -> days[5], rule -> days[6],
-                  rule -> active,
-                  rule -> id);
+      sqlite3_snprintf (ALLOC, sql,
+                        "UPDATE rules_turnon SET "\
+                        "rule_name = '%s', rule_time = '%02d:%02d:00', "\
+                        "sun = %d, mon = %d, tue = %d, wed = %d, thu = %d, fri = %d, sat = %d, "\
+                        "active = %d WHERE id = %d;",
+                        rule->name,
+                        rule->hour,
+                        rule->minutes,
+                        rule->days[0], rule->days[1], rule->days[2], rule->days[3],
+                        rule->days[4], rule->days[5], rule->days[6],
+                        rule->active,
+                        rule->id);
       break;
     case T_OFF:
-      g_snprintf (sql, ALLOC, "UPDATE rules_turnoff SET "\
-                  "rule_name = '%s', rule_time = '%02d:%02d:00', "\
-                  "sun = %d, mon = %d, tue = %d, wed = %d, thu = %d, fri = %d, sat = %d, "\
-                  "active = %d, mode = %d WHERE id = %d;",
-                  rule -> name,
-                  rule -> hour,
-                  rule -> minutes,
-                  rule -> days[0], rule -> days[1], rule -> days[2], rule -> days[3],
-                  rule -> days[4], rule -> days[5], rule -> days[6],
-                  rule -> active,
-                  rule -> mode,
-                  rule -> id);
+      sqlite3_snprintf (ALLOC, sql,
+                        "UPDATE rules_turnoff SET "\
+                        "rule_name = '%s', rule_time = '%02d:%02d:00', "\
+                        "sun = %d, mon = %d, tue = %d, wed = %d, thu = %d, fri = %d, sat = %d, "\
+                        "active = %d, mode = %d WHERE id = %d;",
+                        rule->name,
+                        rule->hour,
+                        rule->minutes,
+                        rule->days[0], rule->days[1], rule->days[2], rule->days[3],
+                        rule->days[4], rule->days[5], rule->days[6],
+                        rule->active,
+                        rule->mode,
+                        rule->id);
       break;
     default:
       g_free (sql);
@@ -239,7 +236,7 @@ gboolean delete_rule (const guint16 id, const Table table)
   if (sql == NULL)
     return FALSE;
 
-  g_snprintf (sql, ALLOC, "DELETE FROM %s WHERE id = %d;", TABLE[table], id);
+  sqlite3_snprintf (ALLOC, sql, "DELETE FROM %s WHERE id = %d;", TABLE[table], id);
 
   gboolean ret = run_sql (sql);
   g_free (sql);
@@ -260,7 +257,7 @@ gboolean enable_disable_rule (const guint16 id, const Table table, const gboolea
       return FALSE;
     }
 
-  g_snprintf (sql, ALLOC, "UPDATE %s SET active = %d WHERE id = %d;", TABLE[table], active, id);
+  sqlite3_snprintf (ALLOC, sql, "UPDATE %s SET active = %d WHERE id = %d;", TABLE[table], active, id);
 
   gboolean ret = run_sql (sql);
   g_free (sql);
@@ -285,11 +282,9 @@ gboolean query_rule (const guint16 id, const Table table, gRule *rule)
     }
 
   // Generate SQL
-  g_snprintf (sql, ALLOC, "SELECT * FROM %s WHERE id = %d LIMIT 1;", TABLE[table], id);
+  sqlite3_snprintf (ALLOC, sql, "SELECT * FROM %s WHERE id = %d LIMIT 1;", TABLE[table], id);
 
-#if PREPROCESSOR_DEBUG
-  g_print ("Generated SQL:\n\t%s\n\n", sql);
-#endif
+  DEBUG_PRINT (("Generated SQL:\n\t%s", sql));
 
   // Verify ID (also prepare statement)
   if (sqlite3_prepare_v2 (db, sql, -1, &stmt, NULL) == SQLITE_OK
@@ -309,41 +304,42 @@ gboolean query_rule (const guint16 id, const Table table, gRule *rule)
    *                                                                        |
    *                                                  only for turn off rules
    */
-  gint hour, minutes; // Temporary variable to receive the minutes and pass to the structure;
+  // Temporary variables to receive the minutes and pass to the structure;
+  gint hour, minutes;
+  gchar timestamp[9]; // HH:MM:SS'\0' = 9 characters
   while ((rc = sqlite3_step (stmt)) == SQLITE_ROW)
     {
       // ID
-      rule -> id = (guint16) sqlite3_column_int (stmt, 0);
+      rule->id = (guint16) sqlite3_column_int (stmt, 0);
       // NAME
-      g_snprintf (rule -> name, RULE_NAME_LENGTH, "%s", sqlite3_column_text (stmt, 1));
+      g_snprintf (rule->name, RULE_NAME_LENGTH, "%s", sqlite3_column_text (stmt, 1));
 
       // MINUTES AND HOUR
-      // TODO sqlite3_column_text16 has correct data type for sscanf, bbut returned data is wrong
-
-      sscanf (sqlite3_column_text (stmt, 2), "%02d:%02d", &hour, &minutes);
-      rule -> hour = (guint8) hour;
-      rule -> minutes = (Minutes) minutes;
+      sqlite3_snprintf (9, timestamp, "%s", sqlite3_column_text (stmt, 2));
+      sscanf (timestamp, "%02d:%02d", &hour, &minutes);
+      rule->hour = (guint8) hour;
+      rule->minutes = (Minutes) minutes;
 
       // DAYS
       for (gint i = 0; i <= 6; i++)
         {
           // days range: [0,6]                  column range: [3,9]
-          rule -> days[i] = (gboolean) sqlite3_column_int (stmt, (i+3));
+          rule->days[i] = (gboolean) sqlite3_column_int (stmt, (i+3));
         }
 
       // ACTIVE
-      rule -> active = (gboolean) sqlite3_column_int (stmt, 10); // active
+      rule->active = (gboolean) sqlite3_column_int (stmt, 10); // active
 
       // MODE (for turn on rules it isn't used):
-      rule -> mode = (Mode) ((table == T_OFF) ? sqlite3_column_int (stmt, 11) : 0);
+      rule->mode = (Mode) ((table == T_OFF) ? sqlite3_column_int (stmt, 11) : 0);
 
       // TABLE
-      rule -> table = (Table) table;
+      rule->table = (Table) table;
     }
 
   if (rc != SQLITE_DONE)
     {
-      g_fprintf(stderr, "ERROR (failed to query rule): %s\n", sqlite3_errmsg(db));
+      g_fprintf (stderr, "ERROR (failed to query rule): %s\n", sqlite3_errmsg (db));
       g_free (sql);
       sqlite3_finalize (stmt);
       return FALSE;
@@ -372,7 +368,7 @@ gboolean query_rules (const Table table, gRule **rules, guint16 *rowcount)
     }
 
   // Count the number of rows
-  g_snprintf (sql, ALLOC, "SELECT COUNT(*) FROM %s;", TABLE[table]);
+  sqlite3_snprintf (ALLOC, sql, "SELECT COUNT(*) FROM %s;", TABLE[table]);
   if (sqlite3_prepare_v2 (db, sql, -1, &stmt, NULL) == SQLITE_OK
       && sqlite3_step (stmt) != SQLITE_ROW)
     {
@@ -382,9 +378,8 @@ gboolean query_rules (const Table table, gRule **rules, guint16 *rowcount)
       return FALSE;
     }
   *rowcount = sqlite3_column_int (stmt, 0);
-#if PREPROCESSOR_DEBUG
-  g_print ("Row count: %d\n\n", *rowcount);
-#endif
+
+  DEBUG_PRINT (("Row count: %d", *rowcount));
 
   // Allocate structure array
   *rules = malloc (*rowcount * sizeof (**rules));
@@ -398,11 +393,9 @@ gboolean query_rules (const Table table, gRule **rules, guint16 *rowcount)
 
   // Generate SQL
   // SELECT length(<table>.rule_name), * FROM <table>;
-  g_snprintf (sql, ALLOC, "SELECT length(%s.rule_name), * FROM %s;", TABLE[table], TABLE[table]);
+  sqlite3_snprintf (ALLOC, sql, "SELECT length(%s.rule_name), * FROM %s;", TABLE[table], TABLE[table]);
 
-#if PREPROCESSOR_DEBUG
-  g_print ("Generated SQL:\n\t%s\n\n", sql);
-#endif
+  DEBUG_PRINT (("Generated SQL:\n\t%s", sql));
 
   // Prepare statement
   if (sqlite3_prepare_v2 (db, sql, -1, &stmt, NULL) != SQLITE_OK)
@@ -422,8 +415,9 @@ gboolean query_rules (const Table table, gRule **rules, guint16 *rowcount)
    *                                                                                            |
    *                                                                      only for turn off rules
    */
-
-  gint hour, minutes; // Temporary variable to receive the hour and minutes, and then pass to the structure
+  // Temporary variables to receive the hour and minutes, and then pass to the structure
+  gint hour, minutes;
+  gchar timestamp[9]; // HH:MM:SS'\0' = 9 characters
   while ((rc = sqlite3_step (stmt)) == SQLITE_ROW)
     {
       // If the loop tries to assign on non allocated space, leave
@@ -451,8 +445,8 @@ gboolean query_rules (const Table table, gRule **rules, guint16 *rowcount)
                   );
 
       // MINUTES AND HOUR
-      // TODO sqlite3_column_text16 has correct data type for sscanf, but returned data is wrong
-      sscanf (sqlite3_column_text (stmt, 3), "%02d:%02d", &hour, &minutes);
+      sqlite3_snprintf (9, timestamp, "%s", sqlite3_column_text (stmt, 3));
+      sscanf (timestamp, "%02d:%02d", &hour, &minutes);
       (*rules)[counter].hour =  (guint8) hour;
       (*rules)[counter].minutes = (Minutes) minutes;
 
@@ -477,7 +471,7 @@ gboolean query_rules (const Table table, gRule **rules, guint16 *rowcount)
 
   if (rc != SQLITE_DONE)
     {
-      g_fprintf(stderr, "ERROR (failed to query rule): %s\n", sqlite3_errmsg(db));
+      g_fprintf (stderr, "ERROR (failed to query rule): %s\n", sqlite3_errmsg (db));
       g_free (sql);
       sqlite3_finalize (stmt);
       return FALSE;
@@ -513,10 +507,15 @@ gboolean custom_schedule (const guint8 hour,
   if (validade_rtcwake_args (&rtcwake_args) == -1)
     return FALSE;
 
-  g_snprintf (sql, ALLOC, "UPDATE custom_schedule "\
-              "SET hour = %d, minutes = %d, day = %d, month = %d, year = %d, mode = %d "\
-              "WHERE id = 1;",
-              hour, minutes, day, month, year, mode);
+  sqlite3_snprintf (ALLOC, sql,
+                    "UPDATE custom_schedule "\
+                    "SET hour = %d, minutes = %d, "\
+                    "day = %d, month = %d, year = %d, "\
+                    "mode = %d "\
+                    "WHERE id = 1;",
+                    hour, minutes,
+                    day, month, year,
+                    mode);
 
   gboolean ret = run_sql (sql);
   g_free (sql);

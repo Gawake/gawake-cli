@@ -1409,12 +1409,29 @@ static const _ExtendedGDBusSignalInfo _gawake_server_database_signal_info_rule_c
   "rule-canceled"
 };
 
+static const _ExtendedGDBusArgInfo _gawake_server_database_signal_info_schedule_requested_ARG_have_args =
+{
+  {
+    -1,
+    (gchar *) "have_args",
+    (gchar *) "b",
+    NULL
+  },
+  FALSE
+};
+
+static const GDBusArgInfo * const _gawake_server_database_signal_info_schedule_requested_ARG_pointers[] =
+{
+  &_gawake_server_database_signal_info_schedule_requested_ARG_have_args.parent_struct,
+  NULL
+};
+
 static const _ExtendedGDBusSignalInfo _gawake_server_database_signal_info_schedule_requested =
 {
   {
     -1,
     (gchar *) "ScheduleRequested",
-    NULL,
+    (GDBusArgInfo **) &_gawake_server_database_signal_info_schedule_requested_ARG_pointers,
     NULL
   },
   "schedule-requested"
@@ -1507,7 +1524,7 @@ gawake_server_database_signal_marshal_schedule_requested (
     void         *invocation_hint,
     void         *marshal_data)
 {
-  g_cclosure_marshal_VOID__VOID (closure,
+  g_cclosure_marshal_VOID__BOOLEAN (closure,
     return_value, n_param_values, param_values, invocation_hint, marshal_data);
 }
 
@@ -1941,6 +1958,7 @@ gawake_server_database_default_init (GawakeServerDatabaseIface *iface)
   /**
    * GawakeServerDatabase::schedule-requested:
    * @object: A #GawakeServerDatabase.
+   * @arg_have_args: Argument.
    *
    * On the client-side, this signal is emitted whenever the D-Bus signal <link linkend="gdbus-signal-io-github-kelvinnovais-Database.ScheduleRequested">"ScheduleRequested"</link> is received.
    *
@@ -1955,7 +1973,7 @@ gawake_server_database_default_init (GawakeServerDatabaseIface *iface)
       NULL,
       gawake_server_database_signal_marshal_schedule_requested,
       G_TYPE_NONE,
-      0);
+      1, G_TYPE_BOOLEAN);
 
 }
 
@@ -1988,14 +2006,16 @@ gawake_server_database_emit_rule_canceled (
 /**
  * gawake_server_database_emit_schedule_requested:
  * @object: A #GawakeServerDatabase.
+ * @arg_have_args: Argument to pass with the signal.
  *
  * Emits the <link linkend="gdbus-signal-io-github-kelvinnovais-Database.ScheduleRequested">"ScheduleRequested"</link> D-Bus signal.
  */
 void
 gawake_server_database_emit_schedule_requested (
-    GawakeServerDatabase *object)
+    GawakeServerDatabase *object,
+    gboolean arg_have_args)
 {
-  g_signal_emit (object, GAWAKE_SERVER__DATABASE_SIGNALS[GAWAKE_SERVER__DATABASE_SCHEDULE_REQUESTED], 0);
+  g_signal_emit (object, GAWAKE_SERVER__DATABASE_SIGNALS[GAWAKE_SERVER__DATABASE_SCHEDULE_REQUESTED], 0, arg_have_args);
 }
 
 /**
@@ -3910,7 +3930,8 @@ _gawake_server_database_on_signal_rule_canceled (
 
 static void
 _gawake_server_database_on_signal_schedule_requested (
-    GawakeServerDatabase *object)
+    GawakeServerDatabase *object,
+    gboolean arg_have_args)
 {
   GawakeServerDatabaseSkeleton *skeleton = GAWAKE_SERVER_DATABASE_SKELETON (object);
 
@@ -3918,7 +3939,8 @@ _gawake_server_database_on_signal_schedule_requested (
   GVariant   *signal_variant;
   connections = g_dbus_interface_skeleton_get_connections (G_DBUS_INTERFACE_SKELETON (skeleton));
 
-  signal_variant = g_variant_ref_sink (g_variant_new ("()"));
+  signal_variant = g_variant_ref_sink (g_variant_new ("(b)",
+                   arg_have_args));
   for (l = connections; l != NULL; l = l->next)
     {
       GDBusConnection *connection = l->data;

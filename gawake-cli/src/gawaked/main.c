@@ -1,4 +1,4 @@
-/* gawaked.c
+/* main.c
  *
  * Copyright 2021-2024 Kelvin Novais
  *
@@ -18,7 +18,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-// TODO add sigterm
+// Main file for gawaked
 
 #include "main.h"
 #include "../utils/debugger.h"

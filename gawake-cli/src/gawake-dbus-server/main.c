@@ -1,4 +1,4 @@
-/* gawake-dbus-server.c
+/* main.c
  *
  * Copyright 2021-2024 Kelvin Novais
  *
@@ -18,9 +18,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-/* Main file for gawake-dbus-server
- * This is a D-Bus systemd service
- */
+// Main file for gawake-dbus-server
+
+// Defining a debug macro for days
+#if PREPROCESSOR_DEBUG
+#define DEBUG_DAYS day_0, day_1, day_2, day_3, day_4, day_5, day_6
+#endif
 
 #include "main.h"
 
@@ -68,7 +71,7 @@ on_name_acquired (GDBusConnection *connection,
 {
   // Namespace + interface
   GawakeServerDatabase *interface;
-  GError *error;  // TODO handle error
+  GError *error;
 
   interface = gawake_server_database_skeleton_new ();
 
@@ -79,6 +82,7 @@ on_name_acquired (GDBusConnection *connection,
   g_signal_connect (interface, "handle-query-rule", G_CALLBACK (on_handle_query_rule), NULL);
   g_signal_connect (interface, "handle-query-rules", G_CALLBACK (on_handle_query_rules), NULL);
   g_signal_connect (interface, "handle-custom-schedule", G_CALLBACK (on_handle_custom_schedule), NULL);
+  g_signal_connect (interface, "handle-schedule", G_CALLBACK (on_handle_schedule), NULL);
 
   error = NULL;
   g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (interface),
@@ -88,18 +92,12 @@ on_name_acquired (GDBusConnection *connection,
 
   if (error != NULL)
     {
+      DEBUG_PRINT_CONTEX;
       g_fprintf (stderr, "Couldn't export interface skeleton: %s\n", error->message);
       g_error_free (error);
+      close_database ();
+      exit (EXIT_FAILURE);
     }
-
-  //MyDBusAlarm *alarm_interface;
-  //alarm_interface = my_dbus_alarm_skeleton_new();
-  //g_signal_connect(alarm_interface, "handle-configure-alarm", G_CALLBACK(on_handle_configure_alarm), NULL);
-  //error = NULL;
-  //g_dbus_interface_skeleton_export(G_DBUS_INTERFACE_SKELETON(alarm_interface), connection, "/", &error);
-
-  if (error != NULL)
-    g_error_free (error);
   else
     error = NULL;
 }
@@ -109,6 +107,7 @@ static void on_name_lost (GDBusConnection *connection,
                           const gchar *name,
                           gpointer user_data)
 {
+  DEBUG_PRINT_CONTEX;
   g_fprintf (stderr, "Connection to the bus couldn’t be made\n");
   close_database ();
   exit (EXIT_FAILURE);
@@ -133,21 +132,9 @@ on_handle_add_rule (GawakeServerDatabase    *interface,
 {
   gboolean success;
 
-#if PREPROCESSOR_DEBUG
-  g_print ("RECEIVED:\n");
-  g_print ("Name: %s\n", name);
-  g_print ("Hour: %d\n", hour);
-  g_print ("Minutes: %d\n", minutes);
-
-  const char P_DAYS[7] = {'S', 'M', 'T', 'W', 'T', 'F', 'S'};
-  gboolean days[7] = {day_0, day_1, day_2, day_3, day_4, day_5, day_6};
-  g_print ("Days: \n");
-  for (gint i = 0; i < 7; i++)
-    g_print ("\t%c: %d\n", P_DAYS[i], days[i]);
-
-  g_print ("Mode: %d\n", mode);
-  g_print ("Table: %d\n\n", table);
-#endif
+  DEBUG_PRINT (("RECEIVED:\nName: %s\nHour: %d\nMinutes: %d\n"\
+                "Days [SMTWTFS]: %d %d %d %d %d %d %d\nMode: %d\nTable: %d",
+                name, hour, minutes, DEBUG_DAYS, mode, table));
 
   // Assign "empty" values to the struct
   gRule rule = {
@@ -193,23 +180,9 @@ on_handle_edit_rule (GawakeServerDatabase    *interface,
 {
   gboolean success;
 
-#if PREPROCESSOR_DEBUG
-  g_print ("RECEIVED:\n");
-  g_print ("ID: %d\n", id);
-  g_print ("Name: %s\n", name);
-  g_print ("Hour: %d\n", hour);
-  g_print ("Minutes: %d\n", minutes);
-
-  const char P_DAYS[7] = {'S', 'M', 'T', 'W', 'T', 'F', 'S'};
-  gboolean days[7] = {day_0, day_1, day_2, day_3, day_4, day_5, day_6};
-  g_print ("Days: \n");
-  for (gint i = 0; i < 7; i++)
-    g_print ("\t%c: %d\n", P_DAYS[i], days[i]);
-
-  g_print ("Active: %d\n\n", active);
-  g_print ("Mode: %d\n", mode);
-  g_print ("Table: %d\n", table);
-#endif
+  DEBUG_PRINT (("RECEIVED:\nID: %d\nName: %s\nHour: %d\nMinutes: %d\n"\
+                "Days [SMTWTFS]: %d %d %d %d %d %d %d\nActive: %d\nMode: %d\nTable: %d",
+                id, name, hour, minutes, DEBUG_DAYS, active, mode, table));
 
   // Fill struct with received parameters
   gRule rule = {
@@ -243,11 +216,7 @@ on_handle_delete_rule (GawakeServerDatabase    *interface,
 {
   gboolean success;
 
-#if PREPROCESSOR_DEBUG
-  g_print ("RECEIVED:\n");
-  g_print ("ID: %d\n", id);
-  g_print ("Table: %d\n\n", table);
-#endif
+  DEBUG_PRINT (("RECEIVED:\nID: %d\nTable: %d", id, table));
 
   success = delete_rule (id, table);
 
@@ -270,12 +239,7 @@ on_handle_enable_disable_rule (GawakeServerDatabase    *interface,
 {
   gboolean success;
 
-#if PREPROCESSOR_DEBUG
-  g_print ("RECEIVED:\n");
-  g_print ("ID: %d\n", id);
-  g_print ("Table: %d\n", table);
-  g_print ("Active: %d\n\n", active);
-#endif
+  DEBUG_PRINT (("RECEIVED:\nID: %d\nTable: %d\nActive: %d", id, table, active));
 
   success = enable_disable_rule (id, table, active);
 
@@ -295,11 +259,8 @@ on_handle_query_rule (GawakeServerDatabase    *interface,
                       const guint8            table,
                       gpointer                user_data)
 {
-#if PREPROCESSOR_DEBUG
-  g_print ("RECEIVED:\n");
-  g_print ("ID: %d\n", id);
-  g_print ("Table: %d\n\n", table);
-#endif
+  DEBUG_PRINT (("RECEIVED:\nID: %d\nTable: %d", id, table));
+
   gboolean success;
   // Structure to receive the data; passed as a pointer to the function query_rule
   gRule data = {0, NULL, 0, M_00, {FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE}, FALSE, MEM, T_ON};
@@ -436,20 +397,25 @@ on_handle_custom_schedule (GawakeServerDatabase    *interface,
 {
  gboolean success;
 
-#if PREPROCESSOR_DEBUG
-  g_print ("RECEIVED:\n");
-  g_print ("[HH:MM] %d:%d\n", hour, minutes);
-  g_print ("[DD/MM/YYYY] %02d/%02d/%d\n", day, month, year);
-  g_print ("Mode: %d\n\n", mode);
-#endif
+  DEBUG_PRINT (("RECEIVED:\n[HH:MM] %d:%d\n[DD/MM/YYYY] %02d/%02d/%d\nMode: %d",
+                hour, minutes, day, month, year, mode));
 
   success = custom_schedule (hour, minutes, day, month, year, mode);
 
   if (success)
-    gawake_server_database_emit_schedule_requested (interface);
+    gawake_server_database_emit_schedule_requested (interface, TRUE);
 
   gawake_server_database_complete_custom_schedule (interface, invocation, success);
 
+  return TRUE;
+}
+
+static gboolean
+on_handle_schedule (GawakeServerDatabase    *interface,
+                    GDBusMethodInvocation   *invocation,
+                    gpointer                user_data)
+{
+  gawake_server_database_emit_schedule_requested (interface, FALSE);
   return TRUE;
 }
 
@@ -465,7 +431,8 @@ static gint check_user (void)
   // Query gawake user information
   if ((p = getpwnam ("gawake")) == NULL)
     {
-      fprintf (stderr, "ERROR: Couldn't query gawake UID\n");
+      DEBUG_PRINT_CONTEX;
+      g_fprintf (stderr, "ERROR: Couldn't query gawake UID\n");
       return EXIT_FAILURE;
     }
   else
@@ -477,7 +444,9 @@ static gint check_user (void)
   // Compare results
   if (gawake_uid != getuid () || gawake_gid != getgid ())
     {
-      fprintf (stderr, "ERROR: Process not running as gawake user\n");
+      DEBUG_PRINT_CONTEX;
+      g_fprintf (stderr, "ERROR: Process not running as gawake user\n");
+      return EXIT_FAILURE;
     }
 
   return EXIT_SUCCESS;

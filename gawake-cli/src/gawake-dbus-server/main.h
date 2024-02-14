@@ -10,7 +10,10 @@
 #include <signal.h>
 
 #include "../dbus-server/dbus-server.h"
+
 #include "../utils/gawake-types.h"
+#include "../utils/debugger.h"
+
 #include "database-connection.h"
 
 static void on_name_acquired (GDBusConnection *connection,
@@ -88,13 +91,18 @@ on_handle_query_rules (GawakeServerDatabase    *interface,
 static gboolean
 on_handle_custom_schedule (GawakeServerDatabase    *interface,
                            GDBusMethodInvocation   *invocation,
-                           guint8            hour,
+                           const guint8            hour,
                            const guint8            minutes,
                            const guint8            day,
                            const guint8            month,
                            const guint16           year,
                            const guint8            mode,
                            gpointer                user_data);
+
+static gboolean
+on_handle_schedule (GawakeServerDatabase    *interface,
+                    GDBusMethodInvocation   *invocation,
+                    gpointer                user_data);
 
 static gint check_user (void);
 

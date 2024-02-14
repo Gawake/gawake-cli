@@ -100,7 +100,6 @@ static void *dbus_listener (void *args)
                                                          NULL,                      // cancellable
                                                          &error);                   // error
 
-  // TODO return error on failure
   if (error != NULL)
     {
       fprintf (stderr, "Unable to get proxy: %s\n", error->message);
@@ -112,6 +111,7 @@ static void *dbus_listener (void *args)
   g_signal_connect (proxy, "database-updated", G_CALLBACK (on_database_updated_signal), NULL);
 
   // Immediate schedule
+  // TODO pass "have_args" boolean to the callback function
   g_signal_connect (proxy, "schedule-requested", G_CALLBACK (on_schedule_requested_signal), NULL);
 
   // Cancel schedule
@@ -135,10 +135,11 @@ static void *timed_checker (void *args)
   DEBUG_PRINT (("Started timed_checker thread"));
   double time_remaining;
 
-  int set_cancel_ret = pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
-  // TODO handle errors
-  if (set_cancel_ret != 0)
-    fprintf (stderr, "pthread_setcancelstate\n");
+  if (pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL) != 0)
+    {
+      DEBUG_PRINT_CONTEX;
+      fprintf (stderr, "pthread_setcancelstate failed\n");
+    }
 
   // Check rules for today
   query_upcoming_off_rule ();
@@ -338,6 +339,7 @@ static int query_upcoming_off_rule (void)
   // Get all rules today, ordered by time:
   // the first rule that is bigger than now is a valid rule
   int hour, minutes;
+  char timestamp[9]; // HH:MM:SS'\0' = 9 characters
   while ((rc = sqlite3_step (stmt)) == SQLITE_ROW)
     {
       ruletime = sqlite3_column_int (stmt, 0);
@@ -349,8 +351,8 @@ static int query_upcoming_off_rule (void)
           upcoming_off_rule.found = TRUE;
 
           // Hour and minutes
-          // TODO sqlite3_column_text16 has correct data type for sscanf, but returned data is wrong
-          sscanf (sqlite3_column_text (stmt, 0), "%02d%02d", &hour, &minutes);
+          sqlite3_snprintf (9, timestamp, "%s", sqlite3_column_text (stmt, 0));
+          sscanf (timestamp, "%02d:%02d", &hour, &minutes);
           upcoming_off_rule.hour = hour;
           upcoming_off_rule.minutes = (Minutes) minutes;
 
@@ -786,6 +788,7 @@ static void on_rule_canceled_signal (void)
 
 static void on_schedule_requested_signal (void)
 {
+  // TODO if have_args, query database; else, query rtcwake_args
   DEBUG_PRINT_TIME (("Custom schedule requested"));
   int ret = query_custom_schedule ();
 
@@ -826,7 +829,7 @@ static void finalize_timed_checker (void)
 {
   DEBUG_PRINT_TIME (("Finalizing timed_checker thread..."));
   int ret = pthread_cancel (timed_checker_thread);
-  // TODO handle return
+
   if (ret != 0)
     {
       DEBUG_PRINT_CONTEX;

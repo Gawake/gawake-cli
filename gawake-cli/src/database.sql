@@ -56,4 +56,4 @@ CREATE TABLE IF NOT EXISTS custom_schedule (
 );
 
 INSERT INTO custom_rule (hour, minutes, day, month, year, mode, countdown)
-VALUES (0, 0, 0, 0, 0, 0, 0);
+VALUES (0, 0, 0, 0, 0, 0, 0, 0);

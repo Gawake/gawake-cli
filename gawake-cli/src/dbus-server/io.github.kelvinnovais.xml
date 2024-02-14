@@ -90,7 +90,9 @@
     <!-- SIGNALS -->
     <signal name="DatabaseUpdated" />
     <signal name="RuleCanceled" />
-    <signal name="ScheduleRequested" />
+    <signal name="ScheduleRequested">
+      <arg name="have_args" direction="out" type="b"/>
+    </signal>
   </interface>
 </node>
 

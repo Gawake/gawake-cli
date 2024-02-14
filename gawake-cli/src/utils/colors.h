@@ -7,8 +7,8 @@
 #define ANSI_COLOR_YELLOW  "\033[93m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
-#define GREEN(str)    (ANSI_COLOR_GREEN str ANSI_COLOR_RESET)
-#define YELLOW(str)   (ANSI_COLOR_YELLOW str ANSI_COLOR_RESET)
-#define RED(str)      (ANSI_COLOR_RED str ANSI_COLOR_RESET)
+#define GREEN(str)    ANSI_COLOR_GREEN str ANSI_COLOR_RESET
+#define YELLOW(str)   ANSI_COLOR_YELLOW str ANSI_COLOR_RESET
+#define RED(str)      ANSI_COLOR_RED str ANSI_COLOR_RESET
 
 #endif /* COLORS_H_ */

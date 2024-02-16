@@ -73,12 +73,7 @@ static gint validate_rule (const gRule *rule)
   gboolean hour = rule->hour <= 23;     // Due to the data type, it is always >= 0
 
   // minutes according to enum predefined values
-  gboolean minutes = (rule->minutes == M_00
-                      || rule->minutes == M_10
-                      || rule->minutes == M_20
-                      || rule->minutes == M_30
-                      || rule->minutes == M_40
-                      || rule->minutes == M_50);
+  gboolean minutes = rule->minutes <= 59;
 
   // mode according to enum predefined values
   gboolean mode = (rule->mode >= 0 && rule->mode <= OFF);
@@ -318,7 +313,7 @@ gboolean query_rule (const guint16 id, const Table table, gRule *rule)
       sqlite3_snprintf (9, timestamp, "%s", sqlite3_column_text (stmt, 2));
       sscanf (timestamp, "%02d:%02d", &hour, &minutes);
       rule->hour = (guint8) hour;
-      rule->minutes = (Minutes) minutes;
+      rule->minutes = minutes;
 
       // DAYS
       for (gint i = 0; i <= 6; i++)
@@ -448,7 +443,7 @@ gboolean query_rules (const Table table, gRule **rules, guint16 *rowcount)
       sqlite3_snprintf (9, timestamp, "%s", sqlite3_column_text (stmt, 3));
       sscanf (timestamp, "%02d:%02d", &hour, &minutes);
       (*rules)[counter].hour =  (guint8) hour;
-      (*rules)[counter].minutes = (Minutes) minutes;
+      (*rules)[counter].minutes = (guint8) minutes;
 
       // DAYS
       for (gint i = 0; i <= 6; i++)

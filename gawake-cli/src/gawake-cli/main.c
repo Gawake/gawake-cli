@@ -316,41 +316,10 @@ void get_user_input (gRule *rule, Table table)
     {
       get_int (&minutes, 3, 0, 45, 1);
 
-      switch (minutes)
-        {
-        case M_00:
-          rule->minutes = M_00;
+      if (minutes >= 0 && minutes <= 59)
           invalid = FALSE;
-          break;
-
-        case M_10:
-          rule->minutes = M_10;
-          invalid = FALSE;
-          break;
-
-        case M_20:
-          rule->minutes = M_20;
-          invalid = FALSE;
-          break;
-
-        case M_30:
-          rule->minutes = M_30;
-          invalid = FALSE;
-          break;
-
-        case M_40:
-          rule->minutes = M_40;
-          invalid = FALSE;
-          break;
-
-        case M_50:
-          rule->minutes = M_50;
-          invalid = FALSE;
-          break;
-
-        default:
+      else
           invalid_value ();
-        }
 
     } while (invalid);
 

@@ -46,16 +46,6 @@ extern const char *DAYS[];
 
 typedef enum
 {
-  M_00 = 00,
-  M_10 = 10,
-  M_20 = 20,
-  M_30 = 30,
-  M_40 = 40,
-  M_50 = 50
-} Minutes;
-
-typedef enum
-{
   NT_00 = 00,  /* no notification */
   NT_01 = 01,
   NT_05 = 05,
@@ -70,7 +60,7 @@ typedef struct
   // ATTENTION: if not assigned on instantiation, naturally the memory must be allocated
   gchar *name;                   // s
   guint8 hour;                   // y
-  Minutes minutes;               // y
+  guint8 minutes;               // y
   gboolean days[7];              // ab
   gboolean active;               // b
   Mode mode;                     // y
@@ -82,7 +72,7 @@ typedef struct {
   gboolean shutdown_fail;   // This variable is independent of turnon_rules table
   gboolean run_shutdown;
   int hour;
-  Minutes minutes;
+  int minutes;
   int day;
   int month;
   int year;

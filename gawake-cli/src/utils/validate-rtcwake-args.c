@@ -36,20 +36,8 @@ int validade_rtcwake_args (RtcwakeArgs *rtcwake_args)
     hour = TRUE;
 
   // Minutes
-  switch (rtcwake_args->minutes)
-    {
-    case M_00:
-    case M_10:
-    case M_20:
-    case M_30:
-    case M_40:
-    case M_50:
-      minutes = TRUE;
-      break;
-
-    default:
-      minutes = FALSE;
-    }
+  if (rtcwake_args->minutes >= 0 && rtcwake_args->minutes <= 59)
+    minutes = TRUE;
 
   // Date
   struct tm input = {

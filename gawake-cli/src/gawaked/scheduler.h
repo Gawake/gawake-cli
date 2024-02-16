@@ -10,7 +10,7 @@ typedef struct {
   gboolean found;
   gboolean gawake_status;
   int hour;
-  Minutes minutes;
+  int minutes;
   Mode mode;
   time_t rule_time;
   NotificationTime notification_time;

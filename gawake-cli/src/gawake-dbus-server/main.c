@@ -263,7 +263,7 @@ on_handle_query_rule (GawakeServerDatabase    *interface,
 
   gboolean success;
   // Structure to receive the data; passed as a pointer to the function query_rule
-  gRule data = {0, NULL, 0, M_00, {FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE}, FALSE, MEM, T_ON};
+  gRule data = {0, NULL, 0, 0, {FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE}, FALSE, MEM, T_ON};
 
   // This must be allocated to receive the string
   data.name = (gchar *) g_malloc (RULE_NAME_LENGTH);

@@ -338,7 +338,6 @@ static int query_upcoming_off_rule (void)
 
   // Get all rules today, ordered by time:
   // the first rule that is bigger than now is a valid rule
-  int hour, minutes;
   char timestamp[9]; // HH:MM:SS'\0' = 9 characters
   while ((rc = sqlite3_step (stmt)) == SQLITE_ROW)
     {
@@ -352,13 +351,11 @@ static int query_upcoming_off_rule (void)
 
           // Hour and minutes
           sqlite3_snprintf (9, timestamp, "%s", sqlite3_column_text (stmt, 0));
-          sscanf (timestamp, "%02d:%02d", &hour, &minutes);
-          upcoming_off_rule.hour = hour;
-          upcoming_off_rule.minutes = (Minutes) minutes;
+          sscanf (timestamp, "%02d:%02d", &upcoming_off_rule.hour, &upcoming_off_rule.minutes);
 
           // Fill time_t
-          timeinfo->tm_hour = hour;
-          timeinfo->tm_min = minutes;
+          timeinfo->tm_hour = upcoming_off_rule.hour;
+          timeinfo->tm_min = upcoming_off_rule.minutes;
           timeinfo->tm_sec = 00;
           /* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
            * Note: other fields (day, month, year) on timeinfo were not changed;
@@ -583,11 +580,9 @@ static int query_upcoming_on_rule (gboolean use_default_mode)
 
   rtcwake_args->found = TRUE;
 
-  int minutes;
   sscanf (buffer, "%02d%02d",
           &(rtcwake_args->hour),
-          &minutes);
-  rtcwake_args->minutes = (Minutes) minutes;
+          &(rtcwake_args->minutes));
 
   sscanf (date, "%04d%02d%02d",
           &(rtcwake_args->year),
@@ -683,7 +678,7 @@ static int query_custom_schedule (void)
       pthread_mutex_lock (&rtcwake_args_mutex);
 
       rtcwake_args->hour = sqlite3_column_int (stmt, 0);
-      rtcwake_args->minutes = (Minutes) sqlite3_column_int (stmt, 1);
+      rtcwake_args->minutes = sqlite3_column_int (stmt, 1);
 
       rtcwake_args->day = sqlite3_column_int (stmt, 2);
       rtcwake_args->month = sqlite3_column_int (stmt, 3);

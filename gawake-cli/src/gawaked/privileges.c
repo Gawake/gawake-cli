@@ -121,7 +121,7 @@ int check_user (void)
       return EXIT_FAILURE;
     }
 
-  DEBUG_PRINT (("Check gawake user passed"));
+  DEBUG_PRINT (("Check gawake user: passed"));
 
   return EXIT_SUCCESS;
 }

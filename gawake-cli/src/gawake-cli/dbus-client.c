@@ -256,3 +256,45 @@ gint query_rules (const Table table)
   else
     return EXIT_FAILURE;
 }
+
+gint schedule (void)
+{
+  DEBUG_PRINT (("Simple schedule request"));
+
+  gawake_server_database_call_schedule_sync (proxy,
+                                             NULL,    // cancellable
+                                             NULL);   // error
+
+  return EXIT_SUCCESS;
+}
+
+gint custom_schedule (int year,
+                      int month,
+                      int day,
+                      int hour,
+                      int minutes,
+                      int mode)
+{
+  gboolean success;
+
+  gawake_server_database_call_custom_schedule_sync (proxy,
+                                                    hour,
+                                                    minutes,
+                                                    day,
+                                                    month,
+                                                    year,
+                                                    mode,
+                                                    &success,
+                                                    NULL,     // cancellable
+                                                    NULL);    // error
+
+  DEBUG_PRINT (("Custom schedule request; success : %d", success));
+
+  if (success)
+    return EXIT_SUCCESS;
+  else
+    {
+      fprintf (stderr, RED ("ERROR: Is the timestamp correct or within at most the next year?\n"));
+      return EXIT_FAILURE;
+    }
+}

@@ -506,11 +506,34 @@ gboolean custom_schedule (const guint8 hour,
                     "UPDATE custom_schedule "\
                     "SET hour = %d, minutes = %d, "\
                     "day = %d, month = %d, year = %d, "\
-                    "mode = %d "\
+                    "mode = %d, use_args = %d "\
                     "WHERE id = 1;",
                     hour, minutes,
                     day, month, year,
-                    mode);
+                    mode, TRUE);
+
+  gboolean ret = run_sql (sql);
+  g_free (sql);
+
+  return ret;
+}
+
+gboolean schedule (void)
+{
+  gchar *sql = 0;
+  sql = (gchar *) g_malloc (ALLOC);
+  if (sql == NULL)
+    return FALSE;
+
+  sqlite3_snprintf (ALLOC, sql,
+                    "UPDATE custom_schedule "\
+                    "SET hour = %d, minutes = %d, "\
+                    "day = %d, month = %d, year = %d, "\
+                    "mode = %d, use_args = %d "\
+                    "WHERE id = 1;",
+                    0, 0,
+                    0, 0, 0,
+                    0, FALSE);
 
   gboolean ret = run_sql (sql);
   g_free (sql);

@@ -395,15 +395,16 @@ on_handle_custom_schedule (GawakeServerDatabase    *interface,
                            const guint8            mode,
                            gpointer                user_data)
 {
- gboolean success;
+  gboolean success;
 
-  DEBUG_PRINT (("RECEIVED:\n[HH:MM] %d:%d\n[DD/MM/YYYY] %02d/%02d/%d\nMode: %d",
+  DEBUG_PRINT (("RECEIVED (custom schedule):\n"\
+                "[HH:MM] %d:%d\n[DD/MM/YYYY] %02d/%02d/%d\nMode: %d",
                 hour, minutes, day, month, year, mode));
 
   success = custom_schedule (hour, minutes, day, month, year, mode);
 
   if (success)
-    gawake_server_database_emit_schedule_requested (interface, TRUE);
+    gawake_server_database_emit_schedule_requested (interface);
 
   gawake_server_database_complete_custom_schedule (interface, invocation, success);
 
@@ -415,7 +416,19 @@ on_handle_schedule (GawakeServerDatabase    *interface,
                     GDBusMethodInvocation   *invocation,
                     gpointer                user_data)
 {
-  gawake_server_database_emit_schedule_requested (interface, FALSE);
+  gboolean success = schedule ();
+
+  DEBUG_PRINT (("Received (simple) schedule request"));
+
+  if (success)
+    {
+      DEBUG_PRINT (("Schedule request signal emitted"));
+      gawake_server_database_emit_schedule_requested (interface);
+    }
+
+
+  gawake_server_database_complete_schedule (interface, invocation);
+
   return TRUE;
 }
 

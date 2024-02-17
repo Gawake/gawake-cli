@@ -28,19 +28,16 @@
 
 gint main (gint argc, gchar **argv)
 {
-  // If can't connect to the D-Bus client, exit
-  if (connect_dbus_client ())
-    return EXIT_FAILURE;
-
   // Receiving arguments (reference [4])
   gint cflag = 0, mflag = 0, sflag = 0;
-  gchar *cvalue = NULL, *mvalue = NULL;
+  char *cvalue = NULL, *mvalue = NULL;
   gint index;
   gint c;
 
   opterr = 0;
 
-  while ((c = getopt (argc, argv, "hsc:m")) != -1)
+  // FIXME core dumped when optionc is called but no argument is passed
+  while ((c = getopt (argc, argv, "hsc:m:")) != -1)
     {
       switch (c)
         {
@@ -54,34 +51,41 @@ gint main (gint argc, gchar **argv)
 
         case 'c':
           cflag = 1;
-          cvalue = optarg;
+          DEBUG_PRINT (("optarg: %s", optarg));
+          if (optarg == NULL)
+            return EXIT_FAILURE;
+          else
+            cvalue = optarg;
+
           if (strlen (cvalue) != 14)
             {
-              printf ("Invalid time stamp. It must be \"YYYYMMDDhhmmss\".\n");
+              fprintf (stderr, RED ("Invalid time stamp. It must be \"YYYYMMDDhhmmss\".\n"));
               return EXIT_FAILURE;
             }
           break;
 
         case 'm':
-          {
-            gboolean valid = FALSE;
-            mflag = 1;
+          gboolean valid = FALSE;
+          mflag = 1;
+          if (optarg == NULL)
+            return EXIT_FAILURE;
+          else
             mvalue = optarg;
-            for (gint i = 0; i < 3; i++)
-              {
-                if (strcmp (mvalue, MODE[i]) == 0)
-                  {
-                    valid = TRUE; // If there is a valid mode, continue
-                    break;
-                  }
-              }
-            // Exit on invalid mode
-            if (!valid)
-              {
-                printf ("Invalid mode\n");
-                return EXIT_FAILURE;
-              }
-          }
+
+          for (gint i = 0; i < 3; i++)
+            {
+              if (strcmp (mvalue, MODE[i]) == 0)
+                {
+                  valid = TRUE; // If there is a valid mode, continue
+                  break;
+                }
+            }
+          // Exit on invalid mode
+          if (!valid)
+            {
+              fprintf (stderr, RED ("Invalid mode\n"));
+              return EXIT_FAILURE;
+            }
           break;
 
         default:
@@ -89,41 +93,72 @@ gint main (gint argc, gchar **argv)
         }
     }
 
-  // Case 's' and/or 'c'; 'm' is optional
-  if ((sflag && cflag) || cflag)
+  // Case option 'c'
+  if (cflag)
     {
-      /* TODO call dbus client */
-      /* char cmd[FORMATTED_CMD_LEN]; */
-      /* snprintf(cmd, FORMATTED_CMD_LEN, "sudo rtcwake -a --date %s", cvalue); */
-      if (mflag)
+      int year, month, day, hour, minutes, mode;
+      // Assign value to the variables
+      if (sscanf (cvalue,
+                  "%04d%02d%02d%02d%02d",
+                  &year, &month, &day, &hour, &minutes) != 5)
         {
-          /* strcat(cmd, " -m "); */
-          /* strcat(cmd, mvalue); */
-        }
-      return EXIT_SUCCESS;
-    }
-  else if (sflag) // Case 's', only
-    {
-      if (mflag)
-        {
-          printf ("Mode is only supported with a timestamp (option '-c')\n");
+          fprintf (stderr, RED ("Invalid time stamp. It must be \"YYYYMMDDhhmmss\".\n"));
           return EXIT_FAILURE;
         }
-      /* TODO call dbus client */
+
+      if (mflag)
+        sscanf (mvalue, "%d", &mode);
+      else
+        mode = OFF;
+
+      if (connect_dbus_client ())
+        return EXIT_FAILURE;
+
+      custom_schedule (year, month, day, hour, minutes, mode);
+      close_dbus_client ();
+
       return EXIT_SUCCESS;
+    }
+  // Case option 's'
+  else if (sflag)
+    {
+      if (mflag)
+        {
+          fprintf (stderr, RED ("Mode is only supported with a timestamp (option '-c')\n"));
+          return EXIT_FAILURE;
+        }
+
+      if (connect_dbus_client ())
+        return EXIT_FAILURE;
+
+      schedule ();
+      close_dbus_client ();
+      return EXIT_SUCCESS;
+    }
+  else
+    {
+      usage ();
+      return EXIT_FAILURE;
     }
 
   // Exit if there are invalid arguments
   for (index = optind; index < argc; index++)
-    printf ("Non-option argument \"%s\"\n", argv[index]);
+    fprintf (stderr, RED ("Non-option argument \"%s\"\n"), argv[index]);
   if (argc > 1)
-    return EXIT_FAILURE;
+    {
+      usage ();
+      return EXIT_FAILURE;
+    }
 
   g_free (cvalue);
   g_free (mvalue);
 
   // If there's any arguments, continue to the menu
   printf ("Starting Gawake...\n");
+
+  // If can't connect to the D-Bus client, exit
+  if (connect_dbus_client ())
+    return EXIT_FAILURE;
 
   // Signal handler
   // Triggered on <Ctrl C>
@@ -191,7 +226,10 @@ void menu (void)
         case 's':
           printf (YELLOW ("ATTENTION: Your computer will turn off now\n"));
           if (confirm ())
-            printf ("todo");  /* schedule (); */
+            {
+              schedule ();
+              lock = FALSE;
+            }
           break;
 
         case 'c':
@@ -309,7 +347,7 @@ void get_user_input (gRule *rule, Table table)
   rule->hour = (guint8) hour;
 
   // Minutes
-  printf ("%-30s", "[Minutes] (00, 15, 30 or 45) ");
+  printf ("%-30s", "[Minutes] (from 00 to 59) ");
   invalid = TRUE;
   gint minutes;
   do
@@ -506,17 +544,19 @@ gint confirm (void)
 void usage (void)
 {
   printf ("Gawake (cli version): A Linux software to make your PC wake up on a scheduled time. "\
-          "It makes the rtcwake command easier.\n\n"\
-          "-c\tSchedule with a custom timestamp (YYYYMMDDhhmmss)\n"\
-          "-h\tShow this help and exit\n"\
-          "-m\tSet a mode; must be used together '-c'\n"\
-          "-s\tDirectly run the schedule function, based on the first upcoming turn on rule; "\
-          "you can set a different time with the '-d' option\n"\
-          "Examples:\n"\
-          "%-45sSchedule according to the next turn on rule\n"\
-          "%-45sSchedule wake for 01 January 2025, at 09:45:00\n"\
-          "%-45sSchedule wake for 28 December 2025, at 15:30:00; use mode off\n\n",
-          "gawake-cli -s", "gawake-cli -c 20250115094500", "gawake-cli -c 20251228153000 -m off");
+          "It makes the rtcwake command easier.\n"\
+          "\nOPTIONS:\n"\
+          "\t-c    Schedule with a custom timestamp (YYYYMMDDhhmmss); "\
+          "if -m isn't set, uses \"off\" as mode\n"\
+          "\t-h    Show this help and exit\n"\
+          "\t-m    Set a mode; must be used together the '-c' option\n"\
+          "\t-s    Directly run the schedule function, using the first upcoming turn on rule; "\
+          "to use a custom timestamp use the '-c' option\n"\
+          "\nEXAMPLES:\n"\
+          "\t%-45sSchedule according to the next turn on rule\n"\
+          "\t%-45sSchedule wake for 01 January 2025, at 09:45:00\n"\
+          "\t%-45sSchedule wake for 28 December 2025, at 15:30:00; use mode disk\n\n",
+          "gawake-cli -s", "gawake-cli -c 20250115094500", "gawake-cli -c 20251228153000 -m disk");
 }
 
 // Close the database and exit on <Ctrl C>

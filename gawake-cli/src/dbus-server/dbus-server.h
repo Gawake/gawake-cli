@@ -114,8 +114,7 @@ struct _GawakeServerDatabaseIface
     GawakeServerDatabase *object);
 
   void (*schedule_requested) (
-    GawakeServerDatabase *object,
-    gboolean arg_have_args);
+    GawakeServerDatabase *object);
 
 };
 
@@ -181,8 +180,7 @@ void gawake_server_database_emit_rule_canceled (
     GawakeServerDatabase *object);
 
 void gawake_server_database_emit_schedule_requested (
-    GawakeServerDatabase *object,
-    gboolean arg_have_args);
+    GawakeServerDatabase *object);
 
 
 

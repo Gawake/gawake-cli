@@ -25,12 +25,14 @@ gboolean enable_disable_rule (const guint16 id, const Table table, const gboolea
 gboolean query_rule (const guint16 id, const Table table, gRule *rule);
 gboolean query_rules (const Table table, gRule **rules, guint16 *rowcount);
 
-gboolean custom_schedule (const guint8 hour,
-                          const guint8 minutes,
-                          const guint8 day,
-                          const guint8 month,
+gboolean custom_schedule (const guint8  hour,
+                          const guint8  minutes,
+                          const guint8  day,
+                          const guint8  month,
                           const guint16 year,
-                          const guint8 mode);
+                          const guint8  mode);
+
+gboolean schedule (void);
 
 /* TODO config database
  * set/get boot delay

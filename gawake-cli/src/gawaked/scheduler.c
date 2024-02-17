@@ -111,7 +111,6 @@ static void *dbus_listener (void *args)
   g_signal_connect (proxy, "database-updated", G_CALLBACK (on_database_updated_signal), NULL);
 
   // Immediate schedule
-  // TODO pass "have_args" boolean to the callback function
   g_signal_connect (proxy, "schedule-requested", G_CALLBACK (on_schedule_requested_signal), NULL);
 
   // Cancel schedule
@@ -176,7 +175,7 @@ static void *timed_checker (void *args)
 
   DEBUG_PRINT_TIME (("Left timed_checker main loop"));
 
-  int ret = query_upcoming_on_rule (TRUE);
+  int ret = query_upcoming_on_rule (FALSE);
 
   // If querying rule failed, and the user wants to shutdown in this exception,
   // set this action to true
@@ -321,10 +320,10 @@ static int query_upcoming_off_rule (void)
   // This query SQL returns time on format HHMM
   snprintf (query,
             ALLOC,
-            "SELECT strftime('%%H%%M', rule_time), mode "\
+            "SELECT strftime ('%%H%%M', rule_time), mode "\
             "FROM rules_turnoff "\
             "WHERE %s = 1 AND active = 1 "\
-            "ORDER BY time(rule_time) ASC;",
+            "ORDER BY time (rule_time) ASC;",
             DAYS[timeinfo->tm_wday]);
 
   rc = sqlite3_prepare_v2 (db, query, -1, &stmt, NULL);
@@ -338,20 +337,21 @@ static int query_upcoming_off_rule (void)
 
   // Get all rules today, ordered by time:
   // the first rule that is bigger than now is a valid rule
-  char timestamp[9]; // HH:MM:SS'\0' = 9 characters
+  char timestamp[5]; // HHMM'\0' = 5 characters
   while ((rc = sqlite3_step (stmt)) == SQLITE_ROW)
     {
       ruletime = sqlite3_column_int (stmt, 0);
       if (ruletime > now)
         {
+          DEBUG_PRINT (("Rule time: %d\nNow: %d\nBigger? %d", ruletime, now, (ruletime > now)?1:0));
           pthread_mutex_lock (&upcoming_off_rule_mutex);
 
           // Set "rule found?" to true
           upcoming_off_rule.found = TRUE;
 
           // Hour and minutes
-          sqlite3_snprintf (9, timestamp, "%s", sqlite3_column_text (stmt, 0));
-          sscanf (timestamp, "%02d:%02d", &upcoming_off_rule.hour, &upcoming_off_rule.minutes);
+          sqlite3_snprintf (5, timestamp, "%s", sqlite3_column_text (stmt, 0));
+          sscanf (timestamp, "%02d%02d", &upcoming_off_rule.hour, &upcoming_off_rule.minutes);
 
           // Fill time_t
           timeinfo->tm_hour = upcoming_off_rule.hour;
@@ -608,7 +608,7 @@ static int query_upcoming_on_rule (gboolean use_default_mode)
 
 static int query_custom_schedule (void)
 {
-  int rc;
+  int rc, use_args = 0;
   struct sqlite3_stmt *stmt;
   sqlite3 *db;
   char query[ALLOC];
@@ -658,7 +658,7 @@ static int query_custom_schedule (void)
   // Create an SQL statement to get the custom rule
   snprintf (query,
             ALLOC,
-            "SELECT hour, minutes, day, month, year, mode "\
+            "SELECT hour, minutes, day, month, year, mode, use_args "\
             "FROM custom_schedule "\
             "WHERE id = 1;");
 
@@ -685,6 +685,10 @@ static int query_custom_schedule (void)
       rtcwake_args->year = sqlite3_column_int (stmt, 4);
       rtcwake_args->mode = sqlite3_column_int (stmt, 5);
 
+      // Boolean: if false, the user didn't pass a timestamp, so don't use these
+      // args, but query from the rules_turnon
+      use_args = sqlite3_column_int (stmt, 6);
+
       pthread_mutex_unlock (&rtcwake_args_mutex);
     }
   if (rc != SQLITE_DONE && rc != SQLITE_ROW)
@@ -695,6 +699,14 @@ static int query_custom_schedule (void)
       return RTCWAKE_ARGS_FAILURE;
     }
   sqlite3_finalize (stmt);
+
+  // If user didn't pass a timestamp, query it from the rules_turnon table
+  int ret = RTCWAKE_ARGS_SUCESS;
+  if (!use_args)
+    ret = query_upcoming_on_rule (TRUE);
+  // On failure, return status code
+  if (ret != RTCWAKE_ARGS_SUCESS)
+    return ret;
 
   pthread_mutex_lock (&rtcwake_args_mutex);
   rtcwake_args->found = TRUE;
@@ -783,7 +795,6 @@ static void on_rule_canceled_signal (void)
 
 static void on_schedule_requested_signal (void)
 {
-  // TODO if have_args, query database; else, query rtcwake_args
   DEBUG_PRINT_TIME (("Custom schedule requested"));
   int ret = query_custom_schedule ();
 

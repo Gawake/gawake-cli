@@ -26,7 +26,6 @@ void get_int (gint *, gint, gint, gint, gint);
 gint config (void);
 gint add_remove_rule (void);
 gint confirm (void);
-gint schedule (void);
 void usage (void);
 void exit_handler (gint);
 void issue (void);

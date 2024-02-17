@@ -50,5 +50,6 @@ executable(
 executable(
 	'gawake-cli.out',
 	gawake_cli_sources,
-	dependencies: gawake_cli_dependencies
+	dependencies: gawake_cli_dependencies,
+	c_args: '-DPREPROCESSOR_DEBUG=1'
 )

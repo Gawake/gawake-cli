@@ -51,9 +51,11 @@ CREATE TABLE IF NOT EXISTS custom_schedule (
 	month          INTEGER NOT NULL,
 	year           INTEGER NOT NULL,
 	mode           INTEGER NOT NULL,
+	-- If the scheduler should use these arguments or the ones on "rules_turnon"
+	use_args       INTEGER MOT NULL,
 	-- If this custom schedule was performed with a countdown
 	countdown      INTEGER NOT NULL
 );
 
-INSERT INTO custom_rule (hour, minutes, day, month, year, mode, countdown)
-VALUES (0, 0, 0, 0, 0, 0, 0, 0);
+INSERT INTO custom_rule (hour, minutes, day, month, year, mode, use_args, countdown)
+VALUES (0, 0, 0, 0, 0, 0, 0, 0, 0);

@@ -13,7 +13,7 @@
 #include "../utils/debugger.h"
 #include "../utils/validate-rtcwake-args.h"
 
-#include "../dbus-server/dbus-server.h"
+#include "../gawake-dbus-server/dbus-server.h"
 
 // Threads
 static void *dbus_listener (void *args);
@@ -23,7 +23,7 @@ static void finalize_timed_checker (void);
 
 // Database calls
 static int query_upcoming_off_rule (void);
-static int query_upcoming_on_rule (gboolean use_default_mode);
+static int query_upcoming_on_rule (bool use_default_mode);
 static int query_custom_schedule (void);
 
 // Signals

@@ -9,6 +9,6 @@ gawaked_sources = files(
 	'../utils/validate-rtcwake-args.c',
 	'../utils/gawake-types.c',
 
-	'../dbus-server/dbus-server.c',
+	'../gawake-dbus-server/dbus-server.c',
 
 )

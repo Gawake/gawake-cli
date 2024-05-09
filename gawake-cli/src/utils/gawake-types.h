@@ -1,5 +1,3 @@
-// Defining types  for gRule struct according to https://dbus.freedesktop.org/doc/dbus-specification.html#basic-types
-
 #ifndef GAWAKE_TYPES_H_
 #define GAWAKE_TYPES_H_
 
@@ -11,15 +9,8 @@
 #define DB_DIR "/var/lib/gawake/"
 #define DB_PATH DB_DIR DB_NAME
 
-/*
- * GLib is required wherever there's a D-Bus connection;
- * up to now, all generated binaries has a D-Bus connection.
- *
- * The only element that uses GLib here is gRule; so if at some point this library
- * shouldn't be included (for optimization or whatever), split gRule to another
- * header
- */
-#include <glib.h>
+#include <inttypes.h>
+#include <stdbool.h>
 
 // ATTENTION: enum and gchar[] must be synced
 typedef enum
@@ -56,21 +47,21 @@ typedef enum
 // Same order as database
 typedef struct
 {
-  guint16 id;                    // q
+  uint16_t id;                    // q
   // ATTENTION: if not assigned on instantiation, naturally the memory must be allocated
-  gchar *name;                   // s
-  guint8 hour;                   // y
-  guint8 minutes;               // y
-  gboolean days[7];              // ab
-  gboolean active;               // b
-  Mode mode;                     // y
-  Table table;                   // y
-} gRule;
+  char *name;                     // s
+  uint8_t hour;                   // y
+  uint8_t minutes;                // y
+  bool days[7];                   // ab
+  bool active;                    // b
+  Mode mode;                      // y
+  Table table;                    // y
+} Rule;
 
 typedef struct {
-  gboolean found;
-  gboolean shutdown_fail;   // This variable is independent of turnon_rules table
-  gboolean run_shutdown;
+  bool found;
+  bool shutdown_fail;   // This variable is independent of turnon_rules table
+  bool run_shutdown;
   int hour;
   int minutes;
   int day;

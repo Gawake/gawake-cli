@@ -33,7 +33,7 @@
  *
  * These variables shouldn't be used on other files.
  */
-static volatile gboolean canceled = FALSE;
+static volatile bool canceled = false;
 static UpcomingOffRule upcoming_off_rule;
 static RtcwakeArgs *rtcwake_args;
 static GMainLoop *loop;
@@ -175,14 +175,14 @@ static void *timed_checker (void *args)
 
   DEBUG_PRINT_TIME (("Left timed_checker main loop"));
 
-  int ret = query_upcoming_on_rule (FALSE);
+  int ret = query_upcoming_on_rule (false);
 
   // If querying rule failed, and the user wants to shutdown in this exception,
   // set this action to true
   if  (ret != EXIT_SUCCESS && rtcwake_args->shutdown_fail == TRUE)
     rtcwake_args->run_shutdown = TRUE;
   else
-    rtcwake_args->run_shutdown = FALSE;
+    rtcwake_args->run_shutdown = false;
 
   // Wait until notification time - Note #1
   if ((time_remaining - upcoming_off_rule.notification_time) > 0)
@@ -202,11 +202,11 @@ static void *timed_checker (void *args)
    * then return to the main loop
    */
   if (canceled ||
-      (ret != RTCWAKE_ARGS_SUCESS && rtcwake_args->run_shutdown == FALSE))
+      (ret != RTCWAKE_ARGS_SUCESS && rtcwake_args->run_shutdown == false))
     {
       // Sleep 1 minute to get another rule, and go back to main loop
       sleep (60);
-      canceled = FALSE;
+      canceled = false;
       query_upcoming_off_rule ();
       DEBUG_PRINT_TIME (("Returning to timed_checker main loop"));
       goto TIMED_CHECKER_LOOP;
@@ -259,7 +259,7 @@ static int query_upcoming_off_rule (void)
 
   // SET UPCOMING RULE AS NOT FOUND
   pthread_mutex_lock (&upcoming_off_rule_mutex);
-  upcoming_off_rule.found = FALSE;
+  upcoming_off_rule.found = false;
   pthread_mutex_unlock (&upcoming_off_rule_mutex);
 
   // OPEN DATABASE
@@ -392,7 +392,7 @@ static int query_upcoming_off_rule (void)
   return EXIT_SUCCESS;
 }
 
-static int query_upcoming_on_rule (gboolean use_default_mode)
+static int query_upcoming_on_rule (bool use_default_mode)
 {
   int rc, now, ruletime, is_localtime = 1, id_match = -1;
 
@@ -405,7 +405,7 @@ static int query_upcoming_on_rule (gboolean use_default_mode)
   char query[ALLOC], buffer[BUFFER_ALLOC], date[9];
 
   pthread_mutex_lock (&rtcwake_args_mutex);
-  rtcwake_args->found = FALSE;
+  rtcwake_args->found = false;
   pthread_mutex_unlock (&rtcwake_args_mutex);
 
   // OPEN DATABASE
@@ -614,7 +614,7 @@ static int query_custom_schedule (void)
   char query[ALLOC];
 
   pthread_mutex_lock (&rtcwake_args_mutex);
-  rtcwake_args->found = FALSE;
+  rtcwake_args->found = false;
   pthread_mutex_unlock (&rtcwake_args_mutex);
 
   // OPEN DATABASE
@@ -810,7 +810,7 @@ static void on_schedule_requested_signal (void)
       finalize_dbus_listener ();
     }
   // On failure and "shutdown on failure" enabled, just notify the user
-  else if (ret != RTCWAKE_ARGS_SUCESS && rtcwake_args->shutdown_fail == FALSE)
+  else if (ret != RTCWAKE_ARGS_SUCESS && rtcwake_args->shutdown_fail == false)
     {
       DEBUG_PRINT (("Custom rule failed, notifying user"));
 

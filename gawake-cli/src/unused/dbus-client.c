@@ -22,7 +22,7 @@
 #include <stdlib.h>
 
 #include "dbus-client.h"
-#include "../dbus-server/dbus-server.h"
+#include "../gawake-dbus-server/dbus-server.h"
 #include "../utils/colors.h"
 
 static GawakeServerDatabase *proxy = NULL;

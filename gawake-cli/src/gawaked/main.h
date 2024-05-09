@@ -21,6 +21,7 @@
 #define COMMAND_TIMESTAMP "--date "
 #define COMMAND_MODE " -m "
 
+// The command must have a well defined length; used for validation:
 // YYYYMMDDHHMMSS = 14 characters
 // Null terminator = 1
 #define COMMAND_LENGTH (strlen (COMMAND_BEGINNING)\

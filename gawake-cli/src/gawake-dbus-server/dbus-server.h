@@ -31,79 +31,15 @@ struct _GawakeServerDatabaseIface
   GTypeInterface parent_iface;
 
 
-  gboolean (*handle_add_rule) (
-    GawakeServerDatabase *object,
-    GDBusMethodInvocation *invocation,
-    const gchar *arg_name,
-    guchar arg_hour,
-    guchar arg_minutes,
-    gboolean arg_day_0,
-    gboolean arg_day_1,
-    gboolean arg_day_2,
-    gboolean arg_day_3,
-    gboolean arg_day_4,
-    gboolean arg_day_5,
-    gboolean arg_day_6,
-    guchar arg_mode,
-    guchar arg_table);
-
   gboolean (*handle_cancel_rule) (
     GawakeServerDatabase *object,
     GDBusMethodInvocation *invocation);
 
-  gboolean (*handle_custom_schedule) (
-    GawakeServerDatabase *object,
-    GDBusMethodInvocation *invocation,
-    guchar arg_hour,
-    guchar arg_minutes,
-    guchar arg_day,
-    guchar arg_month,
-    guint16 arg_year,
-    guchar arg_mode);
-
-  gboolean (*handle_delete_rule) (
-    GawakeServerDatabase *object,
-    GDBusMethodInvocation *invocation,
-    guint16 arg_id,
-    guchar arg_table);
-
-  gboolean (*handle_edit_rule) (
-    GawakeServerDatabase *object,
-    GDBusMethodInvocation *invocation,
-    guint16 arg_id,
-    const gchar *arg_name,
-    guchar arg_hour,
-    guchar arg_minutes,
-    gboolean arg_day_0,
-    gboolean arg_day_1,
-    gboolean arg_day_2,
-    gboolean arg_day_3,
-    gboolean arg_day_4,
-    gboolean arg_day_5,
-    gboolean arg_day_6,
-    gboolean arg_active,
-    guchar arg_mode,
-    guchar arg_table);
-
-  gboolean (*handle_enable_disable_rule) (
-    GawakeServerDatabase *object,
-    GDBusMethodInvocation *invocation,
-    guint16 arg_id,
-    guchar arg_table,
-    gboolean arg_active);
-
-  gboolean (*handle_query_rule) (
-    GawakeServerDatabase *object,
-    GDBusMethodInvocation *invocation,
-    guint16 arg_id,
-    guchar arg_table);
-
-  gboolean (*handle_query_rules) (
-    GawakeServerDatabase *object,
-    GDBusMethodInvocation *invocation,
-    guchar arg_table);
-
   gboolean (*handle_schedule) (
+    GawakeServerDatabase *object,
+    GDBusMethodInvocation *invocation);
+
+  gboolean (*handle_update_database) (
     GawakeServerDatabase *object,
     GDBusMethodInvocation *invocation);
 
@@ -125,37 +61,9 @@ guint gawake_server_database_override_properties (GObjectClass *klass, guint pro
 
 
 /* D-Bus method call completion functions: */
-void gawake_server_database_complete_add_rule (
+void gawake_server_database_complete_update_database (
     GawakeServerDatabase *object,
-    GDBusMethodInvocation *invocation,
-    gboolean success);
-
-void gawake_server_database_complete_edit_rule (
-    GawakeServerDatabase *object,
-    GDBusMethodInvocation *invocation,
-    gboolean success);
-
-void gawake_server_database_complete_delete_rule (
-    GawakeServerDatabase *object,
-    GDBusMethodInvocation *invocation,
-    gboolean success);
-
-void gawake_server_database_complete_enable_disable_rule (
-    GawakeServerDatabase *object,
-    GDBusMethodInvocation *invocation,
-    gboolean success);
-
-void gawake_server_database_complete_query_rule (
-    GawakeServerDatabase *object,
-    GDBusMethodInvocation *invocation,
-    GVariant *rule,
-    gboolean success);
-
-void gawake_server_database_complete_query_rules (
-    GawakeServerDatabase *object,
-    GDBusMethodInvocation *invocation,
-    GVariant *rules,
-    gboolean success);
+    GDBusMethodInvocation *invocation);
 
 void gawake_server_database_complete_cancel_rule (
     GawakeServerDatabase *object,
@@ -164,11 +72,6 @@ void gawake_server_database_complete_cancel_rule (
 void gawake_server_database_complete_schedule (
     GawakeServerDatabase *object,
     GDBusMethodInvocation *invocation);
-
-void gawake_server_database_complete_custom_schedule (
-    GawakeServerDatabase *object,
-    GDBusMethodInvocation *invocation,
-    gboolean success);
 
 
 
@@ -185,183 +88,19 @@ void gawake_server_database_emit_schedule_requested (
 
 
 /* D-Bus method calls: */
-void gawake_server_database_call_add_rule (
+void gawake_server_database_call_update_database (
     GawakeServerDatabase *proxy,
-    const gchar *arg_name,
-    guchar arg_hour,
-    guchar arg_minutes,
-    gboolean arg_day_0,
-    gboolean arg_day_1,
-    gboolean arg_day_2,
-    gboolean arg_day_3,
-    gboolean arg_day_4,
-    gboolean arg_day_5,
-    gboolean arg_day_6,
-    guchar arg_mode,
-    guchar arg_table,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
 
-gboolean gawake_server_database_call_add_rule_finish (
+gboolean gawake_server_database_call_update_database_finish (
     GawakeServerDatabase *proxy,
-    gboolean *out_success,
     GAsyncResult *res,
     GError **error);
 
-gboolean gawake_server_database_call_add_rule_sync (
+gboolean gawake_server_database_call_update_database_sync (
     GawakeServerDatabase *proxy,
-    const gchar *arg_name,
-    guchar arg_hour,
-    guchar arg_minutes,
-    gboolean arg_day_0,
-    gboolean arg_day_1,
-    gboolean arg_day_2,
-    gboolean arg_day_3,
-    gboolean arg_day_4,
-    gboolean arg_day_5,
-    gboolean arg_day_6,
-    guchar arg_mode,
-    guchar arg_table,
-    gboolean *out_success,
-    GCancellable *cancellable,
-    GError **error);
-
-void gawake_server_database_call_edit_rule (
-    GawakeServerDatabase *proxy,
-    guint16 arg_id,
-    const gchar *arg_name,
-    guchar arg_hour,
-    guchar arg_minutes,
-    gboolean arg_day_0,
-    gboolean arg_day_1,
-    gboolean arg_day_2,
-    gboolean arg_day_3,
-    gboolean arg_day_4,
-    gboolean arg_day_5,
-    gboolean arg_day_6,
-    gboolean arg_active,
-    guchar arg_mode,
-    guchar arg_table,
-    GCancellable *cancellable,
-    GAsyncReadyCallback callback,
-    gpointer user_data);
-
-gboolean gawake_server_database_call_edit_rule_finish (
-    GawakeServerDatabase *proxy,
-    gboolean *out_success,
-    GAsyncResult *res,
-    GError **error);
-
-gboolean gawake_server_database_call_edit_rule_sync (
-    GawakeServerDatabase *proxy,
-    guint16 arg_id,
-    const gchar *arg_name,
-    guchar arg_hour,
-    guchar arg_minutes,
-    gboolean arg_day_0,
-    gboolean arg_day_1,
-    gboolean arg_day_2,
-    gboolean arg_day_3,
-    gboolean arg_day_4,
-    gboolean arg_day_5,
-    gboolean arg_day_6,
-    gboolean arg_active,
-    guchar arg_mode,
-    guchar arg_table,
-    gboolean *out_success,
-    GCancellable *cancellable,
-    GError **error);
-
-void gawake_server_database_call_delete_rule (
-    GawakeServerDatabase *proxy,
-    guint16 arg_id,
-    guchar arg_table,
-    GCancellable *cancellable,
-    GAsyncReadyCallback callback,
-    gpointer user_data);
-
-gboolean gawake_server_database_call_delete_rule_finish (
-    GawakeServerDatabase *proxy,
-    gboolean *out_success,
-    GAsyncResult *res,
-    GError **error);
-
-gboolean gawake_server_database_call_delete_rule_sync (
-    GawakeServerDatabase *proxy,
-    guint16 arg_id,
-    guchar arg_table,
-    gboolean *out_success,
-    GCancellable *cancellable,
-    GError **error);
-
-void gawake_server_database_call_enable_disable_rule (
-    GawakeServerDatabase *proxy,
-    guint16 arg_id,
-    guchar arg_table,
-    gboolean arg_active,
-    GCancellable *cancellable,
-    GAsyncReadyCallback callback,
-    gpointer user_data);
-
-gboolean gawake_server_database_call_enable_disable_rule_finish (
-    GawakeServerDatabase *proxy,
-    gboolean *out_success,
-    GAsyncResult *res,
-    GError **error);
-
-gboolean gawake_server_database_call_enable_disable_rule_sync (
-    GawakeServerDatabase *proxy,
-    guint16 arg_id,
-    guchar arg_table,
-    gboolean arg_active,
-    gboolean *out_success,
-    GCancellable *cancellable,
-    GError **error);
-
-void gawake_server_database_call_query_rule (
-    GawakeServerDatabase *proxy,
-    guint16 arg_id,
-    guchar arg_table,
-    GCancellable *cancellable,
-    GAsyncReadyCallback callback,
-    gpointer user_data);
-
-gboolean gawake_server_database_call_query_rule_finish (
-    GawakeServerDatabase *proxy,
-    GVariant **out_rule,
-    gboolean *out_success,
-    GAsyncResult *res,
-    GError **error);
-
-gboolean gawake_server_database_call_query_rule_sync (
-    GawakeServerDatabase *proxy,
-    guint16 arg_id,
-    guchar arg_table,
-    GVariant **out_rule,
-    gboolean *out_success,
-    GCancellable *cancellable,
-    GError **error);
-
-void gawake_server_database_call_query_rules (
-    GawakeServerDatabase *proxy,
-    guchar arg_table,
-    GCancellable *cancellable,
-    GAsyncReadyCallback callback,
-    gpointer user_data);
-
-gboolean gawake_server_database_call_query_rules_finish (
-    GawakeServerDatabase *proxy,
-    GVariant **out_rules,
-    gboolean *out_success,
-    GAsyncResult *res,
-    GError **error);
-
-gboolean gawake_server_database_call_query_rules_sync (
-    GawakeServerDatabase *proxy,
-    guchar arg_table,
-    GVariant **out_rules,
-    gboolean *out_success,
     GCancellable *cancellable,
     GError **error);
 
@@ -394,36 +133,6 @@ gboolean gawake_server_database_call_schedule_finish (
 
 gboolean gawake_server_database_call_schedule_sync (
     GawakeServerDatabase *proxy,
-    GCancellable *cancellable,
-    GError **error);
-
-void gawake_server_database_call_custom_schedule (
-    GawakeServerDatabase *proxy,
-    guchar arg_hour,
-    guchar arg_minutes,
-    guchar arg_day,
-    guchar arg_month,
-    guint16 arg_year,
-    guchar arg_mode,
-    GCancellable *cancellable,
-    GAsyncReadyCallback callback,
-    gpointer user_data);
-
-gboolean gawake_server_database_call_custom_schedule_finish (
-    GawakeServerDatabase *proxy,
-    gboolean *out_success,
-    GAsyncResult *res,
-    GError **error);
-
-gboolean gawake_server_database_call_custom_schedule_sync (
-    GawakeServerDatabase *proxy,
-    guchar arg_hour,
-    guchar arg_minutes,
-    guchar arg_day,
-    guchar arg_month,
-    guint16 arg_year,
-    guchar arg_mode,
-    gboolean *out_success,
     GCancellable *cancellable,
     GError **error);
 

@@ -26,18 +26,18 @@ int validade_rtcwake_args (RtcwakeArgs *rtcwake_args)
 {
   DEBUG_PRINT (("Validating rtcwake_args..."));
 
-  gboolean hour, minutes, date, year, mode;
-  hour = minutes = date = year  = mode = FALSE;
+  bool hour, minutes, date, year, mode;
+  hour = minutes = date = year  = mode = false;
   int ret;
   struct tm *timeinfo;
 
   // Hour
   if (rtcwake_args->hour >= 0 && rtcwake_args->hour <= 23)
-    hour = TRUE;
+    hour = true;
 
   // Minutes
   if (rtcwake_args->minutes >= 0 && rtcwake_args->minutes <= 59)
-    minutes = TRUE;
+    minutes = true;
 
   // Date
   struct tm input = {
@@ -51,27 +51,27 @@ int validade_rtcwake_args (RtcwakeArgs *rtcwake_args)
       || rtcwake_args->day != timeinfo->tm_mday
       || rtcwake_args->month != timeinfo->tm_mon + 1
       || rtcwake_args->year != timeinfo->tm_year + 1900)
-    date = FALSE;
+    date = false;
   else
-    date = TRUE;
+    date = true;
 
   // Year (must be this year or at most the next, only)
   get_time_tm (&timeinfo);
   if (rtcwake_args->year > (timeinfo->tm_year + 1900 + 1))
-    year = FALSE;
+    year = false;
   else
-    year = TRUE;
+    year = true;
 
   switch (rtcwake_args->mode)
     {
     case MEM:
     case DISK:
     case OFF:
-      mode = TRUE;
+      mode = true;
       break;
 
     default:
-      mode = FALSE;
+      mode = false;
     }
 
   if (hour && minutes && date && year && mode)

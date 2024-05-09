@@ -1,0 +1,18 @@
+<node>
+  <interface name="io.github.kelvinnovais.Database">
+    <!-- METHODS -->
+    <method name="UpdateDatabase" />
+    <method name="CancelRule" />
+    <method name="Schedule" />
+
+    <!-- SIGNALS -->
+    <signal name="DatabaseUpdated" />
+    <signal name="RuleCanceled" />
+    <signal name="ScheduleRequested" />
+  </interface>
+</node>
+
+<!-- Documentation available by running man "gdbus-codegen" -->
+<!-- or at https://manpages.ubuntu.com/manpages/focal/en/man1/gdbus-codegen.1.html -->
+
+<!-- Some help: https://stackoverflow.com/questions/37185735/sample-program-for-gdbus-signals -->

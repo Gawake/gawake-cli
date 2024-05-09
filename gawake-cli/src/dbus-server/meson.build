@@ -1,1 +1,0 @@
-run_target('gdbus-codegenerator', command: 'gdbus-codegenerator.sh')

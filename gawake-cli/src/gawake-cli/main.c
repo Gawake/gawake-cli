@@ -24,19 +24,16 @@
 // main file for gawake-cli
 
 #include "main.h"
-#include "dbus-client.h"
 
-gint main (gint argc, gchar **argv)
+int main (int argc, char **argv)
 {
   // Receiving arguments (reference [4])
-  gint cflag = 0, mflag = 0, sflag = 0;
+  int cflag = 0, mflag = 0, sflag = 0;
   char *cvalue = NULL, *mvalue = NULL;
-  gint index;
-  gint c;
-
+  int index;
+  int c;
   opterr = 0;
 
-  // FIXME core dumped when optionc is called but no argument is passed
   while ((c = getopt (argc, argv, "hsc:m:")) != -1)
     {
       switch (c)
@@ -51,7 +48,7 @@ gint main (gint argc, gchar **argv)
 
         case 'c':
           cflag = 1;
-          DEBUG_PRINT (("optarg: %s", optarg));
+          DEBUG_PRINT (("optarg: %s\n", optarg));
           if (optarg == NULL)
             return EXIT_FAILURE;
           else
@@ -59,34 +56,45 @@ gint main (gint argc, gchar **argv)
 
           if (strlen (cvalue) != 14)
             {
-              fprintf (stderr, RED ("Invalid time stamp. It must be \"YYYYMMDDhhmmss\".\n"));
+              fprintf (stderr, "Invalid time stamp. It must be on format \"YYYYMMDDhhmmss\".\n\n");
               return EXIT_FAILURE;
             }
           break;
 
         case 'm':
-          gboolean valid = FALSE;
           mflag = 1;
+          bool valid = false;
           if (optarg == NULL)
             return EXIT_FAILURE;
           else
             mvalue = optarg;
 
-          for (gint i = 0; i < 3; i++)
+          for (int i = 0; i < 3; i++)
             {
               if (strcmp (mvalue, MODE[i]) == 0)
                 {
-                  valid = TRUE; // If there is a valid mode, continue
+                  valid = true; // If there is a valid mode, continue
                   break;
                 }
             }
           // Exit on invalid mode
           if (!valid)
             {
-              fprintf (stderr, RED ("Invalid mode\n"));
+              fprintf (stderr, "Invalid mode\n");
               return EXIT_FAILURE;
             }
           break;
+
+        case '?':
+          if (optopt == 'c' || optopt == 'm')
+            fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+          else if (isprint (optopt))
+            fprintf (stderr, "Unknown option '-%c'.\n\n", optopt);
+          else
+            fprintf (stderr,
+                     "Unknown option character '\\x%x'.\n",
+                     optopt);
+          return EXIT_FAILURE;
 
         default:
           abort ();
@@ -97,25 +105,28 @@ gint main (gint argc, gchar **argv)
   if (cflag)
     {
       int year, month, day, hour, minutes, mode;
-      // Assign value to the variables
+
+      // Get timestamp
       if (sscanf (cvalue,
                   "%04d%02d%02d%02d%02d",
                   &year, &month, &day, &hour, &minutes) != 5)
         {
-          fprintf (stderr, RED ("Invalid time stamp. It must be \"YYYYMMDDhhmmss\".\n"));
+          fprintf (stderr, "Invalid timestamp. It must be on format \"YYYYMMDDhhmmss\".\n");
           return EXIT_FAILURE;
         }
 
+      // Get mode, if passed
       if (mflag)
         sscanf (mvalue, "%d", &mode);
       else
         mode = OFF;
 
-      if (connect_dbus_client ())
-        return EXIT_FAILURE;
+      /* if (connect_database ()) */
+      /*   return EXIT_FAILURE; */
 
-      custom_schedule (year, month, day, hour, minutes, mode);
-      close_dbus_client ();
+      // TODO assign custom schedule and send signal
+      /* custom_schedule (year, month, day, hour, minutes, mode); */
+      /* close_dbus_client (); */
 
       return EXIT_SUCCESS;
     }
@@ -124,40 +135,36 @@ gint main (gint argc, gchar **argv)
     {
       if (mflag)
         {
-          fprintf (stderr, RED ("Mode is only supported with a timestamp (option '-c')\n"));
+          fprintf (stderr, "Mode is only supported with a custom timestamp (option '-c')\n");
           return EXIT_FAILURE;
         }
 
-      if (connect_dbus_client ())
-        return EXIT_FAILURE;
+      // TODO send signal
+      /* if (connect_dbus_client ()) */
+      /*   return EXIT_FAILURE; */
 
-      schedule ();
-      close_dbus_client ();
+      /* schedule (); */
+      /* close_dbus_client (); */
       return EXIT_SUCCESS;
     }
-  else
+  // Case option 'm' only
+  else if (mflag)
     {
-      usage ();
+      fprintf (stderr, "Mode is only supported with a custom timestamp (option '-c')\n");
       return EXIT_FAILURE;
     }
 
   // Exit if there are invalid arguments
   for (index = optind; index < argc; index++)
-    fprintf (stderr, RED ("Non-option argument \"%s\"\n"), argv[index]);
-  if (argc > 1)
-    {
-      usage ();
-      return EXIT_FAILURE;
-    }
+    printf ("Non-option argument %s\n", argv[index]);
 
-  g_free (cvalue);
-  g_free (mvalue);
+
 
   // If there's any arguments, continue to the menu
   printf ("Starting Gawake...\n");
 
-  // If can't connect to the D-Bus client, exit
-  if (connect_dbus_client ())
+  // If can't connect to the database, exit
+  if (connect_database ())
     return EXIT_FAILURE;
 
   // Signal handler
@@ -167,15 +174,15 @@ gint main (gint argc, gchar **argv)
   menu ();
 
   // Close D-Bus connection
-  close_dbus_client ();
+  close_database ();
 
   return EXIT_SUCCESS;
 }
 
 void menu (void)
 {
-  gboolean lock = TRUE;
-  gchar choice;
+  bool lock = true;
+  char choice;
 
   printf ("---> Choose an option:\n");
   printf ("[a]\tAdd/remove rules\n"\
@@ -227,8 +234,8 @@ void menu (void)
           printf (YELLOW ("ATTENTION: Your computer will turn off now\n"));
           if (confirm ())
             {
-              schedule ();
-              lock = FALSE;
+              /* schedule (); TODO */
+              lock = false;
             }
           break;
 
@@ -251,7 +258,7 @@ void menu (void)
 
         case 'q':
           printf ("Exiting...\n");
-          lock = FALSE;
+          lock = false;
           break;
 
         case 'k':
@@ -268,7 +275,7 @@ void menu (void)
 // Prints information about Gawake
 void info (void)
 {
-  gchar choice[7];
+  char choice[7];
 
   printf ("\n[INFORMATION]\n");
   printf ("gawake-cli version: %s\n", VERSION);
@@ -304,16 +311,16 @@ void info (void)
 // Clears the input buffer
 void clear_buffer (void)
 {
-  gint c;
+  int c;
   while ((c = getchar()) != '\n' && c != EOF) { }
 }
 
 // Get the user input, on a valid rule format
-void get_user_input (gRule *rule, Table table)
+void get_user_input (Rule *rule, Table table)
 {
-  const gchar DAYS_NAMES[7][10] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-  gboolean invalid = TRUE;     // This variable is a lock for invalid inputs
-  gchar *pch;                  // To get the pointer of a new line char, and after, remove it
+  const char DAYS_NAMES[7][10] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+  bool invalid = true;     // This variable is a lock for invalid inputs
+  char *pch;                  // To get the pointer of a new line char, and after, remove it
 
   // NAME
   // (do-while): repeat if the no name was entered
@@ -342,45 +349,51 @@ void get_user_input (gRule *rule, Table table)
   printf ("\nEnter the time rule will be applied:\n");
   // Hour
   printf ("%-30s", "[Hour] (from 00 to 23) ");
-  gint hour;
+  int hour;
   get_int (&hour, 3, 0, 23, 1);
-  rule->hour = (guint8) hour;
+  rule->hour = (uint8_t) hour;
 
   // Minutes
   printf ("%-30s", "[Minutes] (from 00 to 59) ");
-  invalid = TRUE;
-  gint minutes;
+  invalid = true;
+  int minutes;
   do
     {
-      get_int (&minutes, 3, 0, 45, 1);
+      get_int (&minutes, 3, 0, 59, 1);
 
       if (minutes >= 0 && minutes <= 59)
-          invalid = FALSE;
+        {
+          invalid = false;
+          rule->minutes = (uint8_t) minutes;
+        }
       else
-          invalid_value ();
+        invalid_value ();
 
     } while (invalid);
 
   // DAYS
   printf ("\nEnter the days the rule will be applied (1 for enabled, and 0 for disabled):\n");
   // For each day of the week, receive the user input
-  for (gint i = 0; i < 7; i++) {
+  int day;
+  for (int i = 0; i < 7; i++) {
+    day = 0;
     printf ("%-10s", DAYS_NAMES[i]);
-    get_int (&(rule->days[i]), 2, 0, 1, 1);
+    get_int (&day, 2, 0, 1, 1);
+    rule->days[i] = (bool) day;
   }
 
   // ACTIVE
-  rule->active = TRUE; // when adding a rule, it's always active
+  rule->active = true; // when adding a rule, it's always active
 
   // MODE (only for turn off rules)
   if (table == T_OFF)
     {
       printf ("\nSelect a mode:\n");
 
-      for (gint i = 0; i < 3; i++)
+      for (int i = 0; i < 3; i++)
         printf ("[%i]\t%s\n", i, MODE[i]);
 
-      gint mode;
+      int mode;
       get_int (&mode, 2, 0, 2, 1);
       switch (mode)
         {
@@ -430,11 +443,11 @@ void invalid_value (void)
  * when the user enter an invalid input, the variable keeps equal to 0;
  * but if  a previous value was assigned, that value is kept.
  */
-void get_int (gint *ptr, gint digits, gint min, gint max, gint repeat)
+void get_int (int *ptr, int digits, int min, int max, int repeat)
 {
-  gchar user_input[digits];    // Number of digits the user input must have
-  gint val;
-  gboolean invalid = TRUE;
+  char user_input[digits];    // Number of digits the user input must have
+  int val;
+  bool invalid = true;
   do
     {
       printf ("--> ");
@@ -445,7 +458,7 @@ void get_int (gint *ptr, gint digits, gint min, gint max, gint repeat)
         {
           // ...check if the value is in the range and finishes the loop
           if (val >= min && val <= max)
-            invalid = FALSE;
+            invalid = false;
         }
 
       // Exit if user enters Ctrl D
@@ -458,7 +471,7 @@ void get_int (gint *ptr, gint digits, gint min, gint max, gint repeat)
           if (getchar () != '\n')
             {
               clear_buffer ();
-              invalid = TRUE;
+              invalid = true;
             }
         }
 
@@ -470,21 +483,22 @@ void get_int (gint *ptr, gint digits, gint min, gint max, gint repeat)
 }
 
 // Add or remove a rule
-gint add_remove_rule (void) {
-  gint table, action, id;
-  gRule rule;
+int add_remove_rule (void) {
+  int table, action, id;
+  Rule rule;
 
-  rule.name = (gchar *) g_malloc (RULE_NAME_LENGTH);
+  rule.name = (char *) malloc (RULE_NAME_LENGTH);
   if (rule.name == NULL)
     {
+      DEBUG_PRINT_CONTEX;
       fprintf (stderr, RED ("Couldn't allocate memory\n"));
       return EXIT_FAILURE;
     }
 
-  if (query_rules (T_ON))
+  if (print_rules (T_ON))
     return EXIT_FAILURE;
 
-  if (query_rules (T_OFF))
+  if (print_rules (T_OFF))
     return EXIT_FAILURE;
 
   printf ("Select a table (1/2) ");
@@ -507,8 +521,8 @@ gint add_remove_rule (void) {
 
     case 2:
       printf ("Enter the rule ID:\n");
-      get_int (&id, 6, 0, G_MAXINT, 0);  // the max value of ID is 65535 (uint16)
-      delete_rule ((guint16) id, (Table) table);
+      get_int (&id, 6, 0, INT_MAX, 0);  // the max value of ID is 65535 (uint16)
+      delete_rule ((uint16_t) id, (Table) table);
       break;
 
     default:
@@ -516,16 +530,16 @@ gint add_remove_rule (void) {
       return EXIT_FAILURE;
     }
 
-  g_free (rule.name);
+  free (rule.name);
   return EXIT_SUCCESS;
 }
 
 // Get user's confirmation as 'y'; if confirmed, returns 1
-gint confirm (void)
+int confirm (void)
 {
   // Reference [1]
   printf ("Do you want to continue? (y/N) ---> ");
-  gchar choice = getchar ();
+  char choice = getchar ();
   if (choice != '\n' && getchar() != '\n')
     {
       // More than one character: flush buffered line and invalidate the input
@@ -543,28 +557,97 @@ gint confirm (void)
 
 void usage (void)
 {
-  printf ("Gawake (cli version): A Linux software to make your PC wake up on a scheduled time. "\
+  printf ("Gawake (cli version): A Linux software to make your PC wake up on a scheduled time.\n"\
           "It makes the rtcwake command easier.\n"\
-          "\nOPTIONS:\n"\
-          "\t-c    Schedule with a custom timestamp (YYYYMMDDhhmmss); "\
-          "if -m isn't set, uses \"off\" as mode\n"\
-          "\t-h    Show this help and exit\n"\
-          "\t-m    Set a mode; must be used together the '-c' option\n"\
-          "\t-s    Directly run the schedule function, using the first upcoming turn on rule; "\
-          "to use a custom timestamp use the '-c' option\n"\
-          "\nEXAMPLES:\n"\
-          "\t%-45sSchedule according to the next turn on rule\n"\
-          "\t%-45sSchedule wake for 01 January 2025, at 09:45:00\n"\
-          "\t%-45sSchedule wake for 28 December 2025, at 15:30:00; use mode disk\n\n",
+          "\nOptions:\n"\
+          " -c\tSchedule with a custom timestamp (YYYYMMDDhhmmss); "\
+          "if -m isn't set, uses \"off\" as the default mode\n"\
+          " -h\tShow this help and exit\n"\
+          " -m\tSet a mode; must be used together the '-c' option\n"\
+          " -s\tDirectly run the schedule function, using the first upcoming turn on rule;\n"\
+          "\tto use a custom timestamp use the '-c' option\n"\
+          "\nExamples:\n"\
+          " %-40sSchedule according to the next turn on rule\n"\
+          " %-40sSchedule wake for 15 January 2025, at 09:45:00\n"\
+          " %-40sSchedule wake for 28 December 2025, at 15:30:00; use mode disk\n\n",
           "gawake-cli -s", "gawake-cli -c 20250115094500", "gawake-cli -c 20251228153000 -m disk");
 }
 
 // Close the database and exit on <Ctrl C>
-__attribute__((__noreturn__)) void exit_handler (gint sig)
+__attribute__((__noreturn__)) void exit_handler (int sig)
 {
   printf ("\nUser interruption...\n");
-  close_dbus_client ();
+  close_database ();
   exit (EXIT_FAILURE);
+}
+
+int print_rules (Table table)
+{
+  Rule *rules;
+  uint16_t rowcount;
+  if (query_rules (table, &rules, &rowcount))
+    {
+      DEBUG_PRINT_CONTEX;
+      fprintf (stderr, RED ("ERROR: Failed to query rules\n"));
+      return EXIT_FAILURE;
+    }
+
+
+  // HEADER
+  if (table == T_ON)
+    {
+      printf (GREEN (
+              "[1] TURN ON RULES\n"\
+              "┌─────┬─────────────────┬────────────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬────────┐"\
+              "\n│ %-4s│ %-16s│    Time    │ Sun │ Mon │ Tue │ Wed │ Thu │ Fri │ Sat │ %-7s│"),
+              "ID", "Name", "Active");
+    }
+  else
+    {
+      printf (YELLOW (
+              "[2] TURN OFF RULES\n"\
+              "┌─────┬─────────────────┬────────────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬────────┬─────────┐"\
+              "\n│ %-4s│ %-16s│    Time    │ Sun │ Mon │ Tue │ Wed │ Thu │ Fri │ Sat │ %-7s│ %-8s│"),
+              "ID", "Name", "Active", "Mode");
+    }
+
+  // ROWS
+  for (int counter = 0; counter < rowcount; counter++)
+    {
+      if (table == T_ON)
+        {
+          printf ("\n│ %03d │ %-16.15s│  %02d:%02d:00  │  %d  │  %d  │  %d  │  %d  │  %d  │  %d  │  %d  │   %-5d│",
+                  rules[counter].id, rules[counter].name,
+                  rules[counter].hour, rules[counter].minutes,
+                  rules[counter].days[0], rules[counter].days[1], rules[counter].days[2], rules[counter].days[3],
+                  rules[counter].days[4], rules[counter].days[5], rules[counter].days[6],
+                  rules[counter].active);
+        }
+      else
+        {
+          printf ("\n│ %03d │ %-16.15s│  %02d:%02d:00  │  %d  │  %d  │  %d  │  %d  │  %d  │  %d  │  %d  │   %-5d│ %-8s│",
+                  rules[counter].id, rules[counter].name, rules[counter].hour, rules[counter].minutes,
+                  rules[counter].days[0], rules[counter].days[1], rules[counter].days[2], rules[counter].days[3],
+                  rules[counter].days[4], rules[counter].days[5], rules[counter].days[6],
+                  rules[counter].active, MODE[rules[counter].mode]);
+        }
+
+      // Already free name, since it won't be used anymore
+      free (rules[counter].name);
+    }
+  free (rules);
+
+  // BOTTOM
+  if (table == T_ON)
+    {
+      printf ("\n└─────┴─────────────────┴────────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴────────┘\n\n");
+    }
+  else
+    {
+      printf ("\n└─────┴─────────────────┴────────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴────────┴─────────┘\n");
+    }
+
+  return EXIT_SUCCESS;
 }
 
 /* REFERENCES:

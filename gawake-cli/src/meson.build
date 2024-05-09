@@ -1,22 +1,19 @@
 # SOURCES DIRECTORIES
-subdir('dbus-server')
 subdir('utils')
-
 subdir('gawaked')
 subdir('gawake-cli')
 subdir('gawake-dbus-server')
 
 # DEPENDENCIES
 sqlite = dependency('sqlite3')
-glib = dependency('glib-2.0')
-gio = dependency('gio-2.0')
-gio_unix = dependency('gio-unix-2.0')
+glib = dependency('glib-2.0', version: '>= 2.72')
+gio = dependency('gio-2.0', version: '>= 2.72')
+gio_unix = dependency('gio-unix-2.0', version: '>= 2.72')
 
 gawake_dbus_server_dependencies = [
 	glib,
 	gio,
-	gio_unix,
-	sqlite
+	gio_unix
 ]
 
 gawaked_dependencies = [
@@ -29,7 +26,8 @@ gawaked_dependencies = [
 gawake_cli_dependencies = [
 	glib,
 	gio,
-	gio_unix
+	gio_unix,
+	sqlite
 ]
 
 # EXECUTABLES

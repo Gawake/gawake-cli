@@ -30,6 +30,7 @@ static int query_custom_schedule (void);
 static void on_database_updated_signal (void);
 static void on_rule_canceled_signal (void);
 static void on_schedule_requested_signal (void);
+static void on_custom_schedule_requested_signal (void);
 static void exit_handler (int sig);
 
 // Utils
@@ -37,6 +38,7 @@ static int day_changed (void);
 static void sync_time (void);
 static void notify_user (int ret);
 static double get_time_remaining (void);
+static void schedule_finalize (int ret);
 
 typedef enum {
   RTCWAKE_ARGS_FAILURE,

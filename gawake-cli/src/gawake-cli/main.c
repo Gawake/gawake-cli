@@ -104,11 +104,12 @@ int main (int argc, char **argv)
   // Case option 'c'
   if (cflag)
     {
-      int year, month, day, hour, minutes, mode;
+      uint8_t month, day, hour, minutes, mode;
+      uint16_t year;
 
       // Get timestamp
       if (sscanf (cvalue,
-                  "%04d%02d%02d%02d%02d",
+                  "%04"SCNu16 "%02"SCNu8 "%02"SCNu8 "%02"SCNu8 "%02"SCNu8,
                   &year, &month, &day, &hour, &minutes) != 5)
         {
           fprintf (stderr, "Invalid timestamp. It must be on format \"YYYYMMDDhhmmss\".\n");
@@ -117,16 +118,21 @@ int main (int argc, char **argv)
 
       // Get mode, if passed
       if (mflag)
-        sscanf (mvalue, "%d", &mode);
+        sscanf (mvalue, "%"SCNu8, &mode);
       else
         mode = OFF;
 
-      /* if (connect_database ()) */
-      /*   return EXIT_FAILURE; */
+      if (connect_database ())
+        return EXIT_FAILURE;
 
-      // TODO assign custom schedule and send signal
-      /* custom_schedule (year, month, day, hour, minutes, mode); */
-      /* close_dbus_client (); */
+      custom_schedule (hour,
+                       minutes,
+                       day,
+                       month,
+                       year,
+                       mode);
+
+      close_database ();
 
       return EXIT_SUCCESS;
     }
@@ -139,12 +145,12 @@ int main (int argc, char **argv)
           return EXIT_FAILURE;
         }
 
-      // TODO send signal
-      /* if (connect_dbus_client ()) */
-      /*   return EXIT_FAILURE; */
+      if (connect_database ())
+        return EXIT_FAILURE;
 
-      /* schedule (); */
-      /* close_dbus_client (); */
+      schedule ();
+      close_database ();
+
       return EXIT_SUCCESS;
     }
   // Case option 'm' only
@@ -234,13 +240,13 @@ void menu (void)
           printf (YELLOW ("ATTENTION: Your computer will turn off now\n"));
           if (confirm ())
             {
-              /* schedule (); TODO */
+              schedule ();
               lock = false;
             }
           break;
 
         case 'c':
-          printf ("todo"); /* TODO config (); */
+          printf ("todo\n"); /* TODO config (); */
           break;
 
         case 'i':

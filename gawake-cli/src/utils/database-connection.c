@@ -122,7 +122,10 @@ static int run_sql (const char *sql)
   sqlite3_free (err_msg);
 
   if (rc == SQLITE_OK)
-    return EXIT_SUCCESS;
+    {
+      trigger_update_database ();
+      return EXIT_SUCCESS;
+    }
   else
     return EXIT_FAILURE;
 }
@@ -552,32 +555,13 @@ int custom_schedule (const uint8_t hour,
   int ret = run_sql (sql);
   free (sql);
 
+  if (ret == EXIT_SUCCESS)
+    trigger_custom_schedule ();
+
   return ret;
 }
 
-int schedule (void)
+void schedule (void)
 {
-  char *sql = 0;
-  sql = (char *) malloc (ALLOC);
-  if (sql == NULL)
-    {
-      DEBUG_PRINT_CONTEX;
-      fprintf (stderr, RED ("ERROR: Failed to allocate memory\n"));
-      return EXIT_FAILURE;
-    }
-
-  sqlite3_snprintf (ALLOC, sql,
-                    "UPDATE custom_schedule "\
-                    "SET hour = %d, minutes = %d, "\
-                    "day = %d, month = %d, year = %d, "\
-                    "mode = %d, use_args = %d "\
-                    "WHERE id = 1;",
-                    0, 0,
-                    0, 0, 0,
-                    0, false);
-
-  int ret = run_sql (sql);
-  free (sql);
-
-  return ret;
+  trigger_schedule ();
 }

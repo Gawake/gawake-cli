@@ -51,12 +51,7 @@ gint connect_dbus_client (void)
 void close_dbus_client (void)
 {
   fprintf (stdout, "Closing D-Bus client\n");
-
-  if (error != NULL)
-      g_error_free (error);
-  else
-    error = NULL;
-
+  error = NULL;
   g_object_unref (proxy);
 }
 

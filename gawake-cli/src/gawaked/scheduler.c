@@ -110,11 +110,14 @@ static void *dbus_listener (void *args)
   // Database updated
   g_signal_connect (proxy, "database-updated", G_CALLBACK (on_database_updated_signal), NULL);
 
+  // Cancel schedule
+  g_signal_connect (proxy, "rule-canceled", G_CALLBACK (on_rule_canceled_signal), NULL);
+
   // Immediate schedule
   g_signal_connect (proxy, "schedule-requested", G_CALLBACK (on_schedule_requested_signal), NULL);
 
-  // Cancel schedule
-  g_signal_connect (proxy, "rule-canceled", G_CALLBACK (on_rule_canceled_signal), NULL);
+  // Custom schedule
+  g_signal_connect (proxy, "custom-schedule-requested", G_CALLBACK (on_custom_schedule_requested_signal), NULL);
 
   loop = g_main_loop_new (NULL, FALSE);
   g_main_loop_run (loop);
@@ -608,7 +611,7 @@ static int query_upcoming_on_rule (bool use_default_mode)
 
 static int query_custom_schedule (void)
 {
-  int rc, use_args = 0;
+  int rc;
   struct sqlite3_stmt *stmt;
   sqlite3 *db;
   char query[ALLOC];
@@ -658,7 +661,7 @@ static int query_custom_schedule (void)
   // Create an SQL statement to get the custom rule
   snprintf (query,
             ALLOC,
-            "SELECT hour, minutes, day, month, year, mode, use_args "\
+            "SELECT hour, minutes, day, month, year, mode "\
             "FROM custom_schedule "\
             "WHERE id = 1;");
 
@@ -666,7 +669,7 @@ static int query_custom_schedule (void)
   if (rc != SQLITE_OK)
     {
       DEBUG_PRINT_CONTEX;
-      fprintf (stderr, "ERROR: Failed while querying rules to make schedule for today\n"\
+      fprintf (stderr, "ERROR: Failed while querying custom rule\n"\
                "SQL: %s\n", query);
       sqlite3_close (db);
       return RTCWAKE_ARGS_FAILURE;
@@ -685,28 +688,16 @@ static int query_custom_schedule (void)
       rtcwake_args->year = sqlite3_column_int (stmt, 4);
       rtcwake_args->mode = sqlite3_column_int (stmt, 5);
 
-      // Boolean: if false, the user didn't pass a timestamp, so don't use these
-      // args, but query from the rules_turnon
-      use_args = sqlite3_column_int (stmt, 6);
-
       pthread_mutex_unlock (&rtcwake_args_mutex);
     }
   if (rc != SQLITE_DONE && rc != SQLITE_ROW)
     {
       DEBUG_PRINT_CONTEX;
-      fprintf (stderr, "ERROR (failed scheduling for today): %s\n", sqlite3_errmsg (db));
+      fprintf (stderr, "ERROR: %s\n", sqlite3_errmsg (db));
       sqlite3_close (db);
       return RTCWAKE_ARGS_FAILURE;
     }
   sqlite3_finalize (stmt);
-
-  // If user didn't pass a timestamp, query it from the rules_turnon table
-  int ret = RTCWAKE_ARGS_SUCESS;
-  if (!use_args)
-    ret = query_upcoming_on_rule (TRUE);
-  // On failure, return status code
-  if (ret != RTCWAKE_ARGS_SUCESS)
-    return ret;
 
   pthread_mutex_lock (&rtcwake_args_mutex);
   rtcwake_args->found = TRUE;
@@ -795,9 +786,17 @@ static void on_rule_canceled_signal (void)
 
 static void on_schedule_requested_signal (void)
 {
-  DEBUG_PRINT_TIME (("Custom schedule requested"));
-  int ret = query_custom_schedule ();
+  DEBUG_PRINT_TIME (("Schedule requested"));
+  schedule_finalize (query_upcoming_on_rule (true));
+}
 
+static void on_custom_schedule_requested_signal (void)
+{
+  DEBUG_PRINT_TIME (("Custom schedule requested"));
+  schedule_finalize (query_custom_schedule ());
+}
+
+static void schedule_finalize (int ret) {
   // On failure and "shutdown on failure" enabled, shutdown instead
   if (ret != RTCWAKE_ARGS_SUCESS && rtcwake_args->shutdown_fail == TRUE)
     {
@@ -809,7 +808,7 @@ static void on_schedule_requested_signal (void)
       finalize_timed_checker ();
       finalize_dbus_listener ();
     }
-  // On failure and "shutdown on failure" enabled, just notify the user
+  // On failure and "shutdown on failure" disabled, just notify the user
   else if (ret != RTCWAKE_ARGS_SUCESS && rtcwake_args->shutdown_fail == false)
     {
       DEBUG_PRINT (("Custom rule failed, notifying user"));

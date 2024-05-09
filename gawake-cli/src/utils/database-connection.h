@@ -25,7 +25,7 @@ int custom_schedule (const uint8_t  hour,
                      const uint16_t year,
                      const uint8_t  mode);
 
-int schedule (void);
+void schedule (void);
 
 /* TODO config database
  * set/get boot delay

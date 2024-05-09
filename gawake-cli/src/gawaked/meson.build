@@ -4,11 +4,9 @@ gawaked_sources = files(
 	'privileges.c',
 	'week-day.c',
 
-	'../utils/get-time.c',
-	'../utils/debugger.c',
-	'../utils/validate-rtcwake-args.c',
-	'../utils/gawake-types.c',
-
-	'../gawake-dbus-server/dbus-server.c',
-
+	'../gawake-dbus-server/dbus-server.c'
 )
+
+gawaked_sources += utils_debugger
+gawaked_sources += utils_validate_rtcwake_args
+gawaked_sources += utils_gawake_types

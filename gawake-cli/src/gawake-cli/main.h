@@ -16,8 +16,8 @@
 
 #include "../utils/gawake-types.h"
 #include "../utils/database-connection.h"
-#include "../utils/colors.h"
 #include "../utils/debugger.h"
+#include "../utils/colors.h"
 
 void menu (void);
 void info (void);

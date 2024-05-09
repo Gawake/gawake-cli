@@ -22,7 +22,7 @@ static void on_name_lost (GDBusConnection *connection,
                           gpointer user_data);
 
 static gboolean
-on_handle_database_update (GawakeServerDatabase    *interface,
+on_handle_update_database (GawakeServerDatabase    *interface,
                            GDBusMethodInvocation   *invocation,
                            gpointer                user_data);
 
@@ -32,9 +32,14 @@ on_handle_cancel_rule (GawakeServerDatabase    *interface,
                        gpointer                user_data);
 
 static gboolean
-on_handle_schedule (GawakeServerDatabase    *interface,
-                    GDBusMethodInvocation   *invocation,
-                    gpointer                user_data);
+on_handle_request_schedule (GawakeServerDatabase    *interface,
+                            GDBusMethodInvocation   *invocation,
+                            gpointer                user_data);
+
+static gboolean
+on_handle_request_custom_schedule (GawakeServerDatabase    *interface,
+                                   GDBusMethodInvocation   *invocation,
+                                   gpointer                user_data);
 
 static gint check_user (void);
 

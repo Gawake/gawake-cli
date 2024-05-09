@@ -68,7 +68,10 @@ on_name_acquired (GDBusConnection *connection,
 
   interface = gawake_server_database_skeleton_new ();
 
-  g_signal_connect (interface, "handle-schedule", G_CALLBACK (on_handle_schedule), NULL);
+  g_signal_connect (interface, "handle-update-database", G_CALLBACK (on_handle_update_database), NULL);
+  g_signal_connect (interface, "handle-cancel-rule", G_CALLBACK (on_handle_cancel_rule), NULL);
+  g_signal_connect (interface, "handle-request-schedule", G_CALLBACK (on_handle_request_schedule), NULL);
+  g_signal_connect (interface, "handle-request-custom-schedule", G_CALLBACK (on_handle_request_custom_schedule), NULL);
 
   error = NULL;
   g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (interface),
@@ -98,13 +101,13 @@ static void on_name_lost (GDBusConnection *connection,
 }
 
  /* gawake_server_database_emit_database_updated (interface); */
-
 static gboolean
-on_handle_database_update (GawakeServerDatabase    *interface,
+on_handle_update_database (GawakeServerDatabase    *interface,
                            GDBusMethodInvocation   *invocation,
                            gpointer                user_data)
 {
   DEBUG_PRINT (("Received update database request"));
+  gawake_server_database_emit_database_updated (interface);
   gawake_server_database_complete_update_database (interface, invocation);
   return TRUE;
 }
@@ -115,19 +118,30 @@ on_handle_cancel_rule (GawakeServerDatabase    *interface,
                        gpointer                user_data)
 {
   DEBUG_PRINT (("Received cancel rule request"));
+  gawake_server_database_emit_rule_canceled (interface);
   gawake_server_database_complete_cancel_rule (interface, invocation);
   return TRUE;
 }
 
 static gboolean
-on_handle_schedule (GawakeServerDatabase    *interface,
-                    GDBusMethodInvocation   *invocation,
-                    gpointer                user_data)
+on_handle_request_schedule (GawakeServerDatabase    *interface,
+                            GDBusMethodInvocation   *invocation,
+                            gpointer                user_data)
 {
   DEBUG_PRINT (("Received schedule request"));
+  gawake_server_database_emit_schedule_requested (interface);
+  gawake_server_database_complete_request_schedule (interface, invocation);
+  return TRUE;
+}
 
-  gawake_server_database_complete_schedule (interface, invocation);
-
+static gboolean
+on_handle_request_custom_schedule (GawakeServerDatabase    *interface,
+                                   GDBusMethodInvocation   *invocation,
+                                   gpointer                user_data)
+{
+  DEBUG_PRINT (("Received custom schedule request"));
+  gawake_server_database_emit_custom_schedule_requested (interface);
+  gawake_server_database_complete_request_custom_schedule (interface, invocation);
   return TRUE;
 }
 

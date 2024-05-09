@@ -258,9 +258,10 @@ enum
   GAWAKE_SERVER__DATABASE_DATABASE_UPDATED,
   GAWAKE_SERVER__DATABASE_RULE_CANCELED,
   GAWAKE_SERVER__DATABASE_SCHEDULE_REQUESTED,
+  GAWAKE_SERVER__DATABASE_CUSTOM_SCHEDULE_REQUESTED,
 };
 
-static unsigned GAWAKE_SERVER__DATABASE_SIGNALS[3] = { 0 };
+static unsigned GAWAKE_SERVER__DATABASE_SIGNALS[4] = { 0 };
 
 /* ---- Introspection data for io.github.kelvinnovais.Database ---- */
 
@@ -290,16 +291,29 @@ static const _ExtendedGDBusMethodInfo _gawake_server_database_method_info_cancel
   FALSE
 };
 
-static const _ExtendedGDBusMethodInfo _gawake_server_database_method_info_schedule =
+static const _ExtendedGDBusMethodInfo _gawake_server_database_method_info_request_schedule =
 {
   {
     -1,
-    (gchar *) "Schedule",
+    (gchar *) "RequestSchedule",
     NULL,
     NULL,
     NULL
   },
-  "handle-schedule",
+  "handle-request-schedule",
+  FALSE
+};
+
+static const _ExtendedGDBusMethodInfo _gawake_server_database_method_info_request_custom_schedule =
+{
+  {
+    -1,
+    (gchar *) "RequestCustomSchedule",
+    NULL,
+    NULL,
+    NULL
+  },
+  "handle-request-custom-schedule",
   FALSE
 };
 
@@ -307,7 +321,8 @@ static const GDBusMethodInfo * const _gawake_server_database_method_info_pointer
 {
   &_gawake_server_database_method_info_update_database.parent_struct,
   &_gawake_server_database_method_info_cancel_rule.parent_struct,
-  &_gawake_server_database_method_info_schedule.parent_struct,
+  &_gawake_server_database_method_info_request_schedule.parent_struct,
+  &_gawake_server_database_method_info_request_custom_schedule.parent_struct,
   NULL
 };
 
@@ -344,11 +359,23 @@ static const _ExtendedGDBusSignalInfo _gawake_server_database_signal_info_schedu
   "schedule-requested"
 };
 
+static const _ExtendedGDBusSignalInfo _gawake_server_database_signal_info_custom_schedule_requested =
+{
+  {
+    -1,
+    (gchar *) "CustomScheduleRequested",
+    NULL,
+    NULL
+  },
+  "custom-schedule-requested"
+};
+
 static const GDBusSignalInfo * const _gawake_server_database_signal_info_pointers[] =
 {
   &_gawake_server_database_signal_info_database_updated.parent_struct,
   &_gawake_server_database_signal_info_rule_canceled.parent_struct,
   &_gawake_server_database_signal_info_schedule_requested.parent_struct,
+  &_gawake_server_database_signal_info_custom_schedule_requested.parent_struct,
   NULL
 };
 
@@ -436,6 +463,19 @@ gawake_server_database_signal_marshal_schedule_requested (
 }
 
 inline static void
+gawake_server_database_signal_marshal_custom_schedule_requested (
+    GClosure     *closure,
+    GValue       *return_value,
+    unsigned int  n_param_values,
+    const GValue *param_values,
+    void         *invocation_hint,
+    void         *marshal_data)
+{
+  g_cclosure_marshal_VOID__VOID (closure,
+    return_value, n_param_values, param_values, invocation_hint, marshal_data);
+}
+
+inline static void
 gawake_server_database_method_marshal_update_database (
     GClosure     *closure,
     GValue       *return_value,
@@ -462,7 +502,20 @@ gawake_server_database_method_marshal_cancel_rule (
 }
 
 inline static void
-gawake_server_database_method_marshal_schedule (
+gawake_server_database_method_marshal_request_schedule (
+    GClosure     *closure,
+    GValue       *return_value,
+    unsigned int  n_param_values,
+    const GValue *param_values,
+    void         *invocation_hint,
+    void         *marshal_data)
+{
+  _g_dbus_codegen_marshal_BOOLEAN__OBJECT (closure,
+    return_value, n_param_values, param_values, invocation_hint, marshal_data);
+}
+
+inline static void
+gawake_server_database_method_marshal_request_custom_schedule (
     GClosure     *closure,
     GValue       *return_value,
     unsigned int  n_param_values,
@@ -485,8 +538,10 @@ gawake_server_database_method_marshal_schedule (
  * GawakeServerDatabaseIface:
  * @parent_iface: The parent interface.
  * @handle_cancel_rule: Handler for the #GawakeServerDatabase::handle-cancel-rule signal.
- * @handle_schedule: Handler for the #GawakeServerDatabase::handle-schedule signal.
+ * @handle_request_custom_schedule: Handler for the #GawakeServerDatabase::handle-request-custom-schedule signal.
+ * @handle_request_schedule: Handler for the #GawakeServerDatabase::handle-request-schedule signal.
  * @handle_update_database: Handler for the #GawakeServerDatabase::handle-update-database signal.
+ * @custom_schedule_requested: Handler for the #GawakeServerDatabase::custom-schedule-requested signal.
  * @database_updated: Handler for the #GawakeServerDatabase::database-updated signal.
  * @rule_canceled: Handler for the #GawakeServerDatabase::rule-canceled signal.
  * @schedule_requested: Handler for the #GawakeServerDatabase::schedule-requested signal.
@@ -546,23 +601,45 @@ gawake_server_database_default_init (GawakeServerDatabaseIface *iface)
     G_TYPE_DBUS_METHOD_INVOCATION);
 
   /**
-   * GawakeServerDatabase::handle-schedule:
+   * GawakeServerDatabase::handle-request-schedule:
    * @object: A #GawakeServerDatabase.
    * @invocation: A #GDBusMethodInvocation.
    *
-   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-io-github-kelvinnovais-Database.Schedule">Schedule()</link> D-Bus method.
+   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-io-github-kelvinnovais-Database.RequestSchedule">RequestSchedule()</link> D-Bus method.
    *
-   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call gawake_server_database_complete_schedule() or e.g. g_dbus_method_invocation_return_error() on it) and no other signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call gawake_server_database_complete_request_schedule() or e.g. g_dbus_method_invocation_return_error() on it) and no other signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
    *
    * Returns: %G_DBUS_METHOD_INVOCATION_HANDLED or %TRUE if the invocation was handled, %G_DBUS_METHOD_INVOCATION_UNHANDLED or %FALSE to let other signal handlers run.
    */
-  g_signal_new ("handle-schedule",
+  g_signal_new ("handle-request-schedule",
     G_TYPE_FROM_INTERFACE (iface),
     G_SIGNAL_RUN_LAST,
-    G_STRUCT_OFFSET (GawakeServerDatabaseIface, handle_schedule),
+    G_STRUCT_OFFSET (GawakeServerDatabaseIface, handle_request_schedule),
     g_signal_accumulator_true_handled,
     NULL,
-      gawake_server_database_method_marshal_schedule,
+      gawake_server_database_method_marshal_request_schedule,
+    G_TYPE_BOOLEAN,
+    1,
+    G_TYPE_DBUS_METHOD_INVOCATION);
+
+  /**
+   * GawakeServerDatabase::handle-request-custom-schedule:
+   * @object: A #GawakeServerDatabase.
+   * @invocation: A #GDBusMethodInvocation.
+   *
+   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-io-github-kelvinnovais-Database.RequestCustomSchedule">RequestCustomSchedule()</link> D-Bus method.
+   *
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call gawake_server_database_complete_request_custom_schedule() or e.g. g_dbus_method_invocation_return_error() on it) and no other signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   *
+   * Returns: %G_DBUS_METHOD_INVOCATION_HANDLED or %TRUE if the invocation was handled, %G_DBUS_METHOD_INVOCATION_UNHANDLED or %FALSE to let other signal handlers run.
+   */
+  g_signal_new ("handle-request-custom-schedule",
+    G_TYPE_FROM_INTERFACE (iface),
+    G_SIGNAL_RUN_LAST,
+    G_STRUCT_OFFSET (GawakeServerDatabaseIface, handle_request_custom_schedule),
+    g_signal_accumulator_true_handled,
+    NULL,
+      gawake_server_database_method_marshal_request_custom_schedule,
     G_TYPE_BOOLEAN,
     1,
     G_TYPE_DBUS_METHOD_INVOCATION);
@@ -625,6 +702,25 @@ gawake_server_database_default_init (GawakeServerDatabaseIface *iface)
       G_TYPE_NONE,
       0);
 
+  /**
+   * GawakeServerDatabase::custom-schedule-requested:
+   * @object: A #GawakeServerDatabase.
+   *
+   * On the client-side, this signal is emitted whenever the D-Bus signal <link linkend="gdbus-signal-io-github-kelvinnovais-Database.CustomScheduleRequested">"CustomScheduleRequested"</link> is received.
+   *
+   * On the service-side, this signal can be used with e.g. g_signal_emit_by_name() to make the object emit the D-Bus signal.
+   */
+  GAWAKE_SERVER__DATABASE_SIGNALS[GAWAKE_SERVER__DATABASE_CUSTOM_SCHEDULE_REQUESTED] =
+    g_signal_new ("custom-schedule-requested",
+      G_TYPE_FROM_INTERFACE (iface),
+      G_SIGNAL_RUN_LAST,
+      G_STRUCT_OFFSET (GawakeServerDatabaseIface, custom_schedule_requested),
+      NULL,
+      NULL,
+      gawake_server_database_signal_marshal_custom_schedule_requested,
+      G_TYPE_NONE,
+      0);
+
 }
 
 /**
@@ -664,6 +760,19 @@ gawake_server_database_emit_schedule_requested (
     GawakeServerDatabase *object)
 {
   g_signal_emit (object, GAWAKE_SERVER__DATABASE_SIGNALS[GAWAKE_SERVER__DATABASE_SCHEDULE_REQUESTED], 0);
+}
+
+/**
+ * gawake_server_database_emit_custom_schedule_requested:
+ * @object: A #GawakeServerDatabase.
+ *
+ * Emits the <link linkend="gdbus-signal-io-github-kelvinnovais-Database.CustomScheduleRequested">"CustomScheduleRequested"</link> D-Bus signal.
+ */
+void
+gawake_server_database_emit_custom_schedule_requested (
+    GawakeServerDatabase *object)
+{
+  g_signal_emit (object, GAWAKE_SERVER__DATABASE_SIGNALS[GAWAKE_SERVER__DATABASE_CUSTOM_SCHEDULE_REQUESTED], 0);
 }
 
 /**
@@ -851,27 +960,27 @@ _out:
 }
 
 /**
- * gawake_server_database_call_schedule:
+ * gawake_server_database_call_request_schedule:
  * @proxy: A #GawakeServerDatabaseProxy.
  * @cancellable: (nullable): A #GCancellable or %NULL.
  * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
  * @user_data: User data to pass to @callback.
  *
- * Asynchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.Schedule">Schedule()</link> D-Bus method on @proxy.
+ * Asynchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.RequestSchedule">RequestSchedule()</link> D-Bus method on @proxy.
  * When the operation is finished, @callback will be invoked in the thread-default main loop of the thread you are calling this method from (see g_main_context_push_thread_default()).
- * You can then call gawake_server_database_call_schedule_finish() to get the result of the operation.
+ * You can then call gawake_server_database_call_request_schedule_finish() to get the result of the operation.
  *
- * See gawake_server_database_call_schedule_sync() for the synchronous, blocking version of this method.
+ * See gawake_server_database_call_request_schedule_sync() for the synchronous, blocking version of this method.
  */
 void
-gawake_server_database_call_schedule (
+gawake_server_database_call_request_schedule (
     GawakeServerDatabase *proxy,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data)
 {
   g_dbus_proxy_call (G_DBUS_PROXY (proxy),
-    "Schedule",
+    "RequestSchedule",
     g_variant_new ("()"),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
@@ -881,17 +990,17 @@ gawake_server_database_call_schedule (
 }
 
 /**
- * gawake_server_database_call_schedule_finish:
+ * gawake_server_database_call_request_schedule_finish:
  * @proxy: A #GawakeServerDatabaseProxy.
- * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to gawake_server_database_call_schedule().
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to gawake_server_database_call_request_schedule().
  * @error: Return location for error or %NULL.
  *
- * Finishes an operation started with gawake_server_database_call_schedule().
+ * Finishes an operation started with gawake_server_database_call_request_schedule().
  *
  * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
  */
 gboolean
-gawake_server_database_call_schedule_finish (
+gawake_server_database_call_request_schedule_finish (
     GawakeServerDatabase *proxy,
     GAsyncResult *res,
     GError **error)
@@ -908,26 +1017,118 @@ _out:
 }
 
 /**
- * gawake_server_database_call_schedule_sync:
+ * gawake_server_database_call_request_schedule_sync:
  * @proxy: A #GawakeServerDatabaseProxy.
  * @cancellable: (nullable): A #GCancellable or %NULL.
  * @error: Return location for error or %NULL.
  *
- * Synchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.Schedule">Schedule()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
+ * Synchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.RequestSchedule">RequestSchedule()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
  *
- * See gawake_server_database_call_schedule() for the asynchronous version of this method.
+ * See gawake_server_database_call_request_schedule() for the asynchronous version of this method.
  *
  * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
  */
 gboolean
-gawake_server_database_call_schedule_sync (
+gawake_server_database_call_request_schedule_sync (
     GawakeServerDatabase *proxy,
     GCancellable *cancellable,
     GError **error)
 {
   GVariant *_ret;
   _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
-    "Schedule",
+    "RequestSchedule",
+    g_variant_new ("()"),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "()");
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * gawake_server_database_call_request_custom_schedule:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @cancellable: (nullable): A #GCancellable or %NULL.
+ * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
+ * @user_data: User data to pass to @callback.
+ *
+ * Asynchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.RequestCustomSchedule">RequestCustomSchedule()</link> D-Bus method on @proxy.
+ * When the operation is finished, @callback will be invoked in the thread-default main loop of the thread you are calling this method from (see g_main_context_push_thread_default()).
+ * You can then call gawake_server_database_call_request_custom_schedule_finish() to get the result of the operation.
+ *
+ * See gawake_server_database_call_request_custom_schedule_sync() for the synchronous, blocking version of this method.
+ */
+void
+gawake_server_database_call_request_custom_schedule (
+    GawakeServerDatabase *proxy,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data)
+{
+  g_dbus_proxy_call (G_DBUS_PROXY (proxy),
+    "RequestCustomSchedule",
+    g_variant_new ("()"),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    callback,
+    user_data);
+}
+
+/**
+ * gawake_server_database_call_request_custom_schedule_finish:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to gawake_server_database_call_request_custom_schedule().
+ * @error: Return location for error or %NULL.
+ *
+ * Finishes an operation started with gawake_server_database_call_request_custom_schedule().
+ *
+ * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
+ */
+gboolean
+gawake_server_database_call_request_custom_schedule_finish (
+    GawakeServerDatabase *proxy,
+    GAsyncResult *res,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (proxy), res, error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "()");
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * gawake_server_database_call_request_custom_schedule_sync:
+ * @proxy: A #GawakeServerDatabaseProxy.
+ * @cancellable: (nullable): A #GCancellable or %NULL.
+ * @error: Return location for error or %NULL.
+ *
+ * Synchronously invokes the <link linkend="gdbus-method-io-github-kelvinnovais-Database.RequestCustomSchedule">RequestCustomSchedule()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
+ *
+ * See gawake_server_database_call_request_custom_schedule() for the asynchronous version of this method.
+ *
+ * Returns: (skip): %TRUE if the call succeeded, %FALSE if @error is set.
+ */
+gboolean
+gawake_server_database_call_request_custom_schedule_sync (
+    GawakeServerDatabase *proxy,
+    GCancellable *cancellable,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
+    "RequestCustomSchedule",
     g_variant_new ("()"),
     G_DBUS_CALL_FLAGS_NONE,
     -1,
@@ -979,16 +1180,34 @@ gawake_server_database_complete_cancel_rule (
 }
 
 /**
- * gawake_server_database_complete_schedule:
+ * gawake_server_database_complete_request_schedule:
  * @object: A #GawakeServerDatabase.
  * @invocation: (transfer full): A #GDBusMethodInvocation.
  *
- * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-io-github-kelvinnovais-Database.Schedule">Schedule()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
+ * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-io-github-kelvinnovais-Database.RequestSchedule">RequestSchedule()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
  *
  * This method will free @invocation, you cannot use it afterwards.
  */
 void
-gawake_server_database_complete_schedule (
+gawake_server_database_complete_request_schedule (
+    GawakeServerDatabase *object G_GNUC_UNUSED,
+    GDBusMethodInvocation *invocation)
+{
+  g_dbus_method_invocation_return_value (invocation,
+    g_variant_new ("()"));
+}
+
+/**
+ * gawake_server_database_complete_request_custom_schedule:
+ * @object: A #GawakeServerDatabase.
+ * @invocation: (transfer full): A #GDBusMethodInvocation.
+ *
+ * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-io-github-kelvinnovais-Database.RequestCustomSchedule">RequestCustomSchedule()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
+ *
+ * This method will free @invocation, you cannot use it afterwards.
+ */
+void
+gawake_server_database_complete_request_custom_schedule (
     GawakeServerDatabase *object G_GNUC_UNUSED,
     GDBusMethodInvocation *invocation)
 {
@@ -1617,6 +1836,28 @@ _gawake_server_database_on_signal_schedule_requested (
   g_list_free_full (connections, g_object_unref);
 }
 
+static void
+_gawake_server_database_on_signal_custom_schedule_requested (
+    GawakeServerDatabase *object)
+{
+  GawakeServerDatabaseSkeleton *skeleton = GAWAKE_SERVER_DATABASE_SKELETON (object);
+
+  GList      *connections, *l;
+  GVariant   *signal_variant;
+  connections = g_dbus_interface_skeleton_get_connections (G_DBUS_INTERFACE_SKELETON (skeleton));
+
+  signal_variant = g_variant_ref_sink (g_variant_new ("()"));
+  for (l = connections; l != NULL; l = l->next)
+    {
+      GDBusConnection *connection = l->data;
+      g_dbus_connection_emit_signal (connection,
+        NULL, g_dbus_interface_skeleton_get_object_path (G_DBUS_INTERFACE_SKELETON (skeleton)), "io.github.kelvinnovais.Database", "CustomScheduleRequested",
+        signal_variant, NULL);
+    }
+  g_variant_unref (signal_variant);
+  g_list_free_full (connections, g_object_unref);
+}
+
 static void gawake_server_database_skeleton_iface_init (GawakeServerDatabaseIface *iface);
 #if GLIB_VERSION_MAX_ALLOWED >= GLIB_VERSION_2_38
 G_DEFINE_TYPE_WITH_CODE (GawakeServerDatabaseSkeleton, gawake_server_database_skeleton, G_TYPE_DBUS_INTERFACE_SKELETON,
@@ -1679,6 +1920,7 @@ gawake_server_database_skeleton_iface_init (GawakeServerDatabaseIface *iface)
   iface->database_updated = _gawake_server_database_on_signal_database_updated;
   iface->rule_canceled = _gawake_server_database_on_signal_rule_canceled;
   iface->schedule_requested = _gawake_server_database_on_signal_schedule_requested;
+  iface->custom_schedule_requested = _gawake_server_database_on_signal_custom_schedule_requested;
 }
 
 /**

@@ -28,6 +28,7 @@
 #include "validate-rtcwake-args.h"
 #include "debugger.h"
 #include "colors.h"
+#include "dbus-client.h"
 
 static sqlite3 *db = NULL;
 
@@ -56,14 +57,17 @@ int connect_database (void)
       sqlite3_free (err_msg);
     }
 
+  connect_dbus_client ();
+
   return EXIT_SUCCESS;
 }
 
 void close_database (void)
 {
   fprintf (stdout, "Closing database\n");
-
   sqlite3_close (db);
+
+  close_dbus_client ();
 }
 
 static int validate_rule (const Rule *rule)

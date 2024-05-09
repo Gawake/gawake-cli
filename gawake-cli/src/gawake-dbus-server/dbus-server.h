@@ -35,13 +35,20 @@ struct _GawakeServerDatabaseIface
     GawakeServerDatabase *object,
     GDBusMethodInvocation *invocation);
 
-  gboolean (*handle_schedule) (
+  gboolean (*handle_request_custom_schedule) (
+    GawakeServerDatabase *object,
+    GDBusMethodInvocation *invocation);
+
+  gboolean (*handle_request_schedule) (
     GawakeServerDatabase *object,
     GDBusMethodInvocation *invocation);
 
   gboolean (*handle_update_database) (
     GawakeServerDatabase *object,
     GDBusMethodInvocation *invocation);
+
+  void (*custom_schedule_requested) (
+    GawakeServerDatabase *object);
 
   void (*database_updated) (
     GawakeServerDatabase *object);
@@ -69,7 +76,11 @@ void gawake_server_database_complete_cancel_rule (
     GawakeServerDatabase *object,
     GDBusMethodInvocation *invocation);
 
-void gawake_server_database_complete_schedule (
+void gawake_server_database_complete_request_schedule (
+    GawakeServerDatabase *object,
+    GDBusMethodInvocation *invocation);
+
+void gawake_server_database_complete_request_custom_schedule (
     GawakeServerDatabase *object,
     GDBusMethodInvocation *invocation);
 
@@ -83,6 +94,9 @@ void gawake_server_database_emit_rule_canceled (
     GawakeServerDatabase *object);
 
 void gawake_server_database_emit_schedule_requested (
+    GawakeServerDatabase *object);
+
+void gawake_server_database_emit_custom_schedule_requested (
     GawakeServerDatabase *object);
 
 
@@ -120,18 +134,34 @@ gboolean gawake_server_database_call_cancel_rule_sync (
     GCancellable *cancellable,
     GError **error);
 
-void gawake_server_database_call_schedule (
+void gawake_server_database_call_request_schedule (
     GawakeServerDatabase *proxy,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
 
-gboolean gawake_server_database_call_schedule_finish (
+gboolean gawake_server_database_call_request_schedule_finish (
     GawakeServerDatabase *proxy,
     GAsyncResult *res,
     GError **error);
 
-gboolean gawake_server_database_call_schedule_sync (
+gboolean gawake_server_database_call_request_schedule_sync (
+    GawakeServerDatabase *proxy,
+    GCancellable *cancellable,
+    GError **error);
+
+void gawake_server_database_call_request_custom_schedule (
+    GawakeServerDatabase *proxy,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data);
+
+gboolean gawake_server_database_call_request_custom_schedule_finish (
+    GawakeServerDatabase *proxy,
+    GAsyncResult *res,
+    GError **error);
+
+gboolean gawake_server_database_call_request_custom_schedule_sync (
     GawakeServerDatabase *proxy,
     GCancellable *cancellable,
     GError **error);

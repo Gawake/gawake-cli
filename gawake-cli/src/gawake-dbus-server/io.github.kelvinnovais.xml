@@ -3,12 +3,14 @@
     <!-- METHODS -->
     <method name="UpdateDatabase" />
     <method name="CancelRule" />
-    <method name="Schedule" />
+    <method name="RequestSchedule" />
+    <method name="RequestCustomSchedule" />
 
     <!-- SIGNALS -->
     <signal name="DatabaseUpdated" />
     <signal name="RuleCanceled" />
     <signal name="ScheduleRequested" />
+    <signal name="CustomScheduleRequested" />
   </interface>
 </node>
 

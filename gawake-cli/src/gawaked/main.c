@@ -43,8 +43,9 @@ int main (void)
     exit (EXIT_FAILURE);
 
   // Signal for systemd
-  signal (SIGTERM, exit_handler);
+  //signal (SIGTERM, exit_handler); TODO
 
+  /* Systemd Type=fork fails for some reason; commented code below */
   /* pid = fork (); */
 
   /* if (pid < 0) */
@@ -62,7 +63,7 @@ int main (void)
   /*     exit (EXIT_SUCCESS); */
   /*   } */
 
-  /* // CREATE SID FOR CHILD */
+  // CREATE SID FOR CHILD
   /* sid = setsid (); */
   /* if (sid < 0) */
   /*   { */
@@ -276,6 +277,7 @@ int main (void)
 static void exit_handler (int sig)
 {
   // Terminate child process first (notice that it just sends a signal and doesn't wait)
+  // TODO can use SIGCHLD to wait child process
   kill (pid, SIGTERM);
 
   DEBUG_PRINT (("gawaked process terminated by SIGTERM"));

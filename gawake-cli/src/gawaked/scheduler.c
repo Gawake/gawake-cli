@@ -43,7 +43,7 @@ static pthread_mutex_t upcoming_off_rule_mutex, rtcwake_args_mutex, booleans_mut
 
 int scheduler (RtcwakeArgs *rtcwake_args_ptr)
 {
-  signal (SIGTERM, exit_handler);
+  /* signal (SIGTERM, exit_handler); TODO */
 
   rtcwake_args = rtcwake_args_ptr;
 

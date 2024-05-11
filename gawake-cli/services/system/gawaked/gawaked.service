@@ -1,0 +1,66 @@
+# /usr/lib/systemd/system/gawaked.service
+# systemctl start gawaked.service
+
+[Unit]
+Description=Gawake main service
+
+[Service]
+; Type=fork TODO
+ExecStart=/opt/gawake/bin/gawaked
+
+# Scurity options
+# https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html
+# https://www.redhat.com/sysadmin/mastering-systemd
+
+ReadOnlyPaths=/var/lib/gawake
+ExecPaths=/usr/sbin/rtcwake
+RemoveIPC=true
+# RootDirectory= # TODO
+WorkingDirectory=/var/lib/gawake
+ReadWritePaths=/var/lib/gawake
+RestrictRealtime=yes
+
+# Needed to run rtcwake
+NoNewPrivileges=false
+CapabilityBoundingSet=cap_setgid cap_setuid
+
+# The rtcwake need access to the device /dev/rtc0
+# PrivateDevices=false
+DevicePolicy=closed
+# https://www.freedesktop.org/software/systemd/man/latest/systemd.resource-control.html
+DeviceAllow=/dev/rtc0 r
+
+# Letting it as undefined, to possibly avoid problems when distributing the service for other systems
+SystemCallArchitectures=native
+RestrictAddressFamilies=none # AF_UNIX
+ProtectSystem=strict
+# SupplementaryGroups= # no need to change by default
+ProtectHome=yes
+ProtectProc=invisible
+ProcSubset=pid
+PrivateNetwork=true
+PrivateTmp=true
+# KeyringMode= # no need to change by default
+# Delegate= # no need to change by default
+
+# Needed to switch to gawake user
+# Is there a way to restrict the service to users gawake and root?
+PrivateUsers=no
+
+# TODO review the two following
+SystemCallFilter=@system-service
+SystemCallFilter=~@resources
+IPAddressDeny=any
+# NotifyAccess= # no need to change by default
+ProtectClock=yes
+ProtectKernelLogs=true
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+# PrivateMounts= # no need to change by default
+MemoryDenyWriteExecute=yes
+RestrictNamespaces=yes
+ProtectHostname=yes
+LockPersonality=yes
+ProtectKernelTunables=yes
+RestrictSUIDSGID=yes
+# UMask=

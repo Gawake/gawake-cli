@@ -5,62 +5,68 @@
 Description=Gawake main service
 
 [Service]
-; Type=fork TODO
+Type=simple
 ExecStart=/opt/gawake/bin/gawaked
 
 # Scurity options
 # https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html
 # https://www.redhat.com/sysadmin/mastering-systemd
 
-ReadOnlyPaths=/var/lib/gawake
-ExecPaths=/usr/sbin/rtcwake
-RemoveIPC=true
-# RootDirectory= # TODO
+ReadOnlyPaths=/
 WorkingDirectory=/var/lib/gawake
-ReadWritePaths=/var/lib/gawake
+NoExecPaths=/
+ExecPaths=/usr/sbin/rtcwake
+
+# RootDirectory= # TODO
+
+RemoveIPC=true
 RestrictRealtime=yes
-
-# Needed to run rtcwake
-NoNewPrivileges=false
-CapabilityBoundingSet=cap_setgid cap_setuid
-
-# The rtcwake need access to the device /dev/rtc0
-# PrivateDevices=false
-DevicePolicy=closed
-# https://www.freedesktop.org/software/systemd/man/latest/systemd.resource-control.html
-DeviceAllow=/dev/rtc0 r
-
-# Letting it as undefined, to possibly avoid problems when distributing the service for other systems
-SystemCallArchitectures=native
-RestrictAddressFamilies=none # AF_UNIX
-ProtectSystem=strict
-# SupplementaryGroups= # no need to change by default
 ProtectHome=yes
 ProtectProc=invisible
 ProcSubset=pid
 PrivateNetwork=true
 PrivateTmp=true
-# KeyringMode= # no need to change by default
-# Delegate= # no need to change by default
-
-# Needed to switch to gawake user
-# Is there a way to restrict the service to users gawake and root?
-PrivateUsers=no
-
-# TODO review the two following
-SystemCallFilter=@system-service
-SystemCallFilter=~@resources
+SystemCallArchitectures=native
+RestrictAddressFamilies=none # AF_UNIX
+ProtectSystem=strict
 IPAddressDeny=any
-# NotifyAccess= # no need to change by default
 ProtectClock=yes
 ProtectKernelLogs=true
 ProtectControlGroups=yes
 ProtectKernelModules=yes
-# PrivateMounts= # no need to change by default
 MemoryDenyWriteExecute=yes
 RestrictNamespaces=yes
 ProtectHostname=yes
 LockPersonality=yes
 ProtectKernelTunables=yes
 RestrictSUIDSGID=yes
+
+# Needed to run rtcwake
+NoNewPrivileges=false
+CapabilityBoundingSet=cap_setgid cap_setuid
+
+# The rtcwake need access to the device /dev/rtc0
+PrivateDevices=false
+DevicePolicy=closed
+# https://www.freedesktop.org/software/systemd/man/latest/systemd.resource-control.html
+DeviceAllow=/dev/rtc0 r
+
+# Needed to switch to gawake user
+PrivateUsers=no
+
+# The second line list ONLY the System Calls needed by this service.
+# For some reason, @setuid needs @privileged, so I disabled its subsets on the first line
+# and then enabled it again on the second line, without the subsets
+SystemCallFilter=~@privileged @resources @obsolete @mount @debug @cpu-emulation
+SystemCallFilter=@default @setuid @ipc @signal @basic-io @process @file-system
+# Help if the process is terminated with SIGSYS, when a syscall isn't included on SystemCallFilter:
+# https://unix.stackexchange.com/questions/678494/troubleshoot-a-systemd-service-crash-because-of-systemcallfilter
+
 # UMask=
+
+# No need to change by default:
+# SupplementaryGroups=
+# KeyringMode=
+# Delegate=
+# PrivateMounts=
+# NotifyAccess=

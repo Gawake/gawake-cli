@@ -30,10 +30,6 @@ static pid_t pid;
 
 int main (void)
 {
-  // FORK OFF THE PARENT PROCESS
-  // SID: Session ID
-  pid_t sid;
-
   // Init privileges utility (get gawake uid/gid)
   if (init_privileges ())
     exit (EXIT_FAILURE);
@@ -42,51 +38,13 @@ int main (void)
   if (drop_privileges () == EXIT_FAILURE)
     exit (EXIT_FAILURE);
 
-  // Signal for systemd
-  //signal (SIGTERM, exit_handler); TODO
-
-  /* Systemd Type=fork fails for some reason; commented code below */
-  /* pid = fork (); */
-
-  /* if (pid < 0) */
-  /*   { */
-  /*     // fork failed, no child process, end parent execution */
-  /*     DEBUG_PRINT_CONTEX; */
-  /*     fprintf (stderr, "ERROR on fork ()\n"); */
-  /*     exit (EXIT_FAILURE); */
-  /*   } */
-
-  /* if (pid > 0) */
-  /*   { */
-  /*     // fork done, end parent process and continue to child process */
-  /*     DEBUG_PRINT (("gawaked forked")); */
-  /*     exit (EXIT_SUCCESS); */
-  /*   } */
-
-  // CREATE SID FOR CHILD
-  /* sid = setsid (); */
-  /* if (sid < 0) */
-  /*   { */
-  /*     // Exit on fail */
-  /*     DEBUG_PRINT_CONTEX; */
-  /*     fprintf (stderr, "ERROR on setsid ()\n"); */
-  /*     exit (EXIT_FAILURE); */
-  /*   } */
-
-  // CHANGE THE WORKING DIRECTORY
-  /* if ((chdir ("/home/kelvin/")) < 0) */
-  /*   { */
-  /*     // Exit on fail */
-  /*     DEBUG_PRINT_CONTEX; */
-  /*     fprintf (stderr, "ERROR on scheduler's chdir ()\n"); */
-  /*     exit (EXIT_FAILURE); */
-  /*   } */
+  // Signals for terminating the service by Systemd
+  signal (SIGTERM, exit_handler);
 
   // CLOSE FILE DESCRIPTORS
   close (STDIN_FILENO);
 #if PREPROCESSOR_DEBUG == 0
   close (STDOUT_FILENO);
-  close (STDERR_FILENO);
 #endif
 
   // CALL scheduler
@@ -277,10 +235,10 @@ int main (void)
 static void exit_handler (int sig)
 {
   // Terminate child process first (notice that it just sends a signal and doesn't wait)
-  // TODO can use SIGCHLD to wait child process
   kill (pid, SIGTERM);
 
   DEBUG_PRINT (("gawaked process terminated by SIGTERM"));
 
   exit (EXIT_SUCCESS);
 }
+

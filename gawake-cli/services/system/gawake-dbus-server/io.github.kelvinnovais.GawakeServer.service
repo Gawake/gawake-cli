@@ -14,9 +14,9 @@ ExecStart=/opt/gawake/bin/gawake-dbus-server
 # https://www.redhat.com/sysadmin/mastering-systemd
 
 RemoveIPC=true
-# RootDirectory=
-WorkingDirectory=/var/lib/gawake
+ReadOnlyPaths=/
 ReadWritePaths=/var/lib/gawake
+WorkingDirectory=/var/lib/gawake
 User=gawake
 Group=gawake
 RestrictRealtime=yes

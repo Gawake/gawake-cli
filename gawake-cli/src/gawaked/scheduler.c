@@ -43,7 +43,7 @@ static pthread_mutex_t upcoming_off_rule_mutex, rtcwake_args_mutex, booleans_mut
 
 int scheduler (RtcwakeArgs *rtcwake_args_ptr)
 {
-  /* signal (SIGTERM, exit_handler); TODO */
+  signal (SIGTERM, exit_handler);
 
   rtcwake_args = rtcwake_args_ptr;
 
@@ -172,6 +172,10 @@ static void *timed_checker (void *args)
           if (time_remaining <= (CHECK_DELAY + upcoming_off_rule.notification_time + 60))
             break;
         }
+
+#if PREPROCESSOR_DEBUG == 1
+      fflush (stdout);
+#endif
 
       sleep (CHECK_DELAY);
     }

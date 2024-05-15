@@ -14,10 +14,7 @@ ExecStart=/opt/gawake/bin/gawaked
 
 ReadOnlyPaths=/
 WorkingDirectory=/var/lib/gawake
-NoExecPaths=/
 ExecPaths=/usr/sbin/rtcwake
-
-# RootDirectory= # TODO
 
 RemoveIPC=true
 RestrictRealtime=yes
@@ -49,7 +46,7 @@ CapabilityBoundingSet=cap_setgid cap_setuid
 PrivateDevices=false
 DevicePolicy=closed
 # https://www.freedesktop.org/software/systemd/man/latest/systemd.resource-control.html
-DeviceAllow=/dev/rtc0 r
+DeviceAllow=/dev/rtc* r
 
 # Needed to switch to gawake user
 PrivateUsers=no
@@ -70,3 +67,6 @@ SystemCallFilter=@default @setuid @ipc @signal @basic-io @process @file-system
 # Delegate=
 # PrivateMounts=
 # NotifyAccess=
+
+[Install]
+WantedBy=io.github.kelvinnovais.GawakeServer.service

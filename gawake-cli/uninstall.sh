@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Variables
-err_counter=0
+source config.sh
+
 gawake_cli=/usr/bin/gawake-cli
-helper_bins=/opt/gawake/bin/cli/
-cron=/etc/cron.d/gawake
-logs_path=/var/gawake/logs/
-db_path=/var/gawake/gawake-cli.db
+err_counter=0
+
+systemctl stop gawaked.service
+systemctl stop io.github.kelvinnovais.GawakeServer.service
 
 # Removing the main binary from /bin
 if [ -f "$gawake_cli" ]; then
@@ -20,50 +20,33 @@ else
   echo "gawake-cli already removed"
 fi
 
-# Removing helper binaries from /opt/gawake/bin/cli
-if [ -d "$helper_bins" ]; then
-  if rm -rf $helper_bins; then
-    echo "Helper binaries removed"
+# Removing binaries from /opt/gawake/bin/cli
+if [ -d "$GAWAKE_DEST_DIR" ]; then
+  if rm -rf $GAWAKE_DEST_DIR; then
+    echo "Binaries removed"
   else
-    echo "COULDN'T REMOVE HELPER BINARIES"
+    echo "COULDN'T REMOVE BINARIES"
   fi
   err_counter=$(($? + $err_counter))
 else
-  echo "Helper binaries already removed"
+  echo "Binaries already removed"
 fi
 
-# Removing the cron service to /etc/cron.d
-if [ -f "$cron" ]; then
-  if rm $cron; then
-    echo "Cron rule removed"
-  else
-    echo "COULDN'T REMOVE CRON RULE"
-  fi
-  err_counter=$(($? + $err_counter))
-else
-  echo "Cron rule already removed"
-fi
+# Removing services files
+rm $GAWAKED_SERVICE
+rm $GAWAKE_DBUS_SERVICE
+rm $GAWAKE_DBUS_CONF
+systemctl daemon-reload
 
 # Removing Gawake user
-userdel gawake
+/usr/sbin/groupdel gawake
+/usr/sbin/userdel gawake
 
-# Ask for confirmation before deleting logs and the database
-if [ -d "$logs_path" ]; then
-  read -p "Do you want to remove the logs? [y/N] " logs
-  if [ "$logs" = "y" ] || [ "$logs" = "Y" ]; then
-    if rm -rf $logs_path; then
-      echo "Logs removed"
-    else
-      echo "COULDN'T REMOVE LOGS"
-    fi
-    err_counter=$(($? + $err_counter))
-  fi
-fi
-
-if [ -f "$db_path" ]; then
+# Ask for confirmation before deleting the database
+if [ -f "$GAWAKE_DB_PATH" ]; then
   read -p "Do you want to remove the database? [y/N] " db
   if [ "$db" = "y" ] || [ "$db" = "Y" ]; then
-    if rm $db_path; then
+    if rm $GAWAKE_DB_PATH; then
       echo "Database removed"
     else
       echo "COULDN'T REMOVE DATABASE"

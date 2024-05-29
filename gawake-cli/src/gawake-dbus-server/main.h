@@ -41,6 +41,12 @@ on_handle_request_custom_schedule (GawakeServerDatabase    *interface,
                                    GDBusMethodInvocation   *invocation,
                                    gpointer                user_data);
 
+static gboolean
+on_handle_return_status (GawakeServerDatabase    *interface,
+                         GDBusMethodInvocation   *invocation,
+                         const guchar            status_received,
+                         gpointer                user_data);
+
 static gint check_user (void);
 
 static void exit_handler (int sig);

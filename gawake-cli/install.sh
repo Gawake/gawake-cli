@@ -18,7 +18,6 @@ chmod 770 $GAWAKE_DB_DIR
 
 # [3] Creating database
 echo "Creating database"
-# TODO consider updating database on future releases
 cat ./src/database.sql | sqlite3 $GAWAKE_DB_PATH
 chown gawake:gawake $GAWAKE_DB_PATH
 chmod 660 $GAWAKE_DB_PATH
@@ -26,16 +25,16 @@ chmod 660 $GAWAKE_DB_PATH
 # [4] Installing the services binaries to /opt/gawake/bin/cli
 echo "Installing the binaries to ${GAWAKE_DEST_DIR}"
 # destination src
-install -o root -g root -m 550 $BUILD_DIR/gawaked.out $GAWAKE_DEST_DIR/gawaked
-install -o gawake -g gawake -m 550 $BUILD_DIR/gawake-dbus-server.out $GAWAKE_DEST_DIR/gawake-dbus-server
+install -C -o root -g root -m 550 $BUILD_DIR/gawaked.out $GAWAKE_DEST_DIR/gawaked
+install -C -o gawake -g gawake -m 550 $BUILD_DIR/gawake-dbus-server.out $GAWAKE_DEST_DIR/gawake-dbus-server
 
 # [5] Install services files
 echo "Installing services files"
-install ./services/system/gawaked/gawaked.service $GAWAKED_SERVICE
-install ./services/system/gawake-dbus-server/io.github.kelvinnovais.GawakeServer.service $GAWAKE_DBUS_SERVICE
+install -C ./services/system/gawaked/gawaked.service $GAWAKED_SERVICE
+install -C ./services/system/gawake-dbus-server/io.github.kelvinnovais.GawakeServer.service $GAWAKE_DBUS_SERVICE
 
-install ./services/system/gawake-dbus-server/io.github.kelvinnovais.GawakeServer.conf $GAWAKE_DBUS_CONF
+install -C ./services/system/gawake-dbus-server/io.github.kelvinnovais.GawakeServer.conf $GAWAKE_DBUS_CONF
 
 # [6] Installing the main binary to /bin
 echo "Installing the main binary to /bin"
-install $BUILD_DIR/gawake-cli.out /usr/bin/gawake-cli
+install -C $BUILD_DIR/gawake-cli.out /usr/bin/gawake-cli

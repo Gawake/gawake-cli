@@ -1,16 +1,26 @@
 <node>
   <interface name="io.github.kelvinnovais.Database">
     <!-- METHODS -->
+    <!-- Related to the database -->
     <method name="UpdateDatabase" />
     <method name="CancelRule" />
     <method name="RequestSchedule" />
     <method name="RequestCustomSchedule" />
+    <!-- Method to return the status to the graphical application -->
+    <method name="ReturnStatus">
+      <arg type="y" name="status" />
+    </method>
 
     <!-- SIGNALS -->
+    <!-- Related to the database -->
     <signal name="DatabaseUpdated" />
     <signal name="RuleCanceled" />
     <signal name="ScheduleRequested" />
     <signal name="CustomScheduleRequested" />
+    <!-- Status returned to the graphical application -->
+    <signal name="Status">
+      <arg type="y" name="returned_status" />
+    </signal>
   </interface>
 </node>
 

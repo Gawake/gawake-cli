@@ -43,6 +43,11 @@ struct _GawakeServerDatabaseIface
     GawakeServerDatabase *object,
     GDBusMethodInvocation *invocation);
 
+  gboolean (*handle_return_status) (
+    GawakeServerDatabase *object,
+    GDBusMethodInvocation *invocation,
+    guchar arg_status);
+
   gboolean (*handle_update_database) (
     GawakeServerDatabase *object,
     GDBusMethodInvocation *invocation);
@@ -58,6 +63,10 @@ struct _GawakeServerDatabaseIface
 
   void (*schedule_requested) (
     GawakeServerDatabase *object);
+
+  void (*status) (
+    GawakeServerDatabase *object,
+    guchar arg_returned_status);
 
 };
 
@@ -84,6 +93,10 @@ void gawake_server_database_complete_request_custom_schedule (
     GawakeServerDatabase *object,
     GDBusMethodInvocation *invocation);
 
+void gawake_server_database_complete_return_status (
+    GawakeServerDatabase *object,
+    GDBusMethodInvocation *invocation);
+
 
 
 /* D-Bus signal emissions functions: */
@@ -98,6 +111,10 @@ void gawake_server_database_emit_schedule_requested (
 
 void gawake_server_database_emit_custom_schedule_requested (
     GawakeServerDatabase *object);
+
+void gawake_server_database_emit_status (
+    GawakeServerDatabase *object,
+    guchar arg_returned_status);
 
 
 
@@ -163,6 +180,24 @@ gboolean gawake_server_database_call_request_custom_schedule_finish (
 
 gboolean gawake_server_database_call_request_custom_schedule_sync (
     GawakeServerDatabase *proxy,
+    GCancellable *cancellable,
+    GError **error);
+
+void gawake_server_database_call_return_status (
+    GawakeServerDatabase *proxy,
+    guchar arg_status,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data);
+
+gboolean gawake_server_database_call_return_status_finish (
+    GawakeServerDatabase *proxy,
+    GAsyncResult *res,
+    GError **error);
+
+gboolean gawake_server_database_call_return_status_sync (
+    GawakeServerDatabase *proxy,
+    guchar arg_status,
     GCancellable *cancellable,
     GError **error);
 

@@ -37,6 +37,7 @@ static volatile bool canceled = false;
 static UpcomingOffRule upcoming_off_rule;
 static RtcwakeArgs *rtcwake_args;
 static GMainLoop *loop;
+static GawakeServerDatabase *proxy;
 
 static pthread_t timed_checker_thread, dbus_listener_thread;
 static pthread_mutex_t upcoming_off_rule_mutex, rtcwake_args_mutex, booleans_mutex;
@@ -90,7 +91,6 @@ int scheduler (RtcwakeArgs *rtcwake_args_ptr)
 static void *dbus_listener (void *args)
 {
   DEBUG_PRINT (("Started dbus_listener thread"));
-  GawakeServerDatabase *proxy;
   GError *error = NULL;
 
   proxy = gawake_server_database_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,         // bus_type
@@ -173,10 +173,6 @@ static void *timed_checker (void *args)
             break;
         }
 
-#if PREPROCESSOR_DEBUG == 1
-      fflush (stdout);
-#endif
-
       sleep (CHECK_DELAY);
     }
 
@@ -197,6 +193,7 @@ static void *timed_checker (void *args)
 
   // Emit custom notification according to the returned value
   notify_user (ret);
+
 
   // Wait until time the rule must be triggered
   sleep (get_time_remaining ());
@@ -741,26 +738,26 @@ static void sync_time (void)
   DEBUG_PRINT_TIME (("Time synced"));
 }
 
-static void notify_user (int ret)
+static int notify_user (int ret)
 {
-  // TODO make graphical calls
-  switch (ret)
+  GError *error = NULL;
+
+  gawake_server_database_call_return_status_sync (proxy,
+                                                  ret,
+                                                  NULL,     // cancellable
+                                                  &error);
+
+  if (error != NULL)
     {
-    case RTCWAKE_ARGS_SUCESS:
-      DEBUG_PRINT_TIME (("Normal notification"));
-      break;
+      DEBUG_PRINT_CONTEX;
+      fprintf (stderr,
+               "Error: Couldn't send status signal: %s\n",
+               error->message);
 
-    case RTCWAKE_ARGS_NOT_FOUND:
-      DEBUG_PRINT_TIME (("Turn on rule not found notification"));
-      break;
-
-    case INVALID_RTCWAKE_ARGS:
-      DEBUG_PRINT_TIME (("Invalid turn on rule attributes notification"));
-      break;
-
-    default:
-      DEBUG_PRINT_TIME (("Error notification"));
+      g_error_free (error);
+      return EXIT_FAILURE;
     }
+  return EXIT_SUCCESS;
 }
 
 static double get_time_remaining (void)

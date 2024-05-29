@@ -14,24 +14,24 @@ const char *print_timestamp (void);
  * Outputs to stdout, just for developing debugging reasons
  */
 #if PREPROCESSOR_DEBUG
-# define DEBUG_PRINT(x) printf ("\x1b[35m** DEBUG:\x1b[0m %s:%d:%s(): ", \
+# define DEBUG_PRINT(x) printf ("\x1b[35mDEBUG:\x1b[0m %s:%d:%s(): ", \
                                 __FILE__, __LINE__, __func__); \
-                                printf x; printf ("\n\n")
+                                printf x; printf ("\n\n"); fflush (stdout);
 #else
 # define DEBUG_PRINT(x) /* Don't do anything in release builds */
 #endif
 
 /* Similar to previous macro, but also prints the time */
 #if PREPROCESSOR_DEBUG
-# define DEBUG_PRINT_TIME(x) printf ("\x1b[35m** DEBUG:\x1b[0m %s:%d:%s() at %s: ", \
+# define DEBUG_PRINT_TIME(x) printf ("\x1b[35mDEBUG:\x1b[0m %s:%d:%s() at %s: ", \
                              __FILE__, __LINE__, __func__, print_timestamp ()); \
-                             printf x; printf ("\n\n")
+                             printf x; printf ("\n\n"); fflush (stdout);
 #else
 # define DEBUG_PRINT_TIME(x) /* Don't do anything in release builds */
 #endif
 
 // Independent of PREPROCESSOR_DEBUG:
-# define DEBUG_PRINT_CONTEX  fprintf (stderr, "On %s:%d:%s() at %s:\n", \
-                             __FILE__, __LINE__, __func__, print_timestamp ())
+# define DEBUG_PRINT_CONTEX  fprintf (stderr, "\x1b[35m** DEBUG:\x1b[0m On %s:%d:%s():\n", \
+                             __FILE__, __LINE__, __func__); fflush (stderr)
 
 #endif /* DEBUGGER_H_ */

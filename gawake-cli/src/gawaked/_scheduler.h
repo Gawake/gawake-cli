@@ -36,7 +36,7 @@ static void exit_handler (int sig);
 // Utils
 static int day_changed (void);
 static void sync_time (void);
-static void notify_user (int ret);
+static int notify_user (int ret);
 static double get_time_remaining (void);
 static void schedule_finalize (int ret);
 

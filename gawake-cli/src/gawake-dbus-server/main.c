@@ -72,6 +72,7 @@ on_name_acquired (GDBusConnection *connection,
   g_signal_connect (interface, "handle-cancel-rule", G_CALLBACK (on_handle_cancel_rule), NULL);
   g_signal_connect (interface, "handle-request-schedule", G_CALLBACK (on_handle_request_schedule), NULL);
   g_signal_connect (interface, "handle-request-custom-schedule", G_CALLBACK (on_handle_request_custom_schedule), NULL);
+  g_signal_connect (interface, "handle-return-status", G_CALLBACK (on_handle_return_status), NULL);
 
   error = NULL;
   g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (interface),
@@ -100,7 +101,6 @@ static void on_name_lost (GDBusConnection *connection,
   exit (EXIT_FAILURE);
 }
 
- /* gawake_server_database_emit_database_updated (interface); */
 static gboolean
 on_handle_update_database (GawakeServerDatabase    *interface,
                            GDBusMethodInvocation   *invocation,
@@ -142,6 +142,18 @@ on_handle_request_custom_schedule (GawakeServerDatabase    *interface,
   DEBUG_PRINT (("Received custom schedule request"));
   gawake_server_database_emit_custom_schedule_requested (interface);
   gawake_server_database_complete_request_custom_schedule (interface, invocation);
+  return TRUE;
+}
+
+static gboolean
+on_handle_return_status (GawakeServerDatabase    *interface,
+                         GDBusMethodInvocation   *invocation,
+                         const guchar            status_received,
+                         gpointer                user_data)
+{
+  DEBUG_PRINT (("Sending status signal '%d'", status_received));
+  gawake_server_database_emit_status (interface, status_received);
+  gawake_server_database_complete_return_status (interface, invocation);
   return TRUE;
 }
 

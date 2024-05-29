@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS config (
 	shutdown_fail           INTEGER NOT NULL
 );
 
-INSERT INTO config (id, status, cli_version, localtime, default_mode, boot_time, notification_time, shutdown_fail)
+INSERT OR IGNORE INTO config (id, status, cli_version, localtime, default_mode, boot_time, notification_time, shutdown_fail)
 VALUES (1, 1, '1.0.0', 1, 2, 120, 5, 0);
 
 CREATE TABLE IF NOT EXISTS custom_schedule (
@@ -53,5 +53,5 @@ CREATE TABLE IF NOT EXISTS custom_schedule (
 	mode           INTEGER NOT NULL
 );
 
-INSERT INTO custom_schedule (id, hour, minutes, day, month, year, mode)
+INSERT OR IGNORE INTO custom_schedule (id, hour, minutes, day, month, year, mode)
 VALUES (1, 0, 0, 0, 0, 0, 0);

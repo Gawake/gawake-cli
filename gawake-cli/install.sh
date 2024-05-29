@@ -20,6 +20,8 @@ chmod 770 $GAWAKE_DB_DIR
 echo "Creating database"
 # TODO consider updating database on future releases
 cat ./src/database.sql | sqlite3 $GAWAKE_DB_PATH
+chown gawake:gawake $GAWAKE_DB_PATH
+chmod 660 $GAWAKE_DB_PATH
 
 # [4] Installing the services binaries to /opt/gawake/bin/cli
 echo "Installing the binaries to ${GAWAKE_DEST_DIR}"

@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS rules_turnoff (
 );
 
 CREATE TABLE IF NOT EXISTS config (
-	id                      INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	id                      INTEGER NOT NULL PRIMARY KEY,
 	status                  INTEGER NOT NULL,
 	cli_version             TEXT,
 	-- Boolean: use localtime or not (utc)
@@ -40,11 +40,11 @@ CREATE TABLE IF NOT EXISTS config (
 	shutdown_fail           INTEGER NOT NULL
 );
 
-INSERT INTO config (status, cli_version, localtime, default_mode, boot_time, notification_time, shutdown_fail)
-VALUES (1, '1.0.0', 1, 2, 120, 5, 0);
+INSERT INTO config (id, status, cli_version, localtime, default_mode, boot_time, notification_time, shutdown_fail)
+VALUES (1, 1, '1.0.0', 1, 2, 120, 5, 0);
 
 CREATE TABLE IF NOT EXISTS custom_schedule (
-	id             INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	id             INTEGER NOT NULL PRIMARY KEY,
 	hour           INTEGER NOT NULL,
 	minutes        INTEGER NOT NULL,
 	day            INTEGER NOT NULL,
@@ -53,5 +53,5 @@ CREATE TABLE IF NOT EXISTS custom_schedule (
 	mode           INTEGER NOT NULL
 );
 
-INSERT INTO custom_schedule (hour, minutes, day, month, year, mode)
-VALUES (0, 0, 0, 0, 0, 0);
+INSERT INTO custom_schedule (id, hour, minutes, day, month, year, mode)
+VALUES (1, 0, 0, 0, 0, 0, 0);

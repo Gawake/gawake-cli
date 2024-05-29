@@ -7,7 +7,7 @@ Description=Gawake D-Bus server
 [Service]
 Type=dbus
 BusName=io.github.kelvinnovais.GawakeServer
-ExecStart=/opt/gawake/bin/gawake-dbus-server
+ExecStart=/opt/gawake/bin/cli/gawake-dbus-server
 
 # Scurity options
 # https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html

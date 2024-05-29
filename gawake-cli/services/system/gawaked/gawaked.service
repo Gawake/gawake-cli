@@ -6,7 +6,7 @@ Description=Gawake main service
 
 [Service]
 Type=simple
-ExecStart=/opt/gawake/bin/gawaked
+ExecStart=/opt/gawake/bin/cli/gawaked
 
 # Scurity options
 # https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html

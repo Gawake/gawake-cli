@@ -13,8 +13,6 @@ typedef struct {
   bool shutdown_fail;
 } Config;
 
-// TODO database schema
-
 int connect_database (void);
 void close_database (void);
 

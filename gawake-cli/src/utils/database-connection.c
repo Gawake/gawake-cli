@@ -58,6 +58,13 @@ int connect_database (void)
     }
   else
     {
+      // Enable security options
+      sqlite3_db_config (db, SQLITE_DBCONFIG_DEFENSIVE, 0, 0);
+      sqlite3_db_config (db, SQLITE_DBCONFIG_ENABLE_TRIGGER, 0, 0);
+      sqlite3_db_config (db, SQLITE_DBCONFIG_ENABLE_VIEW, 0, 0);
+      sqlite3_db_config (db, SQLITE_DBCONFIG_TRUSTED_SCHEMA, 0, 0);
+
+      // Make version always updated
       char *err_msg = 0;
 
       const char UPDATE_VERSION[] = "UPDATE config SET version = '" VERSION "';";

@@ -275,6 +275,49 @@ static int query_upcoming_off_rule (void)
       return EXIT_FAILURE;
     }
 
+  // ENABLE SECURITY OPTIONS
+  sqlite3_db_config (db, SQLITE_DBCONFIG_DEFENSIVE, 0, 0);
+  sqlite3_db_config (db, SQLITE_DBCONFIG_ENABLE_TRIGGER, 0, 0);
+  sqlite3_db_config (db, SQLITE_DBCONFIG_ENABLE_VIEW, 0, 0);
+  sqlite3_db_config (db, SQLITE_DBCONFIG_TRUSTED_SCHEMA, 0, 0);
+  sqlite3_exec (db,
+                "PRAGMA cell_size_check=ON; PRAGMA mmap_size=0; PRAGMA trusted_schema=OFF;",
+                 NULL, 0, NULL);
+  // Check database integrity
+  bool integrity = false;
+  rc = sqlite3_prepare_v2 (db,
+                           "PRAGMA integrity_check;",
+                           -1,
+                           &stmt,
+                           NULL);
+  if (rc != SQLITE_OK)
+    {
+      DEBUG_PRINT_CONTEX;
+      fprintf (stderr, "ERROR: Failed checking database integrity\n");
+      sqlite3_close (db);
+      return EXIT_FAILURE;
+    }
+  while ((rc = sqlite3_step (stmt)) == SQLITE_ROW)
+    {
+      char result[3];
+      snprintf (result, 3, "%s", sqlite3_column_text (stmt, 0));
+      if (strcmp (result, "ok") == 0)
+        integrity = true;
+    }
+  if (rc != SQLITE_DONE)
+    {
+      DEBUG_PRINT_CONTEX;
+      fprintf (stderr, "ERROR (failed checking database integrity): %s\n", sqlite3_errmsg (db));
+      sqlite3_close (db);
+      return EXIT_FAILURE;
+    }
+  sqlite3_finalize (stmt);
+  if (integrity == false)
+    {
+      fprintf (stderr, "ERROR: database integrity check failed\n");
+      return EXIT_FAILURE;
+    }
+
   // GET THE DATABASE CONFIG
   rc = sqlite3_prepare_v2 (db,
                            "SELECT notification_time "\
@@ -416,6 +459,49 @@ static int query_upcoming_on_rule (bool use_default_mode)
       DEBUG_PRINT_CONTEX;
       fprintf (stderr, "Couldn't open database: %s\n", sqlite3_errmsg (db));
       return RTCWAKE_ARGS_FAILURE;
+    }
+
+  // ENABLE SECURITY OPTIONS
+  sqlite3_db_config (db, SQLITE_DBCONFIG_DEFENSIVE, 0, 0);
+  sqlite3_db_config (db, SQLITE_DBCONFIG_ENABLE_TRIGGER, 0, 0);
+  sqlite3_db_config (db, SQLITE_DBCONFIG_ENABLE_VIEW, 0, 0);
+  sqlite3_db_config (db, SQLITE_DBCONFIG_TRUSTED_SCHEMA, 0, 0);
+  sqlite3_exec (db,
+                "PRAGMA cell_size_check=ON; PRAGMA mmap_size=0; PRAGMA trusted_schema=OFF;",
+                 NULL, 0, NULL);
+  // Check database integrity
+  bool integrity = false;
+  rc = sqlite3_prepare_v2 (db,
+                           "PRAGMA integrity_check;",
+                           -1,
+                           &stmt,
+                           NULL);
+  if (rc != SQLITE_OK)
+    {
+      DEBUG_PRINT_CONTEX;
+      fprintf (stderr, "ERROR: Failed checking database integrity\n");
+      sqlite3_close (db);
+      return EXIT_FAILURE;
+    }
+  while ((rc = sqlite3_step (stmt)) == SQLITE_ROW)
+    {
+      char result[3];
+      snprintf (result, 3, "%s", sqlite3_column_text (stmt, 0));
+      if (strcmp (result, "ok") == 0)
+        integrity = true;
+    }
+  if (rc != SQLITE_DONE)
+    {
+      DEBUG_PRINT_CONTEX;
+      fprintf (stderr, "ERROR (failed checking database integrity): %s\n", sqlite3_errmsg (db));
+      sqlite3_close (db);
+      return EXIT_FAILURE;
+    }
+  sqlite3_finalize (stmt);
+  if (integrity == false)
+    {
+      fprintf (stderr, "ERROR: database integrity check failed\n");
+      return EXIT_FAILURE;
     }
 
   // GET THE DATABASE CONFIG

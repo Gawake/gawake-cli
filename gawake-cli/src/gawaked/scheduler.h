@@ -8,8 +8,14 @@
 // Structure for the upcoming turn off rule
 typedef struct {
   bool found;
+  /* Only used for processing data */
+  bool tomorrow;
   int hour;
   int minutes;
+  int day;
+  int month;
+  int year;
+  /*********************************/
   Mode mode;
   time_t rule_time;
   NotificationTime notification_time;

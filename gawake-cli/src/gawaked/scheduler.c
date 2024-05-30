@@ -18,10 +18,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-// FIXME possible problem: user won't get notified if the turn off rule is tomorrow
-// but that notification should happen today.
-// In this case the device is active across days
-
 #include "scheduler.h"
 #include "_scheduler.h"
 
@@ -182,8 +178,8 @@ static void *timed_checker (void *args)
 
   // If querying rule failed, and the user wants to shutdown in this exception,
   // set this action to true
-  if  (ret != EXIT_SUCCESS && rtcwake_args->shutdown_fail == TRUE)
-    rtcwake_args->run_shutdown = TRUE;
+  if  (ret != EXIT_SUCCESS && rtcwake_args->shutdown_fail == true)
+    rtcwake_args->run_shutdown = true;
   else
     rtcwake_args->run_shutdown = false;
 
@@ -252,6 +248,7 @@ static int day_changed (void)
 static int query_upcoming_off_rule (void)
 {
   int rc, now, ruletime;
+  bool is_localtime = true;
 
   struct tm *timeinfo;
   struct sqlite3_stmt *stmt;
@@ -320,7 +317,7 @@ static int query_upcoming_off_rule (void)
 
   // GET THE DATABASE CONFIG
   rc = sqlite3_prepare_v2 (db,
-                           "SELECT notification_time "\
+                           "SELECT notification_time, localtime "\
                            "FROM config WHERE id = 1;",
                            -1,
                            &stmt,
@@ -340,6 +337,8 @@ static int query_upcoming_off_rule (void)
       upcoming_off_rule.notification_time = (NotificationTime) sqlite3_column_int (stmt, 0);
       // Convert to seconds
       upcoming_off_rule.notification_time *= 60;
+
+      is_localtime = (bool) sqlite3_column_int (stmt, 1);
 
       pthread_mutex_unlock (&upcoming_off_rule_mutex);
     }
@@ -391,7 +390,10 @@ static int query_upcoming_off_rule (void)
           pthread_mutex_lock (&upcoming_off_rule_mutex);
 
           // Set "rule found?" to true
-          upcoming_off_rule.found = TRUE;
+          upcoming_off_rule.found = true;
+
+          // Set tomorrow to false
+          upcoming_off_rule.tomorrow = false;
 
           // Hour and minutes
           sqlite3_snprintf (5, timestamp, "%s", sqlite3_column_text (stmt, 0));
@@ -406,10 +408,6 @@ static int query_upcoming_off_rule (void)
            * they were filled by get_time_tm (), and refers to today.
            * If there is the need of considering the rule at tomorrow, this might be modified
            */
-          upcoming_off_rule.rule_time = mktime (timeinfo);
-          // If fails
-          if (upcoming_off_rule.rule_time == (time_t) -1)
-            return EXIT_FAILURE;
 
           // Mode
           upcoming_off_rule.mode = (Mode) sqlite3_column_int (stmt, 1);
@@ -428,9 +426,96 @@ static int query_upcoming_off_rule (void)
     }
   sqlite3_finalize (stmt);
 
+  // If didn't find a match for today, try to find a rule for tomorrow
+  if (upcoming_off_rule.found == false)
+    {
+      char date[9]; // YYYYMMDD'\0' = 9 characters
+
+      // Update week day
+      int tomorrow_wday = timeinfo->tm_wday + 1;
+      if (tomorrow_wday >= 7)
+        tomorrow_wday = 0;
+
+      snprintf (query,
+          ALLOC,
+          "SELECT strftime ('%%H%%M', rule_time), mode, "
+          "strftime ('%%Y%%m%%d', 'now', '%s', '+1 day') "\
+          "FROM rules_turnoff "\
+          "WHERE %s = 1 AND active = 1 "\
+          "ORDER BY time (rule_time) ASC "\
+          "LIMIT 1;",
+          is_localtime ? "localtime":"utc",
+          DAYS[tomorrow_wday]);
+
+      rc = sqlite3_prepare_v2 (db, query, -1, &stmt, NULL);
+      if (rc != SQLITE_OK)
+        {
+          DEBUG_PRINT_CONTEX;
+          fprintf (stderr, "ERROR: Failed querying turn off rules for today\n");
+          sqlite3_close (db);
+          return EXIT_FAILURE;
+        }
+
+      while ((rc = sqlite3_step (stmt)) == SQLITE_ROW)
+        {
+          pthread_mutex_lock (&upcoming_off_rule_mutex);
+
+          ruletime = sqlite3_column_int (stmt, 0);
+
+          // Set "rule found?" to true
+          upcoming_off_rule.found = true;
+
+          // Set tomorrow to true
+          upcoming_off_rule.tomorrow = true;
+
+          // Hour and minutes
+          sqlite3_snprintf (5, timestamp, "%s", sqlite3_column_text (stmt, 0));
+          sscanf (timestamp, "%02d%02d", &upcoming_off_rule.hour, &upcoming_off_rule.minutes);
+          // Date
+          sqlite3_snprintf (9, date, "%s", sqlite3_column_text (stmt, 2));
+          sscanf (date, "%04d%02d%02d",
+                  &upcoming_off_rule.year, &upcoming_off_rule.month, &upcoming_off_rule.day);
+
+          // Fill time_t with tomorrow date and rule time
+          timeinfo->tm_hour = upcoming_off_rule.hour;
+          timeinfo->tm_min = upcoming_off_rule.minutes;
+          timeinfo->tm_sec = 00;
+          timeinfo->tm_mday = upcoming_off_rule.day;
+          timeinfo->tm_mon = upcoming_off_rule.month - 1;
+          timeinfo->tm_year = upcoming_off_rule.year - 1900;
+
+          // Mode
+          upcoming_off_rule.mode = (Mode) sqlite3_column_int (stmt, 1);
+
+          pthread_mutex_unlock (&upcoming_off_rule_mutex);
+        }
+
+      if (rc != SQLITE_DONE && rc != SQLITE_ROW)
+        {
+          DEBUG_PRINT_CONTEX;
+          fprintf (stderr, "ERROR (failed while querying rules time): %s\n", sqlite3_errmsg (db));
+          sqlite3_close (db);
+          return EXIT_FAILURE;
+        }
+      sqlite3_finalize (stmt);
+    }
+
+  // Make rule_time
+  upcoming_off_rule.rule_time = mktime (timeinfo);
+  // If fails
+  if (upcoming_off_rule.rule_time == (time_t) -1)
+    {
+      DEBUG_PRINT_CONTEX;
+      fprintf (stderr, "ERROR: failed to make time\n");
+      upcoming_off_rule.found = false;
+      return EXIT_FAILURE;
+    }
+
   DEBUG_PRINT (("Upcoming off rule fields:\n"\
-                "\tFound: %d\n\tHour: %02d\n\tMinutes: %02d\n\tMode: %d\n\tNotification time: %d s",
-                upcoming_off_rule.found, upcoming_off_rule.hour, upcoming_off_rule.minutes,
+                "\tFound: %d\n\tTomorrow: %d\n\tHour: %02d\n\t"\
+                "Minutes: %02d\n\tMode: %d\n\tNotification time: %d s",
+                upcoming_off_rule.found, upcoming_off_rule.tomorrow,
+                upcoming_off_rule.hour, upcoming_off_rule.minutes,
                 upcoming_off_rule.mode, upcoming_off_rule.notification_time));
 
   return EXIT_SUCCESS;
@@ -438,7 +523,8 @@ static int query_upcoming_off_rule (void)
 
 static int query_upcoming_on_rule (bool use_default_mode)
 {
-  int rc, now, ruletime, is_localtime = 1, id_match = -1;
+  int rc, now, ruletime, id_match = -1;
+  bool is_localtime = true;
 
   struct tm *timeinfo;
   struct sqlite3_stmt *stmt;
@@ -520,8 +606,8 @@ static int query_upcoming_on_rule (bool use_default_mode)
     }
   while ((rc = sqlite3_step (stmt)) == SQLITE_ROW)
     {
-      // Localtime (boolean)
-      is_localtime = sqlite3_column_int (stmt, 0);
+      // Localtime
+      is_localtime = (bool) sqlite3_column_int (stmt, 0);
 
       pthread_mutex_lock (&rtcwake_args_mutex);
       // Mode
@@ -665,7 +751,7 @@ static int query_upcoming_on_rule (bool use_default_mode)
   // ELSE, RETURN PARAMETERS
   pthread_mutex_lock (&rtcwake_args_mutex);
 
-  rtcwake_args->found = TRUE;
+  rtcwake_args->found = true;
 
   sscanf (buffer, "%02d%02d",
           &(rtcwake_args->hour),
@@ -784,7 +870,7 @@ static int query_custom_schedule (void)
   sqlite3_finalize (stmt);
 
   pthread_mutex_lock (&rtcwake_args_mutex);
-  rtcwake_args->found = TRUE;
+  rtcwake_args->found = true;
   pthread_mutex_unlock (&rtcwake_args_mutex);
 
   DEBUG_PRINT (("RtcwakeArgs fields:\n"\
@@ -865,7 +951,7 @@ static void on_database_updated_signal (void)
 static void on_rule_canceled_signal (void)
 {
   DEBUG_PRINT (("Rule canceled by signal"));
-  canceled = TRUE;
+  canceled = true;
 }
 
 static void on_schedule_requested_signal (void)
@@ -882,12 +968,12 @@ static void on_custom_schedule_requested_signal (void)
 
 static void schedule_finalize (int ret) {
   // On failure and "shutdown on failure" enabled, shutdown instead
-  if (ret != RTCWAKE_ARGS_SUCESS && rtcwake_args->shutdown_fail == TRUE)
+  if (ret != RTCWAKE_ARGS_SUCESS && rtcwake_args->shutdown_fail == true)
     {
       DEBUG_PRINT (("Custom rule failed, shutdowing instead"));
 
       // Set action to shutdown
-      rtcwake_args->run_shutdown = TRUE;
+      rtcwake_args->run_shutdown = true;
 
       finalize_timed_checker ();
       finalize_dbus_listener ();

@@ -403,13 +403,16 @@ int query_rules (const Table table, Rule **rules, uint16_t *rowcount)
       if ((*rules)[counter].name == NULL)
         {
           DEBUG_PRINT_CONTEX;
-          // TODO avoid memory leaking: free names allocated up to here and then *rules
+          // Avoid memory leaking: free names allocated up to here
+          for (int i = 0; i < counter; i++)
+            free ((*rules)[i].name);
+
           fprintf (stderr, RED ("ERROR: Failed to allocate memory\n"));
           return EXIT_FAILURE;
         }
 
       // Assign name
-      snprintf ((*rules)[counter].name,         // string pointer
+      snprintf ((*rules)[counter].name,           // string pointer
                   size + 1,                       // size
                   "%s",                           // format
                   sqlite3_column_text (stmt, 2)   // arguments

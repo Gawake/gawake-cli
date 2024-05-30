@@ -1,7 +1,8 @@
 #ifndef GAWAKE_TYPES_H_
 #define GAWAKE_TYPES_H_
 
-#define RULE_NAME_LENGTH 33    // Allowed length for rule name
+#define RULE_NAME_LENGTH 33         // Allowed length for rule name
+#define MAX_NOTIFICATION_TIME 3600  // In seconds
 
 #define VERSION "3.1.0"
 
@@ -12,7 +13,7 @@
 #include <inttypes.h>
 #include <stdbool.h>
 
-// ATTENTION: enum and gchar[] must be synced
+// ATTENTION: enum and char[] must be synced
 typedef enum
 {
   T_ON,
@@ -22,7 +23,7 @@ typedef enum
 extern const char *TABLE[];
 /////////////////////////////////////////////
 
-// ATTENTION: enum and gchar[] must be synced
+// ATTENTION: enum and char[] must be synced
 typedef enum
 {
   MEM,

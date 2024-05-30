@@ -31,11 +31,21 @@
 #include "dbus-client.h"
 
 static sqlite3 *db = NULL;
+static char *sql = 0;
 
 // This function connect to the database
 // Should be called once
 int connect_database (void)
 {
+  // Allocate memory
+  sql = (char *) malloc (ALLOC);
+  if (sql == NULL)
+    {
+      DEBUG_PRINT_CONTEX;
+      fprintf (stderr, RED ("ERROR: Failed to allocate memory\n"));
+      return EXIT_FAILURE;
+    }
+
   // Open the SQLite database
   int rc = sqlite3_open_v2 (DB_PATH, &db, SQLITE_OPEN_READWRITE, NULL);
 
@@ -50,9 +60,8 @@ int connect_database (void)
     {
       char *err_msg = 0;
 
-      const char UPTDATE_VERSION[] = "UPDATE config SET version = '" VERSION "';";
-      rc = sqlite3_exec (db, UPTDATE_VERSION, NULL, 0, &err_msg);
-      fprintf (stdout, "Database opened successfully\n");
+      const char UPDATE_VERSION[] = "UPDATE config SET version = '" VERSION "';";
+      rc = sqlite3_exec (db, UPDATE_VERSION, NULL, 0, &err_msg);
 
       sqlite3_free (err_msg);
     }
@@ -64,8 +73,8 @@ int connect_database (void)
 
 void close_database (void)
 {
-  fprintf (stdout, "Closing database\n");
   sqlite3_close (db);
+  free (sql);
 
   close_dbus_client ();
 }
@@ -108,7 +117,7 @@ static int validate_table (const Table table)
   return EXIT_FAILURE;
 }
 
-static int run_sql (const char *sql)
+static int run_sql (void)
 {
   int rc;
   char *err_msg = 0;
@@ -134,15 +143,6 @@ int add_rule (const Rule *rule)
 {
   if (validate_rule (rule))
     return EXIT_FAILURE;
-
-  char *sql = 0;
-  sql = (char *) malloc (ALLOC);
-  if (sql == NULL)
-    {
-      DEBUG_PRINT_CONTEX;
-      fprintf (stderr, RED ("ERROR: Failed to allocate memory\n"));
-      return EXIT_FAILURE;
-    }
 
   switch (rule->table)
     {
@@ -172,29 +172,16 @@ int add_rule (const Rule *rule)
                         rule->mode);
       break;
     default:
-      free (sql);
       return EXIT_FAILURE;
     }
 
-  int ret = run_sql (sql);
-  free (sql);
-
-  return ret;
+  return run_sql ();
 }
 
 int edit_rule (const Rule *rule)
 {
   if (validate_rule (rule))
     return EXIT_FAILURE;
-
-  char *sql = 0;
-  sql = (char *) malloc (ALLOC);
-  if (sql == NULL)
-    {
-      DEBUG_PRINT_CONTEX;
-      fprintf (stderr, RED ("ERROR: Failed to allocate memory\n"));
-      return EXIT_FAILURE;
-    }
 
   switch (rule->table)
     {
@@ -228,14 +215,10 @@ int edit_rule (const Rule *rule)
                         rule->id);
       break;
     default:
-      free (sql);
       return EXIT_FAILURE;
     }
 
-  int ret = run_sql (sql);
-  free (sql);
-
-  return ret;
+  return run_sql ();
 }
 
 int delete_rule (const uint16_t id, const Table table)
@@ -243,21 +226,9 @@ int delete_rule (const uint16_t id, const Table table)
   if (validate_table (table))
     return EXIT_FAILURE;
 
-  char *sql = 0;
-  sql = (char *) malloc (ALLOC);
-  if (sql == NULL)
-    {
-      DEBUG_PRINT_CONTEX;
-      fprintf (stderr, RED ("ERROR: Failed to allocate memory\n"));
-      return EXIT_FAILURE;
-    }
-
   sqlite3_snprintf (ALLOC, sql, "DELETE FROM %s WHERE id = %d;", TABLE[table], id);
 
-  int ret = run_sql (sql);
-  free (sql);
-
-  return ret;
+  return run_sql ();
 }
 
 int enable_disable_rule (const uint16_t id, const Table table, const bool active)
@@ -265,21 +236,9 @@ int enable_disable_rule (const uint16_t id, const Table table, const bool active
   if (validate_table (table))
     return EXIT_FAILURE;
 
-  char *sql = 0;
-  sql = (char *) malloc (ALLOC);
-  if (sql == NULL)
-    {
-      DEBUG_PRINT_CONTEX;
-      fprintf (stderr, RED ("ERROR: Failed to allocate memory\n"));
-      return EXIT_FAILURE;
-    }
-
   sqlite3_snprintf (ALLOC, sql, "UPDATE %s SET active = %d WHERE id = %d;", TABLE[table], active, id);
 
-  int ret = run_sql (sql);
-  free (sql);
-
-  return ret;
+  return run_sql ();
 }
 
 int query_rule (const uint16_t id, const Table table, Rule *rule)
@@ -290,15 +249,6 @@ int query_rule (const uint16_t id, const Table table, Rule *rule)
   // Database related variables
   int rc;
   struct sqlite3_stmt *stmt;
-  char *sql = 0;
-  sql = (char *) malloc (ALLOC);
-  if (sql == NULL)
-    {
-      DEBUG_PRINT_CONTEX;
-      fprintf (stderr, RED ("ERROR: Failed to allocate memory\n"));
-      sqlite3_finalize (stmt);
-      return EXIT_FAILURE;
-    }
 
   // Generate SQL
   sqlite3_snprintf (ALLOC, sql, "SELECT * FROM %s WHERE id = %d LIMIT 1;", TABLE[table], id);
@@ -310,7 +260,6 @@ int query_rule (const uint16_t id, const Table table, Rule *rule)
       && sqlite3_step (stmt) != SQLITE_ROW)
     {
       fprintf (stderr, "Invalid ID\n\n");
-      free (sql);
       sqlite3_finalize (stmt);
       return EXIT_FAILURE;
     }
@@ -360,13 +309,11 @@ int query_rule (const uint16_t id, const Table table, Rule *rule)
     {
       DEBUG_PRINT_CONTEX;
       fprintf (stderr, "ERROR (failed to query rule): %s\n", sqlite3_errmsg (db));
-      free (sql);
       sqlite3_finalize (stmt);
       return EXIT_FAILURE;
     }
 
   sqlite3_finalize (stmt);
-  free (sql);
 
   return EXIT_SUCCESS;
 }
@@ -379,15 +326,6 @@ int query_rules (const Table table, Rule **rules, uint16_t *rowcount)
   // Database related variables
   int rc;
   struct sqlite3_stmt *stmt;
-  char *sql = 0;
-  sql = (char *) malloc (ALLOC);
-  if (sql == NULL)
-    {
-      DEBUG_PRINT_CONTEX;
-      fprintf (stderr, RED ("ERROR: Failed to allocate memory\n"));
-      sqlite3_finalize (stmt);
-      return EXIT_FAILURE;
-    }
 
   // Count the number of rows
   sqlite3_snprintf (ALLOC, sql, "SELECT COUNT(*) FROM %s;", TABLE[table]);
@@ -396,7 +334,6 @@ int query_rules (const Table table, Rule **rules, uint16_t *rowcount)
     {
       DEBUG_PRINT_CONTEX;
       fprintf (stderr, RED ("ERROR: Failed to query row count\n"));
-      free (sql);
       sqlite3_finalize (stmt);
       return EXIT_FAILURE;
     }
@@ -411,7 +348,6 @@ int query_rules (const Table table, Rule **rules, uint16_t *rowcount)
     {
       DEBUG_PRINT_CONTEX;
       fprintf (stderr, RED ("ERROR: Failed to allocate memory\n"));
-      free (sql);
       sqlite3_finalize (stmt);
       return EXIT_FAILURE;
     }
@@ -427,7 +363,6 @@ int query_rules (const Table table, Rule **rules, uint16_t *rowcount)
     {
       DEBUG_PRINT_CONTEX;
       fprintf (stderr, RED ("ERROR: Failed to query rule\n"));
-      free (sql);
       free (*rules);
       sqlite3_finalize (stmt);
       return EXIT_FAILURE;
@@ -502,14 +437,12 @@ int query_rules (const Table table, Rule **rules, uint16_t *rowcount)
     {
       DEBUG_PRINT_CONTEX;
       fprintf (stderr, RED ("ERROR (failed to query rule): %s\n"), sqlite3_errmsg (db));
-      free (sql);
       free (*rules);
       sqlite3_finalize (stmt);
       return EXIT_FAILURE;
     }
 
   sqlite3_finalize(stmt);
-  free (sql);
 
   return EXIT_SUCCESS;
 }
@@ -521,15 +454,6 @@ int custom_schedule (const uint8_t hour,
                           const uint16_t year,
                           const uint8_t mode)
 {
-  char *sql = 0;
-  sql = (char *) malloc (ALLOC);
-  if (sql == NULL)
-    {
-      DEBUG_PRINT_CONTEX;
-      fprintf (stderr, RED ("ERROR: Failed to allocate memory\n"));
-      return EXIT_FAILURE;
-    }
-
   RtcwakeArgs rtcwake_args = {
     .hour = hour,
     .minutes = minutes,
@@ -552,13 +476,119 @@ int custom_schedule (const uint8_t hour,
                     day, month, year,
                     mode, true);
 
-  int ret = run_sql (sql);
-  free (sql);
+  int ret = run_sql ();
 
   if (ret == EXIT_SUCCESS)
     trigger_custom_schedule ();
 
   return ret;
+}
+
+int set_localtime (bool use_localtime)
+{
+  sqlite3_snprintf (ALLOC, sql,
+                    "UPDATE config "\
+                    "SET localtime = %d "\
+                    "WHERE id = 1;",
+                    use_localtime);
+
+  return run_sql ();
+}
+
+int set_default_mode (Mode default_mode)
+{
+  // Validate mode
+  if (default_mode >= MEM && default_mode <= OFF)
+    {
+      sqlite3_snprintf (ALLOC, sql,
+                        "UPDATE config "\
+                        "SET default_mode = %d "\
+                        "WHERE id = 1;",
+                        default_mode);
+
+      return run_sql ();
+    }
+  else
+    return EXIT_FAILURE;
+}
+
+int set_notification_time (int notification_time)
+{
+  if (notification_time >= 0 && notification_time <= MAX_NOTIFICATION_TIME)
+    {
+      sqlite3_snprintf (ALLOC, sql,
+                        "UPDATE config "\
+                        "SET notification_time = %d "\
+                        "WHERE id = 1;",
+                        notification_time);
+
+      return run_sql ();
+    }
+  else
+    return EXIT_FAILURE;
+}
+
+int set_shutdown_fail (bool shutdown_fail)
+{
+  sqlite3_snprintf (ALLOC, sql,
+                    "UPDATE config "\
+                    "SET shutdown_fail = %d "\
+                    "WHERE id = 1;",
+                    shutdown_fail);
+
+  return run_sql ();
+}
+
+int get_config (Config *config)
+{
+  // Database related variables
+  int rc;
+  struct sqlite3_stmt *stmt;
+
+  // Generate SQL
+  sqlite3_snprintf (ALLOC, sql,
+                    "SELECT * FROM config "\
+                    "WHERE id = 1;");
+
+  DEBUG_PRINT (("Generated SQL:\n\t%s", sql));
+
+  if (sqlite3_prepare_v2 (db, sql, -1, &stmt, NULL) != SQLITE_OK)
+    {
+      DEBUG_PRINT_CONTEX;
+      fprintf (stderr, RED ("ERROR: Failed to query rule\n"));
+      sqlite3_finalize (stmt);
+      return EXIT_FAILURE;
+    }
+
+  while ((rc = sqlite3_step (stmt)) == SQLITE_ROW)
+    {
+      // Note: column 0 is the id
+      // Note: column 1 is the cli_version
+
+      // Use localtime
+      config->use_localtime = (bool) sqlite3_column_int (stmt, 2);
+
+      // Default mode
+      config->default_mode = (Mode) sqlite3_column_int (stmt, 3);
+
+      // Notification time
+      config->notification_time = sqlite3_column_int (stmt, 4);
+
+      // Shutdown if fails
+      config->shutdown_fail = (bool) sqlite3_column_int (stmt, 5);
+    }
+
+  if (rc != SQLITE_DONE)
+    {
+      DEBUG_PRINT_CONTEX;
+      fprintf (stderr, RED ("ERROR (failed to query rule): %s\n"), sqlite3_errmsg (db));
+      sqlite3_finalize (stmt);
+      return EXIT_FAILURE;
+    }
+
+  sqlite3_finalize(stmt);
+
+  return EXIT_SUCCESS;
 }
 
 void schedule (void)

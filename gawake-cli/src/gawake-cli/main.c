@@ -166,9 +166,7 @@ int main (int argc, char **argv)
 
 
 
-  // If there's any arguments, continue to the menu
-  printf ("Starting Gawake...\n");
-
+  // If there's any arguments, continue to the menu...
   // If can't connect to the database, exit
   if (connect_database ())
     return EXIT_FAILURE;
@@ -179,7 +177,7 @@ int main (int argc, char **argv)
 
   menu ();
 
-  // Close D-Bus connection
+  // Close database and D-Bus connection
   close_database ();
 
   return EXIT_SUCCESS;
@@ -246,7 +244,7 @@ void menu (void)
           break;
 
         case 'c':
-          printf ("todo\n"); /* TODO config (); */
+          config ();
           break;
 
         case 'i':
@@ -577,6 +575,55 @@ void usage (void)
           " %-40sSchedule wake for 15 January 2025, at 09:45:00\n"\
           " %-40sSchedule wake for 28 December 2025, at 15:30:00; use mode disk\n\n",
           "gawake-cli -s", "gawake-cli -c 20250115094500", "gawake-cli -c 20251228153000 -m disk");
+}
+
+int config (void)
+{
+  Config config;
+  int option = 0;
+
+  if (get_config (&config))
+    {
+      fprintf (stderr, RED ("Error: failed to get settings information\n"));
+      return EXIT_FAILURE;
+    }
+
+  printf ("Current configuration:\n"\
+          "[1]\tUse localtime:\t\t%d\n"\
+	  "[2]\tDefault mode:\t\t%s\n"\
+	  "[3]\tShutdown on fail:\t%d\n\n",
+          config.use_localtime, MODE[config.default_mode], config.shutdown_fail);
+
+  printf ("Choose an option to edit ");
+  get_int (&option, 2, 0, 3, 0);
+  switch (option)
+    {
+    case 1:
+      printf ("Set a new value (0/1) ");
+      get_int (&option, 2, 0, 1, 1);
+      set_localtime ((bool) option);
+      break;
+
+    case 2:
+      printf ("Set a new mode:\n");
+      for (int i = 0; i <= OFF; i++)
+        printf ("[%d]\t%s\n", i, MODE[i]);
+
+      get_int (&option, 2, 0, OFF, 1);
+      set_default_mode ((Mode) option);
+      break;
+
+    case 3:
+      printf ("Set a new value (0/1) ");
+      get_int (&option, 2, 0, 1, 1);
+      set_shutdown_fail ((bool) option);
+      break;
+
+    default:
+      return EXIT_SUCCESS;
+    }
+
+  return EXIT_SUCCESS;
 }
 
 // Close the database and exit on <Ctrl C>

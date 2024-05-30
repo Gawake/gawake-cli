@@ -159,8 +159,8 @@ static void *timed_checker (void *args)
           query_upcoming_off_rule ();
         }
 
-      // Calculate time until the upcoming off rule, if the rule was found and Gawake is enabled
-      if (upcoming_off_rule.found && upcoming_off_rule.gawake_status)
+      // Calculate time until the upcoming off rule, if the rule was found
+      if (upcoming_off_rule.found)
         {
           time_remaining = get_time_remaining ();
           DEBUG_PRINT (("Missing time: %f s", time_remaining));
@@ -277,7 +277,7 @@ static int query_upcoming_off_rule (void)
 
   // GET THE DATABASE CONFIG
   rc = sqlite3_prepare_v2 (db,
-                           "SELECT status, notification_time "\
+                           "SELECT notification_time "\
                            "FROM config WHERE id = 1;",
                            -1,
                            &stmt,
@@ -293,11 +293,8 @@ static int query_upcoming_off_rule (void)
     {
       pthread_mutex_lock (&upcoming_off_rule_mutex);
 
-      // Gawake status (boolean)
-      upcoming_off_rule.gawake_status = sqlite3_column_int (stmt, 0);
-
       // Notification time
-      upcoming_off_rule.notification_time = (NotificationTime) sqlite3_column_int (stmt, 1);
+      upcoming_off_rule.notification_time = (NotificationTime) sqlite3_column_int (stmt, 0);
       // Convert to seconds
       upcoming_off_rule.notification_time *= 60;
 

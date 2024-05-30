@@ -2,8 +2,16 @@
 #define DATABASE_CONNECTION_H_
 
 #include "gawake-types.h"
+#include <stdbool.h>
 
 #define ALLOC 256
+
+typedef struct {
+  bool use_localtime;
+  Mode default_mode;
+  int notification_time;
+  bool shutdown_fail;
+} Config;
 
 // TODO database schema
 
@@ -25,12 +33,13 @@ int custom_schedule (const uint8_t  hour,
                      const uint16_t year,
                      const uint8_t  mode);
 
-void schedule (void);
+int set_localtime (bool use_localtime);
+int set_default_mode (Mode default_mode);
+int set_notification_time (int notification_time);
+int set_shutdown_fail (bool shutdown_fail);
+int get_config (Config *config);
 
-/* TODO config database
- * set/get boot delay
- * set/get status
- */
+void schedule (void);
 
 #endif /* DATABASE_CONNECTION_H_ */
 

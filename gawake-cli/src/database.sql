@@ -29,19 +29,17 @@ CREATE TABLE IF NOT EXISTS rules_turnoff (
 
 CREATE TABLE IF NOT EXISTS config (
 	id                      INTEGER NOT NULL PRIMARY KEY,
-	status                  INTEGER NOT NULL,
 	cli_version             TEXT,
 	-- Boolean: use localtime or not (utc)
 	localtime               INTEGER NOT NULL,
 	default_mode            INTEGER NOT NULL,
-	boot_time               INTEGER NOT NULL,
 	notification_time       INTEGER NOT NULL,
 	-- Boolean: shutdown on failure
 	shutdown_fail           INTEGER NOT NULL
 );
 
-INSERT OR IGNORE INTO config (id, status, cli_version, localtime, default_mode, boot_time, notification_time, shutdown_fail)
-VALUES (1, 1, '1.0.0', 1, 2, 120, 5, 0);
+INSERT OR IGNORE INTO config (id, cli_version, localtime, default_mode, notification_time, shutdown_fail)
+VALUES (1, '3.1.0', 1, 2, 5, 0);
 
 CREATE TABLE IF NOT EXISTS custom_schedule (
 	id             INTEGER NOT NULL PRIMARY KEY,

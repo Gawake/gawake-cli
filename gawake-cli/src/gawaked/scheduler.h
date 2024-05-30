@@ -8,7 +8,6 @@
 // Structure for the upcoming turn off rule
 typedef struct {
   bool found;
-  bool gawake_status;
   int hour;
   int minutes;
   Mode mode;

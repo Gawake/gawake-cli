@@ -12,8 +12,6 @@
 #include <string.h>
 #include <limits.h>
 
-// #include <sys/wait.h>       // Child process
-
 #include "../utils/gawake-types.h"
 #include "../utils/database-connection.h"
 #include "../utils/debugger.h"
@@ -25,13 +23,11 @@ void clear_buffer (void);
 void get_user_input (Rule *rule, Table table);
 void invalid_value (void);
 void get_int (int *, int, int, int, int);
-// int print_config (void *, int, char **, char **);
 int config (void);
 int add_remove_rule (void);
 int confirm (void);
 void usage (void);
 void exit_handler (int);
-void issue (void);
 int print_rules (Table table);
 
 #endif /* __GAWAKE_CLI_H_ */

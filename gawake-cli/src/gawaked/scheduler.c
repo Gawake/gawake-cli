@@ -24,7 +24,7 @@
 /*
  * These are static (and private to this file) variables.
  * They are shared among:
- * -> timed_checker and dbus_listener threads;
+ * -> timed_checker and gsd_listener threads;
  * -> functions in this file that are called by the threads;
  *
  * These variables shouldn't be used on other files.
@@ -32,10 +32,10 @@
 static volatile bool canceled = false;
 static UpcomingOffRule upcoming_off_rule;
 static RtcwakeArgs *rtcwake_args;
-static GMainLoop *loop;
-static GawakeServerDatabase *proxy;
+static GMainLoop *gsd_loop, *login1_loop;
+static GawakeServerDatabase *gsd_proxy;
 
-static pthread_t timed_checker_thread, dbus_listener_thread;
+static pthread_t timed_checker_thread, dbus_listener_thread, login1_listener_thread;
 static pthread_mutex_t upcoming_off_rule_mutex, rtcwake_args_mutex, booleans_mutex;
 
 int scheduler (RtcwakeArgs *rtcwake_args_ptr)
@@ -49,10 +49,10 @@ int scheduler (RtcwakeArgs *rtcwake_args_ptr)
   pthread_mutex_init (&booleans_mutex, NULL);
 
   // CREATE THREADS
-  if (pthread_create (&dbus_listener_thread, NULL, &dbus_listener, NULL) != 0)
+  if (pthread_create (&dbus_listener_thread, NULL, &gsd_listener, NULL) != 0)
     {
       DEBUG_PRINT_CONTEX;
-      fprintf (stderr, "ERROR: Failed to create dbus_listener thread\n");
+      fprintf (stderr, "ERROR: Failed to create gsd_listener thread\n");
       return EXIT_FAILURE;
     }
   if (pthread_create (&timed_checker_thread, NULL, &timed_checker, rtcwake_args) != 0)
@@ -60,6 +60,11 @@ int scheduler (RtcwakeArgs *rtcwake_args_ptr)
       DEBUG_PRINT_CONTEX;
       fprintf (stderr, "ERROR: Failed to create timed_checker thread\n");
       return EXIT_FAILURE;
+    }
+  if (pthread_create (&login1_listener_thread, NULL, &login1_listener, NULL) != 0)
+    {
+      DEBUG_PRINT_CONTEX;
+      fprintf (stderr, "ERROR: Failed to create login1_listener thread. Ignoring it\n");
     }
 
   // JOIN THREADS
@@ -72,8 +77,13 @@ int scheduler (RtcwakeArgs *rtcwake_args_ptr)
   if (pthread_join (dbus_listener_thread, NULL) != 0)
     {
       DEBUG_PRINT_CONTEX;
-      fprintf (stderr, "ERROR: Failed to join dbus_listener thread\n");
+      fprintf (stderr, "ERROR: Failed to join gsd_listener thread\n");
       return EXIT_FAILURE;
+    }
+  if (pthread_join (login1_listener_thread, NULL) != 0)
+    {
+      DEBUG_PRINT_CONTEX;
+      fprintf (stderr, "ERROR: Failed to join login1_listener thread. Ignoring it\n");
     }
 
   pthread_mutex_destroy (&upcoming_off_rule_mutex);
@@ -84,12 +94,12 @@ int scheduler (RtcwakeArgs *rtcwake_args_ptr)
 }
 
 // Thread 1: listen to D-Bus signals
-static void *dbus_listener (void *args)
+static void *gsd_listener (void *args)
 {
-  DEBUG_PRINT (("Started dbus_listener thread"));
+  DEBUG_PRINT (("Started gsd_listener thread"));
   GError *error = NULL;
 
-  proxy = gawake_server_database_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,         // bus_type
+  gsd_proxy = gawake_server_database_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,         // bus_type
                                                          G_DBUS_PROXY_FLAGS_NONE,   // flags
                                                          "io.github.kelvinnovais.GawakeServer",  // name
                                                          "/io/github/kelvinnovais/GawakeServer", //object_path
@@ -98,27 +108,90 @@ static void *dbus_listener (void *args)
 
   if (error != NULL)
     {
-      fprintf (stderr, "Unable to get proxy: %s\n", error->message);
+      fprintf (stderr, "Unable to get gsd_proxy: %s\n", error->message);
       g_error_free (error);
       return NULL;
     }
 
   // Database updated
-  g_signal_connect (proxy, "database-updated", G_CALLBACK (on_database_updated_signal), NULL);
+  g_signal_connect (gsd_proxy, "database-updated", G_CALLBACK (on_database_updated_signal), NULL);
 
   // Cancel schedule
-  g_signal_connect (proxy, "rule-canceled", G_CALLBACK (on_rule_canceled_signal), NULL);
+  g_signal_connect (gsd_proxy, "rule-canceled", G_CALLBACK (on_rule_canceled_signal), NULL);
 
   // Immediate schedule
-  g_signal_connect (proxy, "schedule-requested", G_CALLBACK (on_schedule_requested_signal), NULL);
+  g_signal_connect (gsd_proxy, "schedule-requested", G_CALLBACK (on_schedule_requested_signal), NULL);
 
   // Custom schedule
-  g_signal_connect (proxy, "custom-schedule-requested", G_CALLBACK (on_custom_schedule_requested_signal), NULL);
+  g_signal_connect (gsd_proxy, "custom-schedule-requested", G_CALLBACK (on_custom_schedule_requested_signal), NULL);
 
-  loop = g_main_loop_new (NULL, FALSE);
-  g_main_loop_run (loop);
+  gsd_loop = g_main_loop_new (NULL, FALSE);
+  g_main_loop_run (gsd_loop);
 
   return NULL;
+}
+
+// TODO add "PrepareForShutdown" signll from org.freedesktop.login1.Manager
+// https://askubuntu.com/questions/1514630/how-to-identify-shutdown-event-in-linux
+// https://discourse.gnome.org/t/how-to-identify-shutdown-event-in-linux/21060
+// https://stackoverflow.com/questions/54131543/how-can-i-get-the-g-dbus-connection-signal-subscribe-function-to-tell-me-about-p
+/* https://www.freedesktop.org/software/systemd/man/latest/org.freedesktop.login1.html */
+/* https://stackoverflow.com/questions/23737750/glib-usage-without-mainloop */
+/* https://stackoverflow.com/questions/36276496/listening-to-dbus-signals */
+/* Monitor for messages: sudo dbus-monitor --system --monitor "type='signal',interface='org.freedesktop.DBus.Properties'" */
+static void *login1_listener (void *args)
+{
+  DEBUG_PRINT (("Started login1_listener thread"));
+
+  GDBusConnection *login1_proxy;
+  GError *error = NULL;
+
+  login1_proxy = g_bus_get_sync (G_BUS_TYPE_SYSTEM,
+                                 NULL,                // Cancellable
+                                 &error);
+
+  if (error != NULL)
+    {
+      fprintf (stderr, "Unable to get login1_proxy: %s\n", error->message);
+      g_error_free (error);
+      return NULL;
+    }
+
+  g_dbus_connection_signal_subscribe (login1_proxy,
+                                      "org.freedesktop.login1",           // sender
+                                      "org.freedesktop.DBus.Properties",  // interface
+                                      "PropertiesChanged",                // member
+                                      "/org/freedesktop/login1",
+                                      NULL,
+                                      G_DBUS_SIGNAL_FLAGS_NONE,
+                                      on_prepare_for_shutdown_signal,
+                                      NULL,
+                                      NULL);
+
+  login1_loop = g_main_loop_new (NULL, FALSE);
+  g_main_loop_run (login1_loop);
+
+  g_main_loop_unref (login1_loop);
+  g_object_unref (login1_proxy);
+
+
+  DEBUG_PRINT (("Finishing login1_listener thread"));
+
+  return NULL;
+}
+
+static void
+on_prepare_for_shutdown_signal (GDBusConnection* connection,
+                                const gchar* sender_name,
+                                const gchar* object_path,
+                                const gchar* interface_name,
+                                const gchar* signal_name,
+                                GVariant* parameters,
+                                gpointer user_data)
+{
+  printf ("\n\n>>>>>>>>>>> HEY THERE!!!\n\n");
+  printf("%s: %s.%s %s\n",object_path,interface_name,signal_name,
+         g_variant_print(parameters,TRUE));
 }
 
 /* Thread 2: periodically make a check:
@@ -213,7 +286,7 @@ static void *timed_checker (void *args)
     }
 
   // ELSE, continue to schedule
-  finalize_dbus_listener ();
+  finalize_gsd_listener ();
   DEBUG_PRINT_TIME (("Scheduling"));
 
   return NULL;
@@ -406,7 +479,6 @@ static int query_upcoming_off_rule (void)
           /* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
            * Note: other fields (day, month, year) on timeinfo were not changed;
            * they were filled by get_time_tm (), and refers to today.
-           * If there is the need of considering the rule at tomorrow, this might be modified
            */
 
           // Mode
@@ -911,7 +983,7 @@ static int notify_user (int ret)
 {
   GError *error = NULL;
 
-  gawake_server_database_call_return_status_sync (proxy,
+  gawake_server_database_call_return_status_sync (gsd_proxy,
                                                   ret,
                                                   NULL,     // cancellable
                                                   &error);
@@ -976,7 +1048,7 @@ static void schedule_finalize (int ret) {
       rtcwake_args->run_shutdown = true;
 
       finalize_timed_checker ();
-      finalize_dbus_listener ();
+      finalize_gsd_listener ();
     }
   // On failure and "shutdown on failure" disabled, just notify the user
   else if (ret != RTCWAKE_ARGS_SUCESS && rtcwake_args->shutdown_fail == false)
@@ -989,15 +1061,15 @@ static void schedule_finalize (int ret) {
   else
     {
       finalize_timed_checker ();
-      finalize_dbus_listener ();
+      finalize_gsd_listener ();
     }
 }
 
-static void finalize_dbus_listener (void)
+static void finalize_gsd_listener (void)
 {
-  DEBUG_PRINT_TIME (("Finalizing dbus_listener thread..."));
-  g_main_loop_quit (loop);
-  DEBUG_PRINT_TIME (("dbus_listener thread finilized"));
+  DEBUG_PRINT_TIME (("Finalizing gsd_listener thread..."));
+  g_main_loop_quit (gsd_loop);
+  DEBUG_PRINT_TIME (("gsd_listener thread finilized"));
 }
 
 static void finalize_timed_checker (void)
@@ -1016,8 +1088,10 @@ static void finalize_timed_checker (void)
 
 static void exit_handler (int sig)
 {
+  finalize_gsd_listener ();
   finalize_timed_checker ();
-  finalize_dbus_listener ();
+
+  // TODO finilize login1 thread
 
   DEBUG_PRINT (("scheduler process terminated by SIGTERM"));
 

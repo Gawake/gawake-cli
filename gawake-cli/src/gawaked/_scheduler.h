@@ -16,9 +16,10 @@
 #include "../gawake-dbus-server/dbus-server.h"
 
 // Threads
-static void *dbus_listener (void *args);
+static void *gsd_listener (void *args);
+static void *login1_listener (void *args);
 static void *timed_checker (void *args);
-static void finalize_dbus_listener (void);
+static void finalize_gsd_listener (void);
 static void finalize_timed_checker (void);
 
 // Database calls
@@ -31,6 +32,16 @@ static void on_database_updated_signal (void);
 static void on_rule_canceled_signal (void);
 static void on_schedule_requested_signal (void);
 static void on_custom_schedule_requested_signal (void);
+
+static void
+on_prepare_for_shutdown_signal (GDBusConnection* connection,
+                                const gchar* sender_name,
+                                const gchar* object_path,
+                                const gchar* interface_name,
+                                const gchar* signal_name,
+                                GVariant* parameters,
+                                gpointer user_data);
+
 static void exit_handler (int sig);
 
 // Utils

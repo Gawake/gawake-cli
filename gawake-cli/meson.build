@@ -68,6 +68,10 @@ test_c_args = [
   '-fno-strict-aliasing',
   ['-Werror=format-security', '-Werror=format=2'],
 ]
+
+preprocessor_debug = get_option('PREPROCESSOR_DEBUG')
+add_global_arguments(f'-DPREPROCESSOR_DEBUG=@preprocessor_debug@', language : 'c')
+
 if get_option('buildtype') != 'plain'
   test_c_args += '-fstack-protector-strong'
 endif

@@ -5,6 +5,7 @@ subdir('gawake-cli')
 subdir('gawake-dbus-server')
 
 # DEPENDENCIES
+# TODO review versions for distributing for Debian >= 12; add missing versions
 sqlite = dependency('sqlite3')
 glib = dependency('glib-2.0', version: '>= 2.72')
 gio = dependency('gio-2.0', version: '>= 2.72')
@@ -34,20 +35,17 @@ gawake_cli_dependencies = [
 executable(
 	'gawake-dbus-server.out',
 	gawake_dbus_server_sources,
-	dependencies: gawake_dbus_server_dependencies,
-	c_args: '-DPREPROCESSOR_DEBUG=1'
+	dependencies: gawake_dbus_server_dependencies
 )
 
 executable(
 	'gawaked.out',
 	gawaked_sources,
-	dependencies: gawaked_dependencies,
-	c_args: '-DPREPROCESSOR_DEBUG=1'
+	dependencies: gawaked_dependencies
 )
 
 executable(
 	'gawake-cli.out',
 	gawake_cli_sources,
-	dependencies: gawake_cli_dependencies,
-	c_args: '-DPREPROCESSOR_DEBUG=1'
+	dependencies: gawake_cli_dependencies
 )

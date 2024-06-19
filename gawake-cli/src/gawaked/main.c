@@ -213,7 +213,7 @@ int main (void)
                 COMMAND_TIMESTAMP "%d%02d%02d%02d%02d00"
                 COMMAND_MODE "%s",
                 rtcwake_args.year, rtcwake_args.month, rtcwake_args.day, rtcwake_args.hour, rtcwake_args.minutes,
-#if PREPROCESSOR_DEBUG
+#if MODE_ALWAYS_ON
                 // Set mode to "on" if this is a developing/debug version
                 "on");
 #else

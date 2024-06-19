@@ -72,6 +72,12 @@ test_c_args = [
 preprocessor_debug = get_option('PREPROCESSOR_DEBUG')
 add_global_arguments(f'-DPREPROCESSOR_DEBUG=@preprocessor_debug@', language : 'c')
 
+if (get_option('MODE_ALWAYS_ON'))
+  add_global_arguments('-DMODE_ALWAYS_ON=1', language : 'c')
+else
+  add_global_arguments('-DMODE_ALWAYS_ON=0', language : 'c')
+endif
+
 if get_option('buildtype') != 'plain'
   test_c_args += '-fstack-protector-strong'
 endif

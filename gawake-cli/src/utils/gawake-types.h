@@ -28,7 +28,8 @@ typedef enum
 {
   MEM,
   DISK,
-  OFF
+  OFF,
+  NO
 } Mode;
 
 extern const char *MODE[];

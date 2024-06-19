@@ -233,9 +233,16 @@ static void *timed_checker (void *args)
   return NULL;
 }
 
-/* Thread 3: listen to org.freedesktop.login1 to get a signal when the user
- * clicks on the power off button; the intent is to assign the wake up (using rtcwake)
+/* Thread 3: listen to org.freedesktop.login1 to know when the user
+ * clicks the power off button; the intent is to assign the next wake up (using rtcwake)
  * before the computer shuts down.
+ *
+ * I am interested more precisely on the property BlockInhibited (see
+ * https://www.freedesktop.org/software/systemd/man/latest/org.freedesktop.login1.html#Properties);
+ * it's a colon separated string, if it contains "shutdown", then the user clicked
+ * the power off button.
+ * To monitor that property, I'll be using the PropertiesChanged signal, as used
+ * on "g_dbus_connection_signal_subscribe" function.
  *
  * To monitor messages:
  * sudo dbus-monitor --system --monitor "type='signal',interface='org.freedesktop.DBus.Properties'"
@@ -1031,29 +1038,17 @@ static void on_custom_schedule_requested_signal (void)
  * By running
  * gdbus introspect --system --dest org.freedesktop.login1 --object-path /org/freedesktop/login1
  *
- * It's possible to see the all parameters; PropertiesChanged specifically:
+ * It's possible to see the functions specifications; PropertiesChanged specifically:
  * PropertiesChanged(s interface_name,
  *                   a{sv} changed_properties,
  *                   as invalidated_properties);
  *
- * When the user clicks on the power off button on the desktop environment,
- * a PropertiesChanged signal is emitted; the changed_properties on this signal
- * when the power off buttun is clicked is equivalent to:
- *
- * string "org.freedesktop.login1.Manager"
- * array [
- *    dict entry(
- *       string "BlockInhibited"
- *       variant             string "shutdown:handle-power-key:handle-suspend-key:handle-hibernate-key"
- *    )
- * ]
- * array [
- * ]
- *
- * notice that the string contains "shutdown"
+ * Helpful to understand GVariant:
+ * https://docs.gtk.org/glib/gvariant-format-strings.html
+ * https://stackoverflow.com/questions/46468448/how-to-parse-aoasv-dbus-type?rq=3
+ * This function was based on:
+ * https://github.com/flatpak/libportal/blob/26f96a178f8a0afded00bdd7238728c0b6e42a6b/libportal/inhibit.c#L369
  */
-// https://docs.gtk.org/glib/gvariant-format-strings.html
-// https://stackoverflow.com/questions/46468448/how-to-parse-aoasv-dbus-type?rq=3
 static void
 on_changed_properties_signal (GDBusConnection* connection,
                               const gchar* sender_name,
@@ -1063,54 +1058,66 @@ on_changed_properties_signal (GDBusConnection* connection,
                               GVariant* parameters,
                               gpointer user_data)
 {
-  DEBUG_PRINT (("Signal received - %s: %s.%s %s\n",
-                object_path, interface_name, signal_name,
-                g_variant_print (parameters, TRUE)));
+  GVariant *changed_properties = NULL;
+  gchar *value = NULL;
+  gchar **splited_values = NULL;
+  gint values_quantity = 0;
+  gboolean shutdown = FALSE;
 
-  const char *expected_value = "shutdown";
-  const size_t expected_value_length = strlen (expected_value);
-  char received_value[expected_value_length];
-
-  GVariantIter *iter_changed_properties = NULL;
-  GVariant *inner_gvariant = NULL;
-  gchar *key = NULL, *property = NULL;
-
-  // Get only the array of GVariant among the other parameters
+  // Get the GVariant correspondent to changed_properties
   g_variant_get (parameters,
-                 "(sa{sv}as)",
-                 NULL,                      // interface_name
-                 &iter_changed_properties,  // changed_properties
-                 NULL);                     // invalidated_properties
+                 "(s@a{sv}as)",
+                 NULL,                    // interface_name
+                 &changed_properties,     // changed_properties
+                 NULL);                   // invalidated_properties
 
-  // Iterate the array and parse the properties
-  while (g_variant_iter_loop (iter_changed_properties, "{&sv}", &key, &inner_gvariant))
+  // If the changed property was "BlockInhibited", then gets its value;
+  // on fail, g_variant_lookup returns FALSE
+  if (g_variant_lookup (changed_properties, "BlockInhibited", "s", &value) == FALSE)
     {
-      g_variant_get (inner_gvariant, "s", &property);
-      DEBUG_PRINT (("Parsed key:property - %s:%s",
-                    key, property));
-
-      // Copy the first characters of the received property
-      strncpy (received_value, property, expected_value_length);
-      // Add a null terminator to the string
-      received_value[expected_value_length] = '\0';
-      // Check if the property begins with "shutdown"
-      if (strcmp (expected_value, received_value) == 0)
-        printf ("todo\n"); // TODO call function responsible for assigning the wake up
+      if (changed_properties != NULL)
+        g_variant_unref (changed_properties);
+      return;
     }
 
-  // Free the memory
-  g_free (property);
-  g_free (key);
-  if (inner_gvariant != NULL)
-    g_variant_unref (inner_gvariant);
-  g_variant_iter_free (iter_changed_properties);
+  // Split the colon separated values; the result is a NULL terminated array
+  splited_values = g_strsplit (value, ":", -1);
+
+  // Search for shutdown; notice that g_strcmp0 can handle NULL, but shouldn't in this loop
+  while ((shutdown == FALSE) && (splited_values[values_quantity] != NULL))
+    if (g_strcmp0 (splited_values[values_quantity++], "shutdown") == 0)
+      shutdown = TRUE;
+
+  DEBUG_PRINT (("Signal received - %s: %s.%s %s\n"\
+                "Parsed value: %s (%d value[s])\n"\
+                "Shutdown was triggered by user: %s",
+                object_path, interface_name, signal_name, g_variant_print (parameters, TRUE),
+                value, values_quantity,
+                shutdown ? "yes" : "no"));
+
+  // Free memory
+  g_strfreev (splited_values);
+  g_free (value);
+  g_variant_unref (changed_properties);
+
+  // If the user pressed the power off button, set the scheduler to assign the wake up
+  if (shutdown)
+    {
+      gint ret = query_upcoming_on_rule (true);
+      // Override some values:
+      // Set mode to "no"
+      rtcwake_args->mode = NO;
+      // Do not shutdown using gawaked
+      rtcwake_args->shutdown_fail = false;
+      schedule_finalize (ret);
+    }
 }
 
 static void schedule_finalize (int ret) {
   // On failure and "shutdown on failure" enabled, shutdown instead
   if (ret != RTCWAKE_ARGS_SUCESS && rtcwake_args->shutdown_fail == true)
     {
-      DEBUG_PRINT (("Custom rule failed, shutdowing instead"));
+      DEBUG_PRINT (("Scheduling failed, shutdowing instead"));
 
       // Set action to shutdown
       rtcwake_args->run_shutdown = true;
@@ -1122,7 +1129,7 @@ static void schedule_finalize (int ret) {
   // On failure and "shutdown on failure" disabled, just notify the user
   else if (ret != RTCWAKE_ARGS_SUCESS && rtcwake_args->shutdown_fail == false)
     {
-      DEBUG_PRINT (("Custom rule failed, notifying user"));
+      DEBUG_PRINT (("Scheduling failed, notifying user"));
 
       notify_user (ret);
     }

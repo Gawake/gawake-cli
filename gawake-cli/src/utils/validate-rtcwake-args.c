@@ -67,6 +67,7 @@ int validade_rtcwake_args (RtcwakeArgs *rtcwake_args)
     case MEM:
     case DISK:
     case OFF:
+    case NO:
       mode = true;
       break;
 

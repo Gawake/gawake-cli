@@ -28,7 +28,8 @@ const char *TABLE[] = {
 const char *MODE[] = {
   "mem",
   "disk",
-  "off"
+  "off",
+  "no"
 };
 
 const char *DAYS[] = {"sun", "mon", "tue", "wed", "thu", "fri", "sat"};

@@ -30,6 +30,4 @@
                         + strlen (COMMAND_MODE) + strlen (MODE[rtcwake_args.mode])\
                         + 1)
 
-static void exit_handler (int sig);
-
 #endif /* __GAWAKED_H_ */

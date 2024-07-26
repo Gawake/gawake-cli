@@ -35,14 +35,16 @@ static RtcwakeArgs *rtcwake_args;
 static GMainLoop *gsd_loop; // *login1_loop;
 static GawakeServerDatabase *gsd_proxy;
 
-/* static int inhibitor_lock_fd = -1; */
-/* static GDBusConnection *login1_proxy = NULL; */
-
 static pthread_t timed_checker_thread, dbus_listener_thread; // login1_listener_thread;
 static pthread_mutex_t upcoming_off_rule_mutex, rtcwake_args_mutex, booleans_mutex;
 
 int scheduler (RtcwakeArgs *rtcwake_args_ptr)
 {
+  /*
+   * When the child process receives a SIGTERM, the system is about to shutdown;
+   * in this case, the prepare_for_shutdown function will fill the RtcwakeArgs struct
+   * with the appropieate arguments for this situation
+   */
   signal (SIGTERM, prepare_for_shutdown);
 
   rtcwake_args = rtcwake_args_ptr;
@@ -64,11 +66,6 @@ int scheduler (RtcwakeArgs *rtcwake_args_ptr)
       fprintf (stderr, "ERROR: Failed to create timed_checker thread\n");
       return EXIT_FAILURE;
     }
-  /* if (pthread_create (&login1_listener_thread, NULL, &login1_listener, NULL) != 0) */
-  /*   { */
-  /*     DEBUG_PRINT_CONTEX; */
-  /*     fprintf (stderr, "ERROR: Failed to create login1_listener thread. Ignoring it\n"); */
-  /*   } */
 
   // JOIN THREADS
   if (pthread_join (dbus_listener_thread, NULL) != 0)
@@ -83,11 +80,6 @@ int scheduler (RtcwakeArgs *rtcwake_args_ptr)
       fprintf (stderr, "ERROR: Failed to join timed_checker thread\n");
       return EXIT_FAILURE;
     }
-  /* if (pthread_join (login1_listener_thread, NULL) != 0) */
-  /*   { */
-  /*     DEBUG_PRINT_CONTEX; */
-  /*     fprintf (stderr, "ERROR: Failed to join login1_listener thread. Ignoring it\n"); */
-  /*   } */
 
   pthread_mutex_destroy (&upcoming_off_rule_mutex);
   pthread_mutex_destroy (&rtcwake_args_mutex);
@@ -232,107 +224,10 @@ static void *timed_checker (void *args)
 
   // ELSE, continue to schedule
   finalize_gsd_listener ();
-  /* finalize_login1_listener (); */
   DEBUG_PRINT_TIME (("Scheduling"));
 
   return NULL;
 }
-
-/* Thread 3: listen to org.freedesktop.login1 to know when the user
- * clicks the power off button; the intent is to assign the next wake up (using rtcwake)
- * before the computer shuts down.
- */
-/* static void *login1_listener (void *args) */
-/* { */
-/*   DEBUG_PRINT (("Started login1_listener thread")); */
-
-/*   GError *error = NULL; */
-
-/*   login1_proxy = g_bus_get_sync (G_BUS_TYPE_SYSTEM, */
-/*                                  NULL,                // Cancellable */
-/*                                  &error); */
-
-/*   if (error != NULL) */
-/*     { */
-/*       fprintf (stderr, "Unable to get login1_proxy: %s\n", error->message); */
-/*       g_error_free (error); */
-/*       return NULL; */
-/*     } */
-
-/*   take_inhibitor_lock (); */
-
-/*   g_dbus_connection_signal_subscribe (login1_proxy, */
-/*                                       "org.freedesktop.login1",           // sender */
-/*                                       "org.freedesktop.login1.Manager",   // interface */
-/*                                       "PrepareForShutdown",               // member */
-/*                                       "/org/freedesktop/login1",          // object_path */
-/*                                       NULL, */
-/*                                       G_DBUS_SIGNAL_FLAGS_NONE, */
-/*                                       on_prepare_for_shutdown_signal, */
-/*                                       NULL, */
-/*                                       NULL); */
-
-/*   login1_loop = g_main_loop_new (NULL, FALSE); */
-/*   g_main_loop_run (login1_loop); */
-
-/*   g_main_loop_unref (login1_loop); */
-/*   g_object_unref (login1_proxy); */
-
-/*   return NULL; */
-/* } */
-
-// https://systemd.io/INHIBITOR_LOCKS/
-/* int take_inhibitor_lock (void) */
-/* { */
-/*   GError *error = NULL; */
-/*   GVariant *response = NULL; */
-
-/*   DEBUG_PRINT (("Taking inhibitor lock")); */
-
-/*   if (inhibitor_lock_fd >= 0) */
-/*     { */
-/*       DEBUG_PRINT (("Inhibitor lock already taken")); */
-/*       return EXIT_SUCCESS; */
-/*     } */
-
-/*   // Call function to get a lock fd */
-/*   response = */
-/*   g_dbus_connection_call_sync (login1_proxy, */
-/*                                "org.freedesktop.login1",         // bus_name */
-/*                                "/org/freedesktop/login1",        // object_path */
-/*                                "org.freedesktop.login1.Manager", // interface_name */
-/*                                "Inhibit",                        // method_name */
-/*                                g_variant_new ("(ssss)", */
-/*                                               "shutdown", */
-/*                                               "Gawake", */
-/*                                               "Assign next wake up", */
-/*                                               "delay"), */
-/*                                NULL, */
-/*                                G_DBUS_CALL_FLAGS_NONE, */
-/*                                -1, */
-/*                                NULL, */
-/*                                &error); */
-
-/*   if (error != NULL) */
-/*     { */
-/*       DEBUG_PRINT_CONTEX; */
-/*       fprintf (stderr, "Unable to get inhibitor lock: %s\n", error->message); */
-/*       g_error_free (error); */
-/*       g_object_unref (login1_proxy); */
-/*       return EXIT_FAILURE; */
-/*     } */
-
-/*   // Get the lock fd from the GVariant */
-/*   g_variant_get (response, "(h)", &inhibitor_lock_fd); */
-
-/*   DEBUG_PRINT (("Inhibitor fd taken: %d", inhibitor_lock_fd)); */
-
-/*   // Free memory */
-/*   g_variant_unref (response); */
-/*   g_object_unref (login1_proxy); */
-
-/*   return EXIT_SUCCESS; */
-/* } */
 
 // Checks if the day of the week was changed and returns a boolean
 static int day_changed (void)
@@ -1080,86 +975,6 @@ static void on_custom_schedule_requested_signal (void)
   schedule_finalize (query_custom_schedule ());
 }
 
-/*
- * Helpful to understand GVariant:
- * https://docs.gtk.org/glib/gvariant-format-strings.html
- * https://stackoverflow.com/questions/46468448/how-to-parse-aoasv-dbus-type?rq=3
- * https://github.com/flatpak/libportal/blob/26f96a178f8a0afded00bdd7238728c0b6e42a6b/libportal/inhibit.c#L369
- */
-/* static void */
-/* on_prepare_for_shutdown_signal (GDBusConnection* connection, */
-/*                                 const gchar* sender_name, */
-/*                                 const gchar* object_path, */
-/*                                 const gchar* interface_name, */
-/*                                 const gchar* signal_name, */
-/*                                 GVariant* parameters, */
-/*                                 gpointer user_data) */
-/* { */
-/* #if 0 */
-/*   GVariant *changed_properties = NULL; */
-/*   gchar *value = NULL; */
-/*   gchar **splited_values = NULL; */
-/*   gint values_quantity = 0; */
-/*   gboolean shutdown = FALSE; */
-
-/*   // Get the GVariant correspondent to changed_properties */
-/*   g_variant_get (parameters, */
-/*                  "(s@a{sv}as)", */
-/*                  NULL,                    // interface_name */
-/*                  &changed_properties,     // changed_properties */
-/*                  NULL);                   // invalidated_properties */
-
-/*   // If the changed property was "BlockInhibited", then gets its value; */
-/*   // on fail, g_variant_lookup returns FALSE */
-/*   if (g_variant_lookup (changed_properties, "BlockInhibited", "s", &value) == FALSE) */
-/*     { */
-/*       if (changed_properties != NULL) */
-/*         g_variant_unref (changed_properties); */
-/*       return; */
-/*     } */
-
-/*   // Split the colon separated values; the result is a NULL terminated array */
-/*   splited_values = g_strsplit (value, ":", -1); */
-
-/*   // Search for shutdown; notice that g_strcmp0 can handle NULL, but shouldn't in this loop */
-/*   while ((shutdown == FALSE) && (splited_values[values_quantity] != NULL)) */
-/*     if (g_strcmp0 (splited_values[values_quantity++], "shutdown") == 0) */
-/*       shutdown = TRUE; */
-
-/*   DEBUG_PRINT (("Signal received - %s: %s.%s %s\n"\ */
-/*                 "Parsed value: %s (%d value[s])\n"\ */
-/*                 "Shutdown was triggered by user: %s", */
-/*                 object_path, interface_name, signal_name, g_variant_print (parameters, TRUE), */
-/*                 value, values_quantity, */
-/*                 shutdown ? "yes" : "no")); */
-
-/*   // Free memory */
-/*   g_strfreev (splited_values); */
-/*   g_free (value); */
-/*   g_variant_unref (changed_properties); */
-
-/*   // If the user pressed the power off button, set the scheduler to assign the wake up */
-/*   if (shutdown) */
-/*     { */
-/*       gint ret = query_upcoming_on_rule (true); */
-/*       // Override some values: */
-/*       // Set mode to "no" */
-/*       rtcwake_args->mode = NO; */
-/*       // Do not shutdown using gawaked */
-/*       rtcwake_args->shutdown_fail = false; */
-/*       schedule_finalize (ret); */
-/*     } */
-/* #endif */
-/*   gboolean shutdown = FALSE; */
-
-/*   // TODO parse parameters and get the boolean */
-
-/*   DEBUG_PRINT (("Signal received - %s: %s.%s %s\n"\ */
-/*                 "Shutdown was triggered by user: %s", */
-/*                 object_path, interface_name, signal_name, g_variant_print (parameters, TRUE), */
-/*                 shutdown ? "yes" : "no")); */
-/* } */
-
 static void prepare_for_shutdown (int sig)
 {
   DEBUG_PRINT (("Preparing for shutdown"));
@@ -1169,15 +984,8 @@ static void prepare_for_shutdown (int sig)
   // Override some values:
   // Set mode to "no"
   rtcwake_args->mode = NO;
-  // Do not shutdown using gawaked
+  // Do not shutdown using gawaked because the system is already shutting down
   rtcwake_args->shutdown_fail = false;
-
-  // HANDLE THE INHIBITOR LOCK FD (just to avoid inconsistences on the code)
-  /* if (inhibitor_lock_fd >= 0) */
-  /*   { */
-  /*     close (inhibitor_lock_fd); */
-  /*     inhibitor_lock_fd = -1; */
-  /*   } */
 
   // FINALLY, FINALIZE THE SCHEDULE
   schedule_finalize (ret);
@@ -1194,7 +1002,6 @@ static void schedule_finalize (int ret) {
 
       finalize_timed_checker ();
       finalize_gsd_listener ();
-      /* finalize_login1_listener (); */
     }
   // On failure and "shutdown on failure" disabled, just notify the user
   else if (ret != RTCWAKE_ARGS_SUCESS && rtcwake_args->shutdown_fail == false)
@@ -1208,7 +1015,6 @@ static void schedule_finalize (int ret) {
     {
       finalize_timed_checker ();
       finalize_gsd_listener ();
-      /* finalize_login1_listener (); */
     }
 }
 
@@ -1218,13 +1024,6 @@ static void finalize_gsd_listener (void)
   g_main_loop_quit (gsd_loop);
   DEBUG_PRINT_TIME (("gsd_listener thread finilized"));
 }
-
-/* static void finalize_login1_listener (void) */
-/* { */
-/*   DEBUG_PRINT_TIME (("Finalizing login1_listener thread...")); */
-/*   g_main_loop_quit (login1_loop); */
-/*   DEBUG_PRINT_TIME (("login1_listener thread finilized")); */
-/* } */
 
 static void finalize_timed_checker (void)
 {

@@ -229,15 +229,3 @@ int main (void)
 
   return EXIT_SUCCESS;
 }
-
-// TODO remove this function (?)
-static void exit_handler (int sig)
-{
-  // Terminate child process first (notice that it just sends a signal and doesn't wait)
-  /* kill (pid, SIGTERM); */
-
-  DEBUG_PRINT (("gawaked process terminated by SIGTERM"));
-
-  exit (EXIT_SUCCESS);
-}
-

@@ -43,7 +43,7 @@ static pthread_mutex_t upcoming_off_rule_mutex, rtcwake_args_mutex, booleans_mut
 
 int scheduler (RtcwakeArgs *rtcwake_args_ptr)
 {
-  signal (SIGTERM, exit_handler);
+  signal (SIGTERM, prepare_for_shutdown);
 
   rtcwake_args = rtcwake_args_ptr;
 
@@ -1160,34 +1160,28 @@ static void on_custom_schedule_requested_signal (void)
 /*                 shutdown ? "yes" : "no")); */
 /* } */
 
-/* static void prepare_for_shutdown (bool about_to_shutdown) */
-/* { */
+static void prepare_for_shutdown (int sig)
+{
+  DEBUG_PRINT (("Preparing for shutdown"));
 
-/*   DEBUG_PRINT (("Received PrepareForShutdown signal with arg: %d", about_to_shutdown)); */
+  // QUERY UPCOMING RULE AND OVERRIDE SOME VALUES
+  int ret = query_upcoming_on_rule (true);
+  // Override some values:
+  // Set mode to "no"
+  rtcwake_args->mode = NO;
+  // Do not shutdown using gawaked
+  rtcwake_args->shutdown_fail = false;
 
-/*   if (about_to_shutdown) */
-/*     { */
-/*       // QUERY UPCOMING RULE AND OVERRIDE SOME VALUES */
-/*       int ret = query_upcoming_on_rule (true); */
-/*       // Override some values: */
-/*       // Set mode to "no" */
-/*       rtcwake_args->mode = NO; */
-/*       // Do not shutdown using gawaked */
-/*       rtcwake_args->shutdown_fail = false; */
+  // HANDLE THE INHIBITOR LOCK FD (just to avoid inconsistences on the code)
+  /* if (inhibitor_lock_fd >= 0) */
+  /*   { */
+  /*     close (inhibitor_lock_fd); */
+  /*     inhibitor_lock_fd = -1; */
+  /*   } */
 
-/*       // HANDLE THE INHIBITOR LOCK FD (just to avoid inconsistences on the code) */
-/*       if (inhibitor_lock_fd >= 0) */
-/*         { */
-/*           close (inhibitor_lock_fd); */
-/*           inhibitor_lock_fd = -1; */
-/*         } */
-
-/*       // FINALLY, FINALIZE THE SCHEDULE */
-/*       schedule_finalize (ret); */
-/*     } */
-/*   else */
-/*     take_inhibitor_lock (); */
-/* } */
+  // FINALLY, FINALIZE THE SCHEDULE
+  schedule_finalize (ret);
+}
 
 static void schedule_finalize (int ret) {
   // On failure and "shutdown on failure" enabled, shutdown instead
@@ -1244,17 +1238,6 @@ static void finalize_timed_checker (void)
     }
 
   DEBUG_PRINT_TIME (("timed_checker thread finilized"));
-}
-
-static void exit_handler (int sig)
-{
-  finalize_gsd_listener ();
-  /* finalize_login1_listener (); */
-  finalize_timed_checker ();
-
-  DEBUG_PRINT (("scheduler process terminated by SIGTERM"));
-
-  exit (EXIT_FAILURE);
 }
 
 /*

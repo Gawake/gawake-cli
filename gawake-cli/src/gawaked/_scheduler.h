@@ -43,8 +43,6 @@ static void on_custom_schedule_requested_signal (void);
 //                                 GVariant* parameters,
 //                                 gpointer user_data);
 
-static void exit_handler (int sig);
-
 // Utils
 static int day_changed (void);
 static void sync_time (void);
@@ -53,7 +51,7 @@ static double get_time_remaining (void);
 static void schedule_finalize (int ret);
 
 // int take_inhibitor_lock (void);
-// static void prepare_for_shutdown (bool about_to_shutdown);
+static void prepare_for_shutdown (int sig);
 
 typedef enum {
   RTCWAKE_ARGS_FAILURE,

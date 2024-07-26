@@ -31,21 +31,21 @@ static pid_t pid;
 int main (void)
 {
   // Init privileges utility (get gawake uid/gid)
-  /* if (init_privileges ()) */
-  /*   exit (EXIT_FAILURE); */
+  if (init_privileges ())
+    exit (EXIT_FAILURE);
 
   // (Temporarily) drop privileges
-  /* if (drop_privileges () == EXIT_FAILURE) */
-  /*   exit (EXIT_FAILURE); */
-
-  // Signals for terminating the service by Systemd
-  signal (SIGTERM, exit_handler);
+  if (drop_privileges () == EXIT_FAILURE)
+    exit (EXIT_FAILURE);
 
   // CLOSE FILE DESCRIPTORS
-/*   close (STDIN_FILENO); */
-/* #if PREPROCESSOR_DEBUG == 0 */
-/*   close (STDOUT_FILENO); */
-/* #endif */
+  close (STDIN_FILENO);
+#if PREPROCESSOR_DEBUG == 0
+  close (STDOUT_FILENO);
+#endif
+
+  // Signal for terminating the service by Systemd
+  signal (SIGTERM, SIG_IGN);
 
   // CALL scheduler
   int fd[2];          // fd[0]: read; fd[1]: write
@@ -72,10 +72,8 @@ int main (void)
       // Child process: executed as gawake user, with no possibility to setuid to root
 
       // If drop privileges permanently or the check user fails, end execution
-      /* if (drop_privileges_permanently () || check_user ()) */
-      /*   { */
-      /*     exit (EXIT_FAILURE); */
-      /*   } */
+      if (drop_privileges_permanently () || check_user ())
+        exit (EXIT_FAILURE);
 
       // Set process name
       if (prctl (PR_SET_NAME, "scheduler") < 0)

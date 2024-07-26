@@ -3,6 +3,7 @@
 
 [Unit]
 Description=Gawake D-Bus server
+After=multi-user.target
 
 [Service]
 Type=dbus
@@ -56,5 +57,4 @@ RestrictSUIDSGID=yes
 # UMask=
 
 [Install]
-WantedBy=multi-user.target
 Alias=gawake-dbus-server.service

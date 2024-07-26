@@ -1,8 +1,10 @@
 # /usr/lib/systemd/system/gawaked.service
 # systemctl start gawaked.service
 
+# TODO add directory user, group and permissions
 [Unit]
 Description=Gawake main service
+After=io.github.kelvinnovais.GawakeServer.service
 
 [Service]
 Type=simple
@@ -24,7 +26,7 @@ ProcSubset=pid
 PrivateNetwork=true
 PrivateTmp=true
 SystemCallArchitectures=native
-RestrictAddressFamilies=none # AF_UNIX
+RestrictAddressFamilies=AF_UNIX
 ProtectSystem=strict
 IPAddressDeny=any
 ProtectClock=yes
@@ -68,5 +70,5 @@ SystemCallFilter=@default @setuid @ipc @signal @basic-io @process @file-system
 # PrivateMounts=
 # NotifyAccess=
 
-[Install]
-WantedBy=io.github.kelvinnovais.GawakeServer.service
+; [Install]
+; WantedBy=io.github.kelvinnovais.GawakeServer.service

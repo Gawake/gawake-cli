@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/io/github/kelvinnovais/Gawake">
+    <!-- CSS -->
+    <file alias="style.css">css/gawake.css</file>
+
+    <!-- UI -->
+    <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
+
+    <file preprocess="xml-stripblanks">ui/window.ui</file>
+    <file preprocess="xml-stripblanks">ui/rule-setup-dialog.ui</file>
+    <file preprocess="xml-stripblanks">ui/rule-row.ui</file>
+  </gresource>
+</gresources>

@@ -1,0 +1,6 @@
+data/com.kelvinnovais.Gawake.desktop.in
+data/com.kelvinnovais.Gawake.metainfo.xml.in
+data/com.kelvinnovais.Gawake.gschema.xml
+src/main.vala
+src/window.vala
+src/window.ui

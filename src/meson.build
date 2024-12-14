@@ -1,28 +1,51 @@
-gawake_sources = [
-  'main.vala',
-  'application.vala',
-  'window.vala',
-  'utils.vala',
+# SOURCES DIRECTORIES
+subdir('utils')
+subdir('gawaked')
+subdir('gawake-cli')
+subdir('gawake-dbus-server')
 
-  'database-connection.vala', # TODO remove
-  'dbus-client.vala',
+# DEPENDENCIES
+# TODO review versions for distributing for Debian >= 12; add missing versions
+sqlite = dependency('sqlite3')
+glib = dependency('glib-2.0', version: '>= 2.72')
+gio = dependency('gio-2.0', version: '>= 2.72')
+gio_unix = dependency('gio-unix-2.0', version: '>= 2.72')
 
-  'rule-setup-dialog.vala',
-  'rule-row.vala',
+gawake_dbus_server_dependencies = [
+	glib,
+	gio,
+	gio_unix
 ]
 
-gawake_deps = [
-  dependency('gtk4'),
-  dependency('libadwaita-1', version: '>= 1.4'),
-  dependency('sqlite3'), # TODO remove
+gawaked_dependencies = [
+	glib,
+	gio,
+	gio_unix,
+	sqlite
 ]
 
-gawake_sources += gnome.compile_resources('gawake-resources',
-  'gawake.gresource.xml',
-  c_name: 'gawake'
+gawake_cli_dependencies = [
+	glib,
+	gio,
+	gio_unix,
+	sqlite
+]
+
+# EXECUTABLES
+executable(
+	'gawake-dbus-server.out',
+	gawake_dbus_server_sources,
+	dependencies: gawake_dbus_server_dependencies
 )
 
-executable('gawake', gawake_sources,
-  dependencies: gawake_deps,
-       install: true,
+executable(
+	'gawaked.out',
+	gawaked_sources,
+	dependencies: gawaked_dependencies
+)
+
+executable(
+	'gawake-cli.out',
+	gawake_cli_sources,
+	dependencies: gawake_cli_dependencies
 )

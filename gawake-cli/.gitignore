@@ -1,8 +1,0 @@
-*.db
-*.o
-*.d
-
-run.sh
-
-_build/*
-releases/*

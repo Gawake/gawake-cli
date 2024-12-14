@@ -1,8 +1,11 @@
 build
 _build
-*~
-.flatpak-builder/
-.flatpak/
-ignore/
 
-notes.txt
+*~
+*.db
+*.o
+*.d
+
+run.sh
+
+releases/*

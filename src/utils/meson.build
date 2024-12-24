@@ -9,7 +9,7 @@ utils_debugger = files(
 )
 
 utils_database_connection = files(
-	'database-connection.c',
+	# 'database-connection.c',
 	'validate-rtcwake-args.c',
 
 	# To send signals through D-Bus
@@ -19,9 +19,9 @@ utils_database_connection = files(
 	_utils_debugger
 )
 
-utils_gawake_types = files(
-	'gawake-types.c'
-)
+# utils_gawake_types = files(
+# 	'gawake-types.c'
+# )
 
 utils_get_time = files(
 	'get-time.c'

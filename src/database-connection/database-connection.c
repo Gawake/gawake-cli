@@ -23,42 +23,40 @@
 #include "database-connection.h"
 #include "database-connection-utils.h"
 #include "../utils/debugger.h"
-#include "../utils/colors.h"
 
 // This function connect to the database
 // Should be called once
 int
-connect_database (void)
+connect_database (bool read_only)
 {
   int rc = 0;
 
-  if (get_pdb () != NULL)
+  if (utils_get_pdb () != NULL)
     {
-      printf ("Database already connected.\n");
+      printf ("Warning: Database already connected.\n");
       return SQLITE_OK;
     }
 
   // Open the SQLite database
-  // TODO use macros
-  if (1)
-    rc = sqlite3_open_v2 (DB_PATH, get_ppdb (), SQLITE_OPEN_READWRITE, NULL);
+  if (!read_only)
+    rc = sqlite3_open_v2 (DB_PATH, utils_get_ppdb (), SQLITE_OPEN_READWRITE, NULL);
   else
-    rc = sqlite3_open_v2 (DB_PATH, get_ppdb (), SQLITE_OPEN_READONLY, NULL);
+    rc = sqlite3_open_v2 (DB_PATH, utils_get_ppdb (), SQLITE_OPEN_READONLY, NULL);
 
   if (rc != SQLITE_OK)
     {
       DEBUG_PRINT_CONTEX;
-      fprintf (stderr, RED ("Can't open database: %s\n"), sqlite3_errmsg (get_pdb ()));
-      sqlite3_close (get_pdb ());
+      fprintf (stderr, "Can't open database: %s\n", sqlite3_errmsg (utils_get_pdb ()));
+      sqlite3_close (utils_get_pdb ());
       return rc;
     }
   else
     {
       // Enable security options
-      sqlite3_db_config (get_pdb (), SQLITE_DBCONFIG_DEFENSIVE, 0, 0);
-      sqlite3_db_config (get_pdb (), SQLITE_DBCONFIG_ENABLE_TRIGGER, 0, 0);
-      sqlite3_db_config (get_pdb (), SQLITE_DBCONFIG_ENABLE_VIEW, 0, 0);
-      sqlite3_db_config (get_pdb (), SQLITE_DBCONFIG_TRUSTED_SCHEMA, 0, 0);
+      sqlite3_db_config (utils_get_pdb (), SQLITE_DBCONFIG_DEFENSIVE, 0, 0);
+      sqlite3_db_config (utils_get_pdb (), SQLITE_DBCONFIG_ENABLE_TRIGGER, 0, 0);
+      sqlite3_db_config (utils_get_pdb (), SQLITE_DBCONFIG_ENABLE_VIEW, 0, 0);
+      sqlite3_db_config (utils_get_pdb (), SQLITE_DBCONFIG_TRUSTED_SCHEMA, 0, 0);
     }
 
   return rc;
@@ -67,7 +65,8 @@ connect_database (void)
 int
 disconnect_database (void)
 {
-  int rc = sqlite3_close (get_pdb ());
-  /* db = NULL; */ // TODO
+  sqlite3 **db = utils_get_ppdb ();
+  int rc = sqlite3_close (utils_get_pdb ());
+  *db = NULL;
   return rc;
 }

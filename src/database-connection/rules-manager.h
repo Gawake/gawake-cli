@@ -21,10 +21,6 @@
 #ifndef RULES_MANAGER_H_
 #define RULES_MANAGER_H_
 
-// #if !defined(DATABASE_CONNECTION_INSIDE)
-// # error "Only <database-connection.h> can be included directly."
-// #endif
-
 #include "gawake-types.h"
 
 int rule_add (const Rule *rule);

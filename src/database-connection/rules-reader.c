@@ -23,7 +23,6 @@
 
 #include "database-connection-utils.h"
 #include "../utils/debugger.h"
-#include "../utils/colors.h"
 #include "rules-reader.h"
 
 int
@@ -31,7 +30,7 @@ rule_get_single (const uint16_t id,
                  const Table table,
                  Rule *rule)
 {
-  if (validate_table (table))
+  if (utils_validate_table (table))
     return EXIT_FAILURE;
 
   // Database related variables
@@ -39,12 +38,12 @@ rule_get_single (const uint16_t id,
   struct sqlite3_stmt *stmt;
 
   // Generate SQL
-  sqlite3_snprintf (ALLOC, sql, "SELECT * FROM %s WHERE id = %d LIMIT 1;", TABLE[table], id);
+  sqlite3_snprintf (SQL_SIZE, utils_get_sql (), "SELECT * FROM %s WHERE id = %d LIMIT 1;", TABLE[table], id);
 
-  DEBUG_PRINT (("Generated SQL:\n\t%s", sql));
+  DEBUG_PRINT (("Generated SQL:\n\t%s", utils_get_sql ()));
 
   // Verify ID (also prepare statement)
-  if (sqlite3_prepare_v2 (get_pdb (), sql, -1, &stmt, NULL) == SQLITE_OK
+  if (sqlite3_prepare_v2 (utils_get_pdb (), utils_get_sql (), -1, &stmt, NULL) == SQLITE_OK
       && sqlite3_step (stmt) != SQLITE_ROW)
     {
       fprintf (stderr, "Invalid ID\n\n");
@@ -87,7 +86,7 @@ rule_get_single (const uint16_t id,
       rule->active = (bool) sqlite3_column_int (stmt, 10); // active
 
       // MODE (for turn on rules it isn't used):
-      rule->mode = (Mode) ((table == T_OFF) ? sqlite3_column_int (stmt, 11) : 0);
+      rule->mode = (Mode) ((table == TABLE_OFF) ? sqlite3_column_int (stmt, 11) : 0);
 
       // TABLE
       rule->table = (Table) table;
@@ -96,7 +95,7 @@ rule_get_single (const uint16_t id,
   if (rc != SQLITE_DONE)
     {
       DEBUG_PRINT_CONTEX;
-      fprintf (stderr, "ERROR (failed to query rule): %s\n", sqlite3_errmsg (get_pdb ()));
+      fprintf (stderr, "ERROR (failed to query rule): %s\n", sqlite3_errmsg (utils_get_pdb ()));
       sqlite3_finalize (stmt);
       return EXIT_FAILURE;
     }
@@ -120,16 +119,16 @@ rule_get_all (const Table table,
   char timestamp[9]; // HH:MM:SS'\0' = 9 characters
 
 
-  if (validate_table (table))
+  if (utils_validate_table (table))
     return EXIT_FAILURE;
 
   // Count the number of rows
-  sqlite3_snprintf (ALLOC, sql, "SELECT COUNT(*) FROM %s;", TABLE[table]);
-  if (sqlite3_prepare_v2 (get_pdb (), sql, -1, &stmt, NULL) == SQLITE_OK
+  sqlite3_snprintf (SQL_SIZE, utils_get_sql (), "SELECT COUNT(*) FROM %s;", TABLE[table]);
+  if (sqlite3_prepare_v2 (utils_get_pdb (), utils_get_sql (), -1, &stmt, NULL) == SQLITE_OK
       && sqlite3_step (stmt) != SQLITE_ROW)
     {
       DEBUG_PRINT_CONTEX;
-      fprintf (stderr, RED ("ERROR: Failed to query row count\n"));
+      fprintf (stderr, "ERROR: Failed to query row count\n");
       sqlite3_finalize (stmt);
       return EXIT_FAILURE;
     }
@@ -137,31 +136,31 @@ rule_get_all (const Table table,
 
   DEBUG_PRINT (("Row count: %d", *rowcount));
 
-  // Allocate structure array
+  // SQL_SIZEate structure array
   // https://www.youtube.com/watch?v=lq8tJS3g6tY
   // TODO should "sizeof (**rules)" be "sizeof (**Rules)"
   *rules = malloc (*rowcount * sizeof (**rules));
   if (*rules == NULL)
     {
       DEBUG_PRINT_CONTEX;
-      fprintf (stderr, RED ("ERROR: Failed to allocate memory\n"));
+      fprintf (stderr, "ERROR: Failed to SQL_SIZEate memory\n");
       sqlite3_finalize (stmt);
       return EXIT_FAILURE;
     }
 
   // Generate SQL
   // SELECT length(<table>.rule_name), * FROM <table>;
-  sqlite3_snprintf (ALLOC, sql,
+  sqlite3_snprintf (SQL_SIZE, utils_get_sql (),
                     "SELECT length(%s.rule_name), * FROM %s;",
                     TABLE[table], TABLE[table]);
 
-  DEBUG_PRINT (("Generated SQL:\n\t%s", sql));
+  DEBUG_PRINT (("Generated SQL:\n\t%s", utils_get_sql ()));
 
   // Prepare statement
-  if (sqlite3_prepare_v2 (get_pdb (), sql, -1, &stmt, NULL) != SQLITE_OK)
+  if (sqlite3_prepare_v2 (utils_get_pdb (), utils_get_sql (), -1, &stmt, NULL) != SQLITE_OK)
     {
       DEBUG_PRINT_CONTEX;
-      fprintf (stderr, RED ("ERROR: Failed to query rule\n"));
+      fprintf (stderr, "ERROR: Failed to query rule\n");
       free (*rules);
       sqlite3_finalize (stmt);
       return EXIT_FAILURE;
@@ -177,7 +176,7 @@ rule_get_all (const Table table,
    */
   while ((rc = sqlite3_step (stmt)) == SQLITE_ROW)
     {
-      // If the loop tries to assign on non allocated space, leave
+      // If the loop tries to assign on non SQL_SIZEated space, leave
       if (counter > *rowcount)
         break;
 
@@ -185,23 +184,8 @@ rule_get_all (const Table table,
       (*rules)[counter].id = (uint16_t) sqlite3_column_int (stmt, 1);
 
       // NAME
-      // Allocate memory for the name
-      int size = sqlite3_column_int (stmt, 0);
-      (*rules)[counter].name = (char *) malloc (size + 1);
-      if ((*rules)[counter].name == NULL)
-        {
-          DEBUG_PRINT_CONTEX;
-          // Avoid memory leaking: free names allocated up to here
-          for (int i = 0; i < counter; i++)
-            free ((*rules)[i].name);
-
-          fprintf (stderr, RED ("ERROR: Failed to allocate memory\n"));
-          return EXIT_FAILURE;
-        }
-
-      // Assign name
       snprintf ((*rules)[counter].name,           // string pointer
-                  size + 1,                       // size
+                  RULE_NAME_LENGTH,               // size
                   "%s",                           // format
                   sqlite3_column_text (stmt, 2)   // arguments
                   );
@@ -223,7 +207,7 @@ rule_get_all (const Table table,
       (*rules)[counter].active = (bool) sqlite3_column_int (stmt, 11);
 
       // MODE (for turn on rules it isn't used, assigning 0):
-      (*rules)[counter].mode = (Mode) ((table == T_OFF) ? sqlite3_column_int (stmt, 12) : 0);
+      (*rules)[counter].mode = (Mode) ((table == TABLE_OFF) ? sqlite3_column_int (stmt, 12) : 0);
 
       // TABLE
       (*rules)[counter].table = (Table) table;
@@ -234,7 +218,7 @@ rule_get_all (const Table table,
   if (rc != SQLITE_DONE)
     {
       DEBUG_PRINT_CONTEX;
-      fprintf (stderr, RED ("ERROR (failed to query rule): %s\n"), sqlite3_errmsg (get_pdb ()));
+      fprintf (stderr, "ERROR (failed to query rule): %s\n"), sqlite3_errmsg (utils_get_pdb ());
       free (*rules);
       sqlite3_finalize (stmt);
       return EXIT_FAILURE;

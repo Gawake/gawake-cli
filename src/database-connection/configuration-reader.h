@@ -21,10 +21,6 @@
 #ifndef CONFIGURATION_READER_H_
 #define CONFIGURATION_READER_H_
 
-// #if !defined(DATABASE_CONNECTION_INSIDE)
-// # error "Only <database-connection.h> can be included directly."
-// #endif
-
 #include "gawake-types.h"
 
 int configuration_get_localtime (bool *use_localtime);

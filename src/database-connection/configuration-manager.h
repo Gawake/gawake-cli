@@ -21,10 +21,6 @@
 #ifndef CONFIGURATION_MANAGER_H_
 #define CONFIGURATION_MANAGER_H_
 
-// #if !defined(DATABASE_CONNECTION_INSIDE) && !defined(DATABASE_CONNECTION_COMPILATION)
-// # error "Only <database-connection.h> can be included directly."
-// #endif
-
 int configuration_set_localtime (bool use_localtime);
 int configuration_set_default_mode (Mode default_mode);
 int configuration_set_notification_time (int notification_time);

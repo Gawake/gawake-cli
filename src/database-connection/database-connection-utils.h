@@ -21,20 +21,16 @@
 #ifndef DATABASE_CONNECTION_UTILS_H_
 #define DATABASE_CONNECTION_UTILS_H_
 
-// #if !defined(DATABASE_CONNECTION_INSIDE)
-// # error "Only <database-connection.h> can be included directly."
-// #endif
-
 #include "gawake-types.h"
 #include <sqlite3.h>
 
-#define ALLOC 256
-static char sql[ALLOC];
+#define SQL_SIZE 256
 
-int validate_rule (const Rule *rule);
-int validate_table (const Table table);
-int run_sql (void);
-sqlite3 * get_pdb (void);
-sqlite3 ** get_ppdb (void);
+int utils_validate_rule (const Rule *rule);
+int utils_validate_table (const Table table);
+int utils_run_sql (void);
+char* utils_get_sql (void);
+sqlite3* utils_get_pdb (void);
+sqlite3** utils_get_ppdb (void);
 
 #endif /* DATABASE_CONNECTION_UTILS_H_ */

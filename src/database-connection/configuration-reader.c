@@ -22,7 +22,6 @@
 #include <sqlite3.h>
 
 #include "../utils/debugger.h"
-#include "../utils/colors.h"
 #include "database-connection-utils.h"
 #include "configuration-reader.h"
 
@@ -37,8 +36,8 @@ typedef struct
 static Config config =
 {
   false,
-  OFF,
-  NT_00,
+  MODE_OFF,
+  NOTIFICATION_TIME_00,
   false
 };
 
@@ -50,16 +49,16 @@ get_config (void)
   struct sqlite3_stmt *stmt;
 
   // Generate SQL
-  sqlite3_snprintf (ALLOC, sql,
+  sqlite3_snprintf (SQL_SIZE, utils_get_sql (),
                     "SELECT * FROM config "\
                     "WHERE id = 1;");
 
-  DEBUG_PRINT (("Generated SQL:\n\t%s", sql));
+  DEBUG_PRINT (("Generated SQL:\n\t%s", utils_get_sql ()));
 
-  if (sqlite3_prepare_v2 (get_pdb (), sql, -1, &stmt, NULL) != SQLITE_OK)
+  if (sqlite3_prepare_v2 (utils_get_pdb (), utils_get_sql (), -1, &stmt, NULL) != SQLITE_OK)
     {
       DEBUG_PRINT_CONTEX;
-      fprintf (stderr, RED ("ERROR: Failed to query rule\n"));
+      fprintf (stderr, "ERROR: Failed to query rule\n");
       sqlite3_finalize (stmt);
       return EXIT_FAILURE;
     }
@@ -85,7 +84,7 @@ get_config (void)
   if (rc != SQLITE_DONE)
     {
       DEBUG_PRINT_CONTEX;
-      fprintf (stderr, RED ("ERROR (failed to query rule): %s\n"), sqlite3_errmsg (get_pdb ()));
+      fprintf (stderr, "ERROR (failed to query rule): %s\n"), sqlite3_errmsg (utils_get_pdb ());
       sqlite3_finalize (stmt);
       return EXIT_FAILURE;
     }

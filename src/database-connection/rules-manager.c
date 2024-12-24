@@ -27,13 +27,13 @@
 int
 rule_add (const Rule *rule)
 {
-  if (validate_rule (rule))
+  if (utils_validate_rule (rule))
     return EXIT_FAILURE;
 
   switch (rule->table)
     {
-    case T_ON:
-      sqlite3_snprintf (ALLOC, sql,
+    case TABLE_ON:
+      sqlite3_snprintf (SQL_SIZE, utils_get_sql (),
                         "INSERT INTO rules_turnon "\
                         "(rule_name, rule_time, sun, mon, tue, wed, thu, fri, sat, active) "\
                         "VALUES ('%s', '%02d:%02u:00', %d, %d, %d, %d, %d, %d, %d, %d);",
@@ -44,8 +44,9 @@ rule_add (const Rule *rule)
                         rule->days[4], rule->days[5], rule->days[6],
                         rule->active);
       break;
-    case T_OFF:
-      sqlite3_snprintf (ALLOC, sql,
+
+    case TABLE_OFF:
+      sqlite3_snprintf (SQL_SIZE, utils_get_sql (),
                         "INSERT INTO rules_turnoff "\
                         "(rule_name, rule_time, sun, mon, tue, wed, thu, fri, sat, active, mode) "\
                         "VALUES ('%s', '%02d:%02u:00', %d, %d, %d, %d, %d, %d, %d, %d, %u);",
@@ -57,23 +58,27 @@ rule_add (const Rule *rule)
                         rule->active,
                         rule->mode);
       break;
+
+    case TABLE_LAST:
+      return EXIT_FAILURE;
+
     default:
       return EXIT_FAILURE;
     }
 
-  return run_sql ();
+  return utils_run_sql ();
 }
 
 int
 rule_delete (const uint16_t id,
              const Table table)
 {
-  if (validate_table (table))
+  if (utils_validate_table (table))
     return EXIT_FAILURE;
 
-  sqlite3_snprintf (ALLOC, sql, "DELETE FROM %s WHERE id = %d;", TABLE[table], id);
+  sqlite3_snprintf (SQL_SIZE, utils_get_sql (), "DELETE FROM %s WHERE id = %d;", TABLE[table], id);
 
-  return run_sql ();
+  return utils_run_sql ();
 }
 
 int
@@ -81,24 +86,24 @@ rule_enable_disable (const uint16_t id,
                      const Table table,
                      const bool active)
 {
-  if (validate_table (table))
+  if (utils_validate_table (table))
     return EXIT_FAILURE;
 
-  sqlite3_snprintf (ALLOC, sql, "UPDATE %s SET active = %d WHERE id = %d;", TABLE[table], active, id);
+  sqlite3_snprintf (SQL_SIZE, utils_get_sql (), "UPDATE %s SET active = %d WHERE id = %d;", TABLE[table], active, id);
 
-  return run_sql ();
+  return utils_run_sql ();
 }
 
 int
 rule_edit (const Rule *rule)
 {
-  if (validate_rule (rule))
+  if (utils_validate_rule (rule))
     return EXIT_FAILURE;
 
   switch (rule->table)
     {
-    case T_ON:
-      sqlite3_snprintf (ALLOC, sql,
+    case TABLE_ON:
+      sqlite3_snprintf (SQL_SIZE, utils_get_sql (),
                         "UPDATE rules_turnon SET "\
                         "rule_name = '%s', rule_time = '%02d:%02d:00', "\
                         "sun = %d, mon = %d, tue = %d, wed = %d, thu = %d, fri = %d, sat = %d, "\
@@ -111,8 +116,9 @@ rule_edit (const Rule *rule)
                         rule->active,
                         rule->id);
       break;
-    case T_OFF:
-      sqlite3_snprintf (ALLOC, sql,
+
+    case TABLE_OFF:
+      sqlite3_snprintf (SQL_SIZE, utils_get_sql (),
                         "UPDATE rules_turnoff SET "\
                         "rule_name = '%s', rule_time = '%02d:%02d:00', "\
                         "sun = %d, mon = %d, tue = %d, wed = %d, thu = %d, fri = %d, sat = %d, "\
@@ -126,11 +132,13 @@ rule_edit (const Rule *rule)
                         rule->mode,
                         rule->id);
       break;
+
+    case TABLE_LAST:
     default:
       return EXIT_FAILURE;
     }
 
-  return run_sql ();
+  return utils_run_sql ();
 }
 
 int
@@ -154,7 +162,7 @@ rule_custom_schedule (const uint8_t hour,
   /* if (validade_rtcwake_args (&rtcwake_args) == -1) */
   /*   return EXIT_FAILURE; */
 
-  sqlite3_snprintf (ALLOC, sql,
+  sqlite3_snprintf (SQL_SIZE, utils_get_sql (),
                     "UPDATE custom_schedule "\
                     "SET hour = %d, minutes = %d, "\
                     "day = %d, month = %d, year = %d, "\
@@ -164,7 +172,7 @@ rule_custom_schedule (const uint8_t hour,
                     day, month, year,
                     mode, true);
 
-  int ret = run_sql ();
+  int ret = utils_run_sql ();
 
   // TODO
   /* if (ret == EXIT_SUCCESS) */

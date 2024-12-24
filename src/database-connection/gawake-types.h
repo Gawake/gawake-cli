@@ -1,10 +1,6 @@
 #ifndef GAWAKE_TYPES_H_
 #define GAWAKE_TYPES_H_
 
-// #if !defined(DATABASE_CONNECTION_INSIDE)
-// # error "Only <database-connection.h> can be included directly."
-// #endif
-
 #define RULE_NAME_LENGTH 33         // Allowed length for rule name
 #define MAX_NOTIFICATION_TIME 3600  // In seconds
 
@@ -34,8 +30,10 @@ typedef enum
   MODE_MEM,
   MODE_DISK,
   MODE_OFF,
-  MODE_NO,
-  MODE_LAST
+  MODE_LAST,
+
+  // Internal use:
+  MODE_NO
 } Mode;
 
 extern const char *MODE[];
@@ -57,8 +55,7 @@ typedef enum
 typedef struct
 {
   uint16_t id;                    // q
-  // ATTENTION: if not assigned on instantiation, naturally the memory must be allocated
-  char *name;                     // s
+  char name[RULE_NAME_LENGTH];    // s
   uint8_t hour;                   // y
   uint8_t minutes;                // y
   bool days[7];                   // ab

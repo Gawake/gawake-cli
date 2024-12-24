@@ -27,30 +27,20 @@
 
 #include "gawake-types.h"
 
-int connect_database (void);
+int connect_database (bool read_only);
 int disconnect_database (void);
-
-#define DATABASE_CONNECTION_INSIDE
 
 # include "rules-reader.h"
 
-#ifndef DATABASE_CONNECTION_INSIDE
-# error "Only <database-connection.h> can be included directly."
-#endif
-
-// #ifdef ALLOW_MANAGING_RULES
+#ifdef ALLOW_MANAGING_RULES
 # include "rules-manager.h"
-// #endif
+#endif
 
 
 # include "configuration-reader.h"
 
-// #ifdef ALLOW_MANAGING_CONFIGURATION
+#ifdef ALLOW_MANAGING_CONFIGURATION
 # include "configuration-manager.h"
-// #endif
-
-// #undef DATABASE_CONNECTION_INSIDE
-
+#endif
 
 #endif /* DATABASE_CONNECTION_H_ */
-

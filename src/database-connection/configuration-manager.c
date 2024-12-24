@@ -27,29 +27,28 @@
 int
 configuration_set_localtime (bool use_localtime)
 {
-  sqlite3_snprintf (ALLOC, sql,
+  sqlite3_snprintf (SQL_SIZE, utils_get_sql (),
                     "UPDATE config "\
                     "SET localtime = %d "\
                     "WHERE id = 1;",
                     use_localtime);
 
-  return run_sql ();
+  return utils_run_sql ();
 }
 
 int
 configuration_set_default_mode (Mode default_mode)
 {
   // Validate mode
-  // TODO update
-  if (default_mode >= MEM && default_mode <= OFF)
+  if (default_mode >= MODE_MEM && default_mode <= MODE_OFF)
     {
-      sqlite3_snprintf (ALLOC, sql,
+      sqlite3_snprintf (SQL_SIZE, utils_get_sql (),
                         "UPDATE config "\
                         "SET default_mode = %d "\
                         "WHERE id = 1;",
                         default_mode);
 
-      return run_sql ();
+      return utils_run_sql ();
     }
   else
     return EXIT_FAILURE;
@@ -60,13 +59,13 @@ configuration_set_notification_time (int notification_time)
 {
   if (notification_time >= 0 && notification_time <= MAX_NOTIFICATION_TIME)
     {
-      sqlite3_snprintf (ALLOC, sql,
+      sqlite3_snprintf (SQL_SIZE, utils_get_sql (),
                         "UPDATE config "\
                         "SET notification_time = %d "\
                         "WHERE id = 1;",
                         notification_time);
 
-      return run_sql ();
+      return utils_run_sql ();
     }
   else
     return EXIT_FAILURE;
@@ -75,11 +74,11 @@ configuration_set_notification_time (int notification_time)
 int
 configuration_set_shutdown_fail (bool shutdown_fail)
 {
-  sqlite3_snprintf (ALLOC, sql,
+  sqlite3_snprintf (SQL_SIZE, utils_get_sql (),
                     "UPDATE config "\
                     "SET shutdown_fail = %d "\
                     "WHERE id = 1;",
                     shutdown_fail);
 
-  return run_sql ();
+  return utils_run_sql ();
 }

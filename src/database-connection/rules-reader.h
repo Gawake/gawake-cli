@@ -21,10 +21,6 @@
 #ifndef RULES_READER_H_
 #define RULES_READER_H_
 
-// #ifndef DATABASE_CONNECTION_INSIDE
-// # error "Only <database-connection.h> can be included directly."
-// #endif
-
 #include "gawake-types.h"
 
 // TODO make const pointers

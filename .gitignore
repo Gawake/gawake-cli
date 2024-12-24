@@ -1,8 +1,11 @@
+build
+_build
+
+*~
 *.db
 *.o
 *.d
 
 run.sh
 
-cli/build/*
-cli/releases/*
+releases/*

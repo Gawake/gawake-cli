@@ -1,12 +1,13 @@
 // Checks if the Gawake directory and database exist, if not, create them. Requires root permissions.
 
-/*
- * Gawake. A Linux software to make your PC wake up on a scheduled time. It makes the rtcwake command easier.
+/* database-checker.c
  *
- * Copyright (C) 2021 - 2023, Kelvin Ribeiro Novais
+ * Copyright 2021-2024 Kelvin Novais
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, considering ONLY the version 3 of the License.
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -14,7 +15,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 #include <unistd.h>
@@ -31,7 +34,8 @@
 #include "include/gawake.h"
 #include "include/issue.h"
 
-int main(void) {
+int main (void)
+{
   int rc, fd;
   sqlite3 *db;
   const char *SQL = "CREATE TABLE rules_turnon ("\
@@ -45,7 +49,7 @@ int main(void) {
                       "thu         INTEGER NOT NULL,"\
                       "fri         INTEGER NOT NULL,"\
                       "sat         INTEGER NOT NULL,"\
-                      "command     TEXT"\
+                      "active      INTEGER NOT NULL"\
                   ");"\
                   "CREATE TABLE rules_turnoff ("\
                       "id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"\
@@ -58,7 +62,7 @@ int main(void) {
                       "thu         INTEGER NOT NULL,"\
                       "fri         INTEGER NOT NULL,"\
                       "sat         INTEGER NOT NULL,"\
-                      "command     TEXT,"\
+                      "active      INTEGER NOT NULL,"\
                       "mode        TEXT NOT NULL"\
                   ");"\
                   "CREATE TABLE config ("\
@@ -71,11 +75,9 @@ int main(void) {
                       "def_mode    TEXT NOT NULL,"\
                       "boot_time   INTEGER NOT NULL"\
                   ");"\
-                  "INSERT INTO rules_turnon (rule_name, time, sun, mon, tue, wed, thu, fri, sat)"\
-                  "VALUES ('Example', '10:00:00', 0, 0, 0, 0, 0, 0, 0);"\
-                  "INSERT INTO rules_turnoff (rule_name, time, sun, mon, tue, wed, thu, fri, sat, command, mode)"\
-                  "VALUES ('Example', '11:30:00', 0, 0, 0, 0, 0, 0, 0, 'dnf update -y', 'mem');"\
-                  "INSERT INTO config (options, status, version, commands, localtime, def_mode, boot_time) VALUES ('-a -v', 1, '" VERSION "', 0, 1, 'off', 300);";
+                  "INSERT INTO config (options, status, version, commands, localtime, def_mode, boot_time)"\
+                  "VALUES ('-a', 1, '1.0.0', 0, 1, 'off', 120);";
+
 
   printf("Opening database...\n");
   // If the database doesn't exist, create and configure it
@@ -134,3 +136,4 @@ int main(void) {
   }
   return EXIT_SUCCESS;
 }
+

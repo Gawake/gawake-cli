@@ -34,6 +34,8 @@ install: all
 	@# Uninstaller
 	@install -v -o root -g root -m 555 uninstall.sh /opt/gawake/	# src destination
 	@install -v -o root -g root -m 644 gawake /etc/cron.d/	# src destination
+	@# Folders: /var/gawake for the database; /var/gawake/logs for logs
+	@mkdir -p -m 664 /var/gawake/logs/
 	@echo "Adding Gawake user"
 	-@useradd -M gawake
 	@echo "Gawake installed successfully!"

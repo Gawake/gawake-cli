@@ -1,0 +1,7 @@
+# 0: no debbuging information
+# 1: only simple text
+# 2: includes time and function
+# 3: includes file, line, function and time
+option('PREPROCESSOR_DEBUG', type: 'integer', min: 0, max: 3, value: 0, description: 'Add extra debugging information')
+
+option('MODE_ALWAYS_ON', type: 'boolean', value: false, description: 'Set rtcwake mode always to on')

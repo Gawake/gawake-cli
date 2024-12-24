@@ -1,0 +1,60 @@
+# /usr/lib/systemd/system/io.github.kelvinnovais.GawakeServer.service
+# systemctl start io.github.kelvinnovais.GawakeServer.service
+
+[Unit]
+Description=Gawake D-Bus server
+After=multi-user.target
+
+[Service]
+Type=dbus
+BusName=io.github.kelvinnovais.GawakeServer
+ExecStart=/opt/gawake/bin/cli/gawake-dbus-server
+
+# Scurity options
+# https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html
+# https://www.redhat.com/sysadmin/mastering-systemd
+
+RemoveIPC=true
+ReadOnlyPaths=/
+ReadWritePaths=/var/lib/gawake
+WorkingDirectory=/var/lib/gawake
+User=gawake
+Group=gawake
+RestrictRealtime=yes
+NoNewPrivileges=true
+# AmbientCapabilities= # no need to change by default
+PrivateDevices=true
+CapabilityBoundingSet=none
+SystemCallArchitectures=native
+RestrictAddressFamilies=AF_UNIX
+ProtectSystem=strict
+# SupplementaryGroups= # no need to change by default
+ProtectHome=yes
+ProtectProc=invisible
+ProcSubset=pid
+PrivateNetwork=true
+PrivateTmp=true
+DevicePolicy=closed
+# DeviceAllow=
+# KeyringMode= # no need to change by default
+# Delegate= # no need to change by default
+PrivateUsers=yes
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources
+IPAddressDeny=any
+# NotifyAccess= # no need to change by default
+ProtectClock=yes
+ProtectKernelLogs=true
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+# PrivateMounts= # no need to change by default
+MemoryDenyWriteExecute=yes
+RestrictNamespaces=yes
+ProtectHostname=yes
+LockPersonality=yes
+ProtectKernelTunables=yes
+RestrictSUIDSGID=yes
+# UMask=
+
+[Install]
+Alias=gawake-dbus-server.service

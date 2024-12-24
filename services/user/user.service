@@ -1,0 +1,16 @@
+# /usr/lib/systemd/user/io.github.kelvinnovais.GawakeServer.service
+# systemctl --user start io.github.kelvinnovais.GawakeServer.service
+
+[Unit]
+Description=Gawake D-Bus server
+
+[Service]
+Type=dbus
+BusName=io.github.kelvinnovais.GawakeServer
+ExecStart=/opt/gawake/bin/gawake-dbus-server
+#User=gawake
+#Group=gawake
+
+[Install]
+WantedBy=multi-user.target
+Alias=gawake-dbus-server.service

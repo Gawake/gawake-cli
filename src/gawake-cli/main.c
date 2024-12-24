@@ -25,7 +25,8 @@
 
 #include "main.h"
 
-int main (int argc, char **argv)
+int
+main (int argc, char **argv)
 {
   // Receiving arguments (reference [4])
   int cflag = 0, mflag = 0, sflag = 0;
@@ -120,19 +121,19 @@ int main (int argc, char **argv)
       if (mflag)
         sscanf (mvalue, "%"SCNu8, &mode);
       else
-        mode = OFF;
+        mode = MODE_OFF;
 
-      if (connect_database ())
+      if (connect_database (false))
         return EXIT_FAILURE;
 
-      custom_schedule (hour,
+      rule_custom_schedule (hour,
                        minutes,
                        day,
                        month,
                        year,
                        mode);
 
-      close_database ();
+      disconnect_database ();
 
       return EXIT_SUCCESS;
     }
@@ -145,11 +146,12 @@ int main (int argc, char **argv)
           return EXIT_FAILURE;
         }
 
-      if (connect_database ())
+      if (connect_database (false))
         return EXIT_FAILURE;
 
-      schedule ();
-      close_database ();
+      // TODO
+      /* schedule (); */
+      disconnect_database ();
 
       return EXIT_SUCCESS;
     }
@@ -168,7 +170,7 @@ int main (int argc, char **argv)
 
   // If there's any arguments, continue to the menu...
   // If can't connect to the database, exit
-  if (connect_database ())
+  if (connect_database (false))
     return EXIT_FAILURE;
 
   // Signal handler
@@ -178,12 +180,13 @@ int main (int argc, char **argv)
   menu ();
 
   // Close database and D-Bus connection
-  close_database ();
+  disconnect_database ();
 
   return EXIT_SUCCESS;
 }
 
-void menu (void)
+static void
+menu (void)
 {
   bool lock = true;
   char choice;
@@ -238,7 +241,8 @@ void menu (void)
           printf (YELLOW ("ATTENTION: Your computer will turn off now\n"));
           if (confirm ())
             {
-              schedule ();
+              // TODO
+              /* schedule (); */
               lock = false;
             }
           break;
@@ -277,7 +281,8 @@ void menu (void)
 }
 
 // Prints information about Gawake
-void info (void)
+static void
+info (void)
 {
   char choice[7];
 
@@ -313,14 +318,16 @@ void info (void)
 }
 
 // Clears the input buffer
-void clear_buffer (void)
+static void
+clear_buffer (void)
 {
   int c;
   while ((c = getchar()) != '\n' && c != EOF) { }
 }
 
 // Get the user input, on a valid rule format
-void get_user_input (Rule *rule, Table table)
+static void
+get_user_input (Rule *rule, Table table)
 {
   const char DAYS_NAMES[7][10] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
   bool invalid = true;     // This variable is a lock for invalid inputs
@@ -390,7 +397,7 @@ void get_user_input (Rule *rule, Table table)
   rule->active = true; // when adding a rule, it's always active
 
   // MODE (only for turn off rules)
-  if (table == T_OFF)
+  if (table == TABLE_OFF)
     {
       printf ("\nSelect a mode:\n");
 
@@ -401,16 +408,16 @@ void get_user_input (Rule *rule, Table table)
       get_int (&mode, 2, 0, 2, 1);
       switch (mode)
         {
-        case MEM:
-          rule->mode = MEM;
+        case MODE_MEM:
+          rule->mode = MODE_MEM;
           break;
 
-        case DISK:
-          rule->mode = DISK;
+        case MODE_DISK:
+          rule->mode = MODE_DISK;
           break;
 
-        case OFF:
-          rule->mode = OFF;
+        case MODE_OFF:
+          rule->mode = MODE_OFF;
           break;
 
         default:
@@ -420,7 +427,7 @@ void get_user_input (Rule *rule, Table table)
   else
     {
        // Just pass a valid value
-       rule->mode = MEM;
+       rule->mode = MODE_MEM;
     }
 
   // TABLE
@@ -430,7 +437,8 @@ void get_user_input (Rule *rule, Table table)
 }
 
 // Tell the user that the entered value was invalid
-void invalid_value (void)
+static void
+invalid_value (void)
 {
   printf (YELLOW ("Please, enter a valid value!\n"));
 }
@@ -447,7 +455,8 @@ void invalid_value (void)
  * when the user enter an invalid input, the variable keeps equal to 0;
  * but if  a previous value was assigned, that value is kept.
  */
-void get_int (int *ptr, int digits, int min, int max, int repeat)
+static void
+get_int (int *ptr, int digits, int min, int max, int repeat)
 {
   char user_input[digits];    // Number of digits the user input must have
   int val;
@@ -487,28 +496,22 @@ void get_int (int *ptr, int digits, int min, int max, int repeat)
 }
 
 // Add or remove a rule
-int add_remove_rule (void) {
+static int
+add_remove_rule (void)
+{
   int table, action, id;
   Rule rule;
 
-  rule.name = (char *) malloc (RULE_NAME_LENGTH);
-  if (rule.name == NULL)
-    {
-      DEBUG_PRINT_CONTEX;
-      fprintf (stderr, RED ("Couldn't allocate memory\n"));
-      return EXIT_FAILURE;
-    }
-
-  if (print_rules (T_ON))
+  if (print_rules (TABLE_ON))
     return EXIT_FAILURE;
 
-  if (print_rules (T_OFF))
+  if (print_rules (TABLE_OFF))
     return EXIT_FAILURE;
 
   printf ("Select a table (1/2) ");
   get_int (&table, 2, 1, 2, 0);
   table -= 1;
-  if (table != T_ON && table != T_OFF)
+  if (table != TABLE_ON && table != TABLE_OFF)
     {
       printf ("Invalid table\n");
       return EXIT_FAILURE;
@@ -520,13 +523,13 @@ int add_remove_rule (void) {
     {
     case 1:
       get_user_input (&rule, (Table) table);
-      add_rule (&rule);
+      rule_add (&rule);
       break;
 
     case 2:
       printf ("Enter the rule ID:\n");
       get_int (&id, 6, 0, INT_MAX, 0);  // the max value of ID is 65535 (uint16)
-      delete_rule ((uint16_t) id, (Table) table);
+      rule_delete ((uint16_t) id, (Table) table);
       break;
 
     default:
@@ -534,12 +537,12 @@ int add_remove_rule (void) {
       return EXIT_FAILURE;
     }
 
-  free (rule.name);
   return EXIT_SUCCESS;
 }
 
 // Get user's confirmation as 'y'; if confirmed, returns 1
-int confirm (void)
+static int
+confirm (void)
 {
   // Reference [1]
   printf ("Do you want to continue? (y/N) ---> ");
@@ -559,7 +562,8 @@ int confirm (void)
     return 0;
 }
 
-void usage (void)
+static void
+usage (void)
 {
   printf ("Gawake (cli version): A Linux software to make your PC wake up on a scheduled time.\n"\
           "It makes the rtcwake command easier.\n"\
@@ -577,22 +581,25 @@ void usage (void)
           "gawake-cli -s", "gawake-cli -c 20250115094500", "gawake-cli -c 20251228153000 -m disk");
 }
 
-int config (void)
+static int
+config (void)
 {
-  Config config;
+  bool shutdown_fail;
+  bool localtime;
+  Mode default_mode;
   int option = 0;
 
-  if (get_config (&config))
-    {
-      fprintf (stderr, RED ("Error: failed to get settings information\n"));
-      return EXIT_FAILURE;
-    }
+  configuration_get_localtime (&localtime);
+  configuration_get_default_mode (&default_mode);
+  configuration_get_shutdown_fail (&shutdown_fail);
 
   printf ("Current configuration:\n"\
           "[1]\tUse localtime:\t\t%d\n"\
 	  "[2]\tDefault mode:\t\t%s\n"\
 	  "[3]\tShutdown on fail:\t%d\n\n",
-          config.use_localtime, MODE[config.default_mode], config.shutdown_fail);
+          localtime,
+          MODE[default_mode],
+          shutdown_fail);
 
   printf ("Choose an option to edit ");
   get_int (&option, 2, 0, 3, 0);
@@ -601,22 +608,22 @@ int config (void)
     case 1:
       printf ("Set a new value (0/1) ");
       get_int (&option, 2, 0, 1, 1);
-      set_localtime ((bool) option);
+      configuration_set_localtime ((bool) option);
       break;
 
     case 2:
       printf ("Set a new mode:\n");
-      for (int i = 0; i <= OFF; i++)
+      for (int i = 0; i < MODE_LAST; i++)
         printf ("[%d]\t%s\n", i, MODE[i]);
 
-      get_int (&option, 2, 0, OFF, 1);
-      set_default_mode ((Mode) option);
+      get_int (&option, 2, 0, (MODE_LAST-1), 1);
+      configuration_set_default_mode ((Mode) option);
       break;
 
     case 3:
       printf ("Set a new value (0/1) ");
       get_int (&option, 2, 0, 1, 1);
-      set_shutdown_fail ((bool) option);
+      configuration_set_shutdown_fail ((bool) option);
       break;
 
     default:
@@ -627,10 +634,11 @@ int config (void)
 }
 
 // Close the database and exit on <Ctrl C>
-__attribute__((__noreturn__)) void exit_handler (int sig)
+__attribute__((__noreturn__)) static void
+exit_handler (int sig)
 {
   printf ("\nUser interruption...\n");
-  close_database ();
+  disconnect_database ();
   exit (EXIT_FAILURE);
 }
 
@@ -638,7 +646,7 @@ int print_rules (Table table)
 {
   Rule *rules;
   uint16_t rowcount;
-  if (query_rules (table, &rules, &rowcount))
+  if (rule_get_all (table, &rules, &rowcount))
     {
       DEBUG_PRINT_CONTEX;
       fprintf (stderr, RED ("ERROR: Failed to query rules\n"));
@@ -647,7 +655,7 @@ int print_rules (Table table)
 
 
   // HEADER
-  if (table == T_ON)
+  if (table == TABLE_ON)
     {
       printf (GREEN (
               "[1] TURN ON RULES\n"\
@@ -667,7 +675,7 @@ int print_rules (Table table)
   // ROWS
   for (int counter = 0; counter < rowcount; counter++)
     {
-      if (table == T_ON)
+      if (table == TABLE_ON)
         {
           printf ("\n│ %03d │ %-16.15s│  %02d:%02d:00  │  %d  │  %d  │  %d  │  %d  │  %d  │  %d  │  %d  │   %-5d│",
                   rules[counter].id, rules[counter].name,
@@ -684,14 +692,11 @@ int print_rules (Table table)
                   rules[counter].days[4], rules[counter].days[5], rules[counter].days[6],
                   rules[counter].active, MODE[rules[counter].mode]);
         }
-
-      // Already free name, since it won't be used anymore
-      free (rules[counter].name);
     }
   free (rules);
 
   // BOTTOM
-  if (table == T_ON)
+  if (table == TABLE_ON)
     {
       printf ("\n└─────┴─────────────────┴────────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴────────┘\n\n");
     }

@@ -1,5 +1,6 @@
 # SOURCES DIRECTORIES
 subdir('utils')
+subdir('database-connection')
 subdir('gawaked')
 subdir('gawake-cli')
 subdir('gawake-dbus-server')
@@ -17,6 +18,7 @@ gawake_dbus_server_dependencies = [
 	gio_unix
 ]
 
+# TODO remove GIO (?)
 gawaked_dependencies = [
 	glib,
 	gio,
@@ -32,17 +34,17 @@ gawake_cli_dependencies = [
 ]
 
 # EXECUTABLES
-executable(
-	'gawake-dbus-server.out',
-	gawake_dbus_server_sources,
-	dependencies: gawake_dbus_server_dependencies
-)
+# executable(
+# 	'gawake-dbus-server.out',
+# 	gawake_dbus_server_sources,
+# 	dependencies: gawake_dbus_server_dependencies
+# )
 
-executable(
-	'gawaked.out',
-	gawaked_sources,
-	dependencies: gawaked_dependencies
-)
+# executable(
+# 	'gawaked.out',
+# 	gawaked_sources,
+# 	dependencies: gawaked_dependencies
+# )
 
 executable(
 	'gawake-cli.out',
